@@ -186,7 +186,7 @@ function Home() {
                   <p className="text-lg md:text-xl mt-4">{slide.subheading}</p>
                   {/* Shop Jewelry Button */}
                   <button className="mt-6 mr-4 px-8 py-3 bg-black text-white rounded-md text-lg font-semibold hover:bg-gray-800 border-1 border-white transition duration-300">
-                    Shop Jewelry
+                    Shop Diamonds
                   </button>
 
                   {/* Buy Diamonds Button */}
