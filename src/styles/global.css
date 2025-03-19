@@ -1,0 +1,20 @@
+@font-face {
+  font-family: 'Roboto';
+  src: url('../assets/fonts/Monsterat.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+* {
+  font-family: 'Monsterat';
+}
+@font-face {
+  font-family: 'Monsterat';
+  src: url('../assets/fonts/Monsterat.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.special {
+  font-family: 'Monsterat';
+}
