@@ -390,3 +390,20 @@ export const validateCouponAPI = async (couponCode) => {
 		throw error
 	}
 }
+
+export const getCustomStyle = async ({
+	head_style,
+	head_metal,
+	shank_style,
+	shank_metal,
+}) => {
+	try {
+		const response = await axios.get(`${REACT_APP_API_URL}/getCustomStyle`, {
+			params: { head_style, head_metal, shank_style, shank_metal },
+		})
+		return response.data
+	} catch (error) {
+		console.error('Error fetching getCustomStyle:', error)
+		return null
+	}
+}

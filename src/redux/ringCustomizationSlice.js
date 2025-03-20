@@ -13,6 +13,10 @@ const initialState = {
 			ring: {
 				product_id: null,
 				ring_price: null,
+				headStyle: 'Four Prong',
+				headMetal: '14K White Gold',
+				shankStyle: 'Solitaire',
+				shankMetal: '14K White Gold',
 			},
 			total_cost: null,
 			image_URL: [],

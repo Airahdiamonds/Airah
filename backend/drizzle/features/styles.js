@@ -67,3 +67,26 @@ export async function getStyle(product_id) {
 
 	return product
 }
+
+export async function getCustomStyle({
+	head_style,
+	head_metal,
+	shank_style,
+	shank_metal,
+}) {
+	const product = await db
+		.select()
+		.from(ringStylesTable)
+		.where(
+			and(
+				eq(ringStylesTable.head_style, head_style),
+				eq(ringStylesTable.head_metal, head_metal),
+				eq(ringStylesTable.shank_style, shank_style),
+				eq(ringStylesTable.shank_metal, shank_metal)
+			)
+		)
+
+	if (product == null) throw new Error('Failed to get style')
+
+	return product
+}

@@ -5,7 +5,7 @@
     "main": "server.js",
     "type": "module",
     "scripts": {
-        "start": "node server.js",
+        "start": "nodemon server.js",
         "dev": "concurrently \"npm start\" \"npm run db:studio\"",
         "seed": "node /drizzle/seed.js",
         "db:generate": "drizzle-kit generate",

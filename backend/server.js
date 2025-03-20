@@ -30,6 +30,7 @@ import {
 import {
 	addStyle,
 	getAllStyles,
+	getCustomStyle,
 	getStyle,
 	updateStyle,
 } from './drizzle/features/styles.js'
@@ -298,6 +299,22 @@ app.get('/api/getStyle/:product_id', async (req, res) => {
 		res.json(data)
 	} catch (err) {
 		console.log('getStyle Error: ' + err)
+		res.status(500).json({ error: 'Failed to get style' })
+	}
+})
+
+app.get('/api/getCustomStyle', async (req, res) => {
+	try {
+		const { head_style, head_metal, shank_style, shank_metal } = req.query
+		const data = await getCustomStyle({
+			head_style,
+			head_metal,
+			shank_style,
+			shank_metal,
+		})
+		res.json(data)
+	} catch (err) {
+		console.log('getCustomStyle Error: ' + err)
 		res.status(500).json({ error: 'Failed to get style' })
 	}
 })
