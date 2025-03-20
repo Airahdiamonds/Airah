@@ -6,12 +6,8 @@ import {
 	setImageURLs,
 } from '../redux/ringCustomizationSlice'
 import { useEffect, useState } from 'react'
-import { getStyle } from '../utils/api'
-import { convertPrice } from '../utils/helpers'
-import WhiteGoldSVG from '../assets/14K_White_Gold.svg'
-import shape from '../assets/round.png'
-import head from '../assets/h01.png'
-import shank from '../assets/s01_C.png'
+import { getCustomStyle } from '../utils/api'
+import { convertPrice, headStyles, metals, shankStyles } from '../utils/helpers'
 
 function Ring() {
 	const dispatch = useDispatch()
@@ -23,13 +19,51 @@ function Ring() {
 	const [product, setProduct] = useState(null)
 	const [showFilters, setShowFilters] = useState(false)
 	const [activeTab, setActiveTab] = useState('earring')
+	// const [ringStyle, setRingStyle] = useState({
+	// 	headStyle: 'Four Prong',
+	// 	headMetal: '14K White Gold',
+	// 	shankStyle: 'Solitaire',
+	// 	shankMetal: '14K White Gold',
+	// })
+
+	// useEffect(() => {
+	// 	setRingStyle((prev) => ({
+	// 		...prev,
+	// 		headStyle: productDetails[0].ring.headStyle,
+	// 	}))
+	// 	setRingStyle((prev) => ({
+	// 		...prev,
+	// 		headMetal: productDetails[0].ring.headMetal,
+	// 	}))
+	// 	setRingStyle((prev) => ({
+	// 		...prev,
+	// 		shankStyle: productDetails[0].ring.shankStyle,
+	// 	}))
+	// 	setRingStyle((prev) => ({
+	// 		...prev,
+	// 		shankMetal: productDetails[0].ring.shankMetal,
+	// 	}))
+	// }, [productDetails])
+
+	// useEffect(() => {
+	// 	getStyle(productDetails[0].ring?.product_id).then((res) => {
+	// 		setProduct(res.data[0])
+	// 	})
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [])
 
 	useEffect(() => {
-		getStyle(productDetails[0].ring?.product_id).then((res) => {
-			setProduct(res.data[0])
-		})
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+		if (productDetails.length > 0 && productDetails[0].ring) {
+			getCustomStyle({
+				head_style: productDetails[0].ring.headStyle,
+				head_metal: productDetails[0].ring.headMetal,
+				shank_style: productDetails[0].ring.shankStyle,
+				shank_metal: productDetails[0].ring.shankMetal,
+			}).then((res) => {
+				setProduct(res[0])
+			})
+		}
+	}, [productDetails])
 
 	const handleClick = () => {
 		dispatch(
@@ -47,10 +81,6 @@ function Ring() {
 		} else {
 			dispatch(setStep(3))
 		}
-	}
-
-	const handleClick2 = () => {
-		setShowFilters(true) // Show filters when button is clicked
 	}
 
 	return (
@@ -108,58 +138,6 @@ function Ring() {
 						<div>
 							{showFilters && (
 								<div className="flex flex-col gap-8 mb-2">
-									{/* Diamond Shape */}
-									<div className="flex flex-col">
-										<div className="text-left text-gray-700 font-bold mb-2 text-lg pt-2">
-											Diamond Shape
-										</div>
-										<p className="text-xs text-gray-500 mb-2">
-											Select your preferred diamond shape.
-										</p>
-										<div className="flex flex-wrap gap-2">
-											{Array.from({ length: 10 }).map((_, index) => (
-												<div
-													key={index}
-													className="bg-gray-100 w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 hover:bg-gray-300 hover:scale-105 cursor-pointer"
-												>
-													<img
-														src={shape}
-														alt="Diamond Preview"
-														className="w-10 h-10"
-													/>
-													<span className="text-sm text-gray-700 mt-1">
-														Option {index + 1}
-													</span>
-												</div>
-											))}
-										</div>
-									</div>
-
-									{/* Sizes */}
-									<div className="flex flex-col">
-										<div className="text-left text-gray-700 font-bold mb-2 text-lg">
-											Sizes
-										</div>
-										<p className="text-xs text-gray-500 mb-2">
-											Choose the carat weight for your diamond.
-										</p>
-										<div className="flex gap-2">
-											{Array.from({ length: 8 }).map((_, index) => {
-												const sizeValue = (index + 1) * 0.5
-												return (
-													<div
-														key={index}
-														className="bg-gray-100 w-12 h-12 flex items-center justify-center transition-all duration-200 hover:bg-gray-300 hover:scale-105 cursor-pointer"
-													>
-														<span className="text-xs text-gray-700">
-															{sizeValue.toFixed(1)} ct
-														</span>
-													</div>
-												)
-											})}
-										</div>
-									</div>
-
 									{/* Head */}
 									<div className="flex flex-col">
 										<div className="text-left text-gray-700 font-bold mb-2 text-lg">
@@ -169,20 +147,29 @@ function Ring() {
 											Pick a head style for your setting.
 										</p>
 										<div className="flex flex-wrap gap-2">
-											{Array.from({ length: 15 }).map((_, index) => (
-												<div
+											{headStyles.map((style, index) => (
+												<button
 													key={index}
-													className="bg-gray-100 w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 hover:bg-gray-300 hover:scale-105 cursor-pointer"
+													onClick={() =>
+														dispatch(
+															updateRingDetails({
+																headStyle: headStyles[index].name,
+															})
+														)
+													}
+													className={`w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 
+														${product.head_style === style.name ? 'bg-blue-300 text-white' : 'bg-gray-100'}
+														hover:bg-gray-300 hover:scale-105`}
 												>
 													<img
-														src={head}
+														src={style.image}
 														alt="Head Option"
 														className="w-10 h-10"
 													/>
-													<span className="text-sm text-gray-700 mt-1">
-														Head {index + 1}
+													<span className="text-sm text-gray-700 mt-1 text-center">
+														{style.name}
 													</span>
-												</div>
+												</button>
 											))}
 										</div>
 									</div>
@@ -196,20 +183,29 @@ function Ring() {
 											Choose your preferred metal type.
 										</p>
 										<div className="flex flex-wrap gap-2">
-											{Array.from({ length: 6 }).map((_, index) => (
-												<div
+											{metals.map((style, index) => (
+												<button
 													key={index}
-													className="bg-gray-100 w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 hover:bg-gray-300 hover:scale-105 cursor-pointer"
+													onClick={() =>
+														dispatch(
+															updateRingDetails({
+																headMetal: metals[index].name,
+															})
+														)
+													}
+													className={`w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 
+														${product.head_metal === style.name ? 'bg-blue-300 text-white' : 'bg-gray-100'}
+														hover:bg-gray-300 hover:scale-105`}
 												>
 													<img
-														src={WhiteGoldSVG}
+														src={style.image}
 														alt="Metal Option"
 														className="w-9 h-9"
 													/>
-													<span className="text-sm text-gray-700 mt-1">
-														Metal {index + 1}
+													<span className="text-sm text-gray-700 mt-1 text-center">
+														{style.name}
 													</span>
-												</div>
+												</button>
 											))}
 										</div>
 									</div>
@@ -223,20 +219,65 @@ function Ring() {
 											Select the style of your shank.
 										</p>
 										<div className="flex flex-wrap gap-2">
-											{Array.from({ length: 12 }).map((_, index) => (
-												<div
+											{shankStyles.map((style, index) => (
+												<button
 													key={index}
-													className="bg-gray-100 w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 hover:bg-gray-300 hover:scale-105 cursor-pointer"
+													onClick={() =>
+														dispatch(
+															updateRingDetails({
+																shankStyle: shankStyles[index].name,
+															})
+														)
+													}
+													className={`w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 
+														${product.shank_style === style.name ? 'bg-blue-300 text-white' : 'bg-gray-100'}
+														hover:bg-gray-300 hover:scale-105`}
 												>
 													<img
-														src={shank}
+														src={style.image}
 														alt="Shank Option"
 														className="w-10 h-10"
 													/>
-													<span className="text-sm text-gray-700 mt-1">
-														Shank {index + 1}
+													<span className="text-sm text-gray-700 mt-1 text-center">
+														{style.name}
 													</span>
-												</div>
+												</button>
+											))}
+										</div>
+									</div>
+
+									{/* Metal */}
+									<div className="flex flex-col">
+										<div className="text-left text-gray-700 font-bold mb-2 text-lg">
+											Metal
+										</div>
+										<p className="text-xs text-gray-500 mb-2">
+											Choose your preferred metal type.
+										</p>
+										<div className="flex flex-wrap gap-2">
+											{metals.map((style, index) => (
+												<button
+													key={index}
+													onClick={() =>
+														dispatch(
+															updateRingDetails({
+																shankMetal: metals[index].name,
+															})
+														)
+													}
+													className={`w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 
+														${product.shank_metal === style.name ? 'bg-blue-300 text-white' : 'bg-gray-100'}
+														hover:bg-gray-300 hover:scale-105`}
+												>
+													<img
+														src={style.image}
+														alt="Metal Option"
+														className="w-9 h-9"
+													/>
+													<span className="text-sm text-gray-700 mt-1 text-center">
+														{style.name}
+													</span>
+												</button>
 											))}
 										</div>
 									</div>
@@ -245,7 +286,7 @@ function Ring() {
 
 							{!showFilters && (
 								<button
-									onClick={handleClick2}
+									onClick={() => setShowFilters(true)}
 									className="px-6 py-2 text-lg w-full h-16 bg-white text-[#c9a992] border border-[#c9a992] rounded-none shadow-md transition duration-1000 ease-in-out hover:bg-[#c9a992] hover:text-white hover:border-white active:bg-[#a8826c]"
 								>
 									Customize This Style

@@ -11,12 +11,12 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchCurrencyRates, setCountry } from '../redux/localizationSlice'
 import { Link, useNavigate } from 'react-router-dom'
-import { menuItems } from '../utils/menuItems'
 import model from '../assets/Wedding-rings.jpg'
 import {
 	fetchUserCartItems,
 	fetchUserFavorites,
 } from '../redux/favoritesCartSlice'
+import { menuItems } from '../utils/helpers'
 
 const adminNavLinks = [
 	{ to: '/dashboard', label: 'Dashboard' },
