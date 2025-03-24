@@ -82,7 +82,7 @@ const Cart = () => {
 			)
 			dispatch(setShowDiamond(true))
 			dispatch(setShowRing(true))
-			navigate('/customize')
+			navigate('/customize', { state: 'cart' })
 		}
 	}
 

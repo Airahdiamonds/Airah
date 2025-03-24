@@ -88,7 +88,7 @@ function RingGrid() {
 			<div className="min-h-screen bg-white flex flex-col items-center">
 				<main className="flex-1 w-full p-8">
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-						{styles.map((product, index) => (
+						{styles.map((product) => (
 							<button
 								onClick={() => handleClick(product.ring_style_id)}
 								key={product.ring_style_id}
