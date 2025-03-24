@@ -6,11 +6,13 @@ import {
 	setImageURLs,
 } from '../redux/ringCustomizationSlice'
 import { useEffect, useState } from 'react'
-import { getCustomStyle } from '../utils/api'
+import { getCustomStyle, getStyle } from '../utils/api'
 import { convertPrice, headStyles, metals, shankStyles } from '../utils/helpers'
+import { useLocation } from 'react-router-dom'
 
 function Ring() {
 	const dispatch = useDispatch()
+	const { state } = useLocation()
 	const { productDetails } = useSelector((state) => state.ringCustomization)
 	const { currency, country, INR_rate, GBP_rate } = useSelector(
 		(state) => state.localization
@@ -45,24 +47,31 @@ function Ring() {
 	// 	}))
 	// }, [productDetails])
 
-	// useEffect(() => {
-	// 	getStyle(productDetails[0].ring?.product_id).then((res) => {
-	// 		setProduct(res.data[0])
-	// 	})
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [])
-
 	useEffect(() => {
-		if (productDetails.length > 0 && productDetails[0].ring) {
-			getCustomStyle({
-				head_style: productDetails[0].ring.headStyle,
-				head_metal: productDetails[0].ring.headMetal,
-				shank_style: productDetails[0].ring.shankStyle,
-				shank_metal: productDetails[0].ring.shankMetal,
-			}).then((res) => {
-				setProduct(res[0])
+		console.log(state)
+		if (state === 'cart') {
+			getStyle(productDetails[0].ring?.product_id).then((res) => {
+				setProduct(res.data[0])
 			})
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	useEffect(() => {
+		if (state !== 'cart') {
+			if (productDetails.length > 0 && productDetails[0].ring) {
+				getCustomStyle({
+					head_style: productDetails[0].ring.headStyle,
+					head_metal: productDetails[0].ring.headMetal,
+					shank_style: productDetails[0].ring.shankStyle,
+					shank_metal: productDetails[0].ring.shankMetal,
+				}).then((res) => {
+					setProduct(res[0])
+				})
+			}
+		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [productDetails])
 
 	const handleClick = () => {

@@ -120,7 +120,7 @@ const Favorites = () => {
 			)
 			dispatch(setStep(2))
 			dispatch(setShowRing(true))
-			navigate('/customize')
+			navigate('/customize', { state: 'cart' })
 		}
 	}
 
