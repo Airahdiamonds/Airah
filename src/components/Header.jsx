@@ -1,113 +1,65 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { ShoppingCart, Heart, Search, Menu, X, ChevronDown  } from 'lucide-react';
+import LOGO from '../assets/logo.webp';
 import {
-  ChevronDown,
-  Heart,
-  Menu,
-  Search,
-  ShoppingCart,
-  X,
-} from "lucide-react";
-import LOGO from "../assets/logo.webp";
-
-// Mock data for menu items
-const menuItems = [
-  {
-    name: "Engagement",
-    submenu: [
-      {
-        heading: "Ring Settings",
-        items: ["Solitaire", "Halo", "Three Stone", "Vintage"],
-      },
-      {
-        heading: "Diamonds",
-        items: ["Round", "Princess", "Cushion", "Oval"],
-      },
-      {
-        heading: "Collections",
-        items: ["Classic", "Modern", "Luxury", "Minimalist"],
-      },
-    ],
-  },
-  {
-    name: "Wedding",
-    submenu: [
-      {
-        heading: "Women's Bands",
-        items: ["Plain", "Diamond", "Eternity", "Curved"],
-      },
-      {
-        heading: "Men's Bands",
-        items: ["Classic", "Modern", "Diamond", "Alternative"],
-      },
-      {
-        heading: "Sets",
-        items: ["Matching Sets", "Bridal Sets", "Trio Sets"],
-      },
-    ],
-  },
-  {
-    name: "Jewelry",
-    submenu: [
-      {
-        heading: "Necklaces",
-        items: ["Pendants", "Chains", "Chokers", "Lockets"],
-      },
-      {
-        heading: "Earrings",
-        items: ["Studs", "Hoops", "Drops", "Climbers"],
-      },
-      {
-        heading: "Bracelets",
-        items: ["Tennis", "Bangles", "Cuffs", "Chains"],
-      },
-    ],
-  },
-];
-
-// Define navigation links for admin and user roles
-const adminNavLinks = [
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/master", label: "Master" },
-  { to: "/userList", label: "User List" },
-  { to: "/productsList", label: "Product List" },
-  { to: "/diamondsList", label: "Diamond List" },
-  { to: "/stylesList", label: "Style List" },
-  { to: "/addProducts", label: "Add Products" },
-  { to: "/addDiamonds", label: "Add Diamonds" },
-  { to: "/addStyles", label: "Add Styles" },
-  { to: "/addCoupon", label: "Coupons" },
-];
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+  useUser,
+} from '@clerk/clerk-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrencyRates, setCountry } from '../redux/localizationSlice';
+import { Link, useNavigate } from 'react-router-dom';
+import { fetchUserCartItems, fetchUserFavorites } from '../redux/favoritesCartSlice';
+import { menuItems } from '../utils/helpers';
 
 const userNavLinks = [
-  { to: "/customize", label: "Customize" },
-  { to: "/product", label: "Products" },
-  { to: "/Edu", label: "Education" },
+  { to: '/customize', label: 'Customize' },
+  { to: '/product', label: 'Products' },
+  { to: '/Edu', label: 'Education' },
 ];
 
 export default function Header() {
-  const [dropdownOpen, setDropdownOpen] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [isUserSignedIn, setIsUserSignedIn] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-  const [favorites, setFavorites] = useState([]);
-  const [cartItems, setCartItems] = useState([]);
-  const [country, setCountry] = useState("USD");
-  const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [query, setQuery] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { country } = useSelector((state) => state.localization);
+  const { favorites, cartItems } = useSelector((state) => state.favoritesCart);
+  const { user, isSignedIn } = useUser();
+  const role = user?.publicMetadata?.role;
+  const dbId = user?.publicMetadata?.dbId;
 
-  // Mock function to simulate navigation
-  const handleSearch = () => {
-    console.log("Searching for:", query);
-    // In a real app, you would use navigate from react-router
+  // Fetch user data and currency rates on component mount
+  useEffect(() => {
+    if (dbId) {
+      dispatch(fetchUserFavorites(dbId));
+      dispatch(fetchUserCartItems(dbId));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isSignedIn]);
+
+  useEffect(() => {
+    dispatch(fetchCurrencyRates());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Handlers for mobile menu, country change, and search
+  const handleMobileMenuToggle = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  // Mock function to handle country change
   const handleCountryChange = (event) => {
-    setCountry(event.target.value);
+    dispatch(setCountry(event.target.value));
   };
 
-  // Helper function to render navigation links
+  const handleSearch = () => {
+    navigate('/search', { state: { query } });
+  };
+
+  // Render navigation links dynamically
   const renderNavLinks = (links) => {
     return links.map((link, index) => (
       <Link
@@ -120,46 +72,6 @@ export default function Header() {
     ));
   };
 
-  // Helper function to render dropdown menu items
-  const renderDropdownMenu = (submenu, index) => (
-    <div className="fixed z-10 left-0 top-[115px] bg-white w-full shadow-lg py-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
-        {/* Submenu Items */}
-        {submenu.map((category, catIndex) => (
-          <div key={catIndex} className="space-y-2">
-            <h3 className="text-gray-900 font-semibold mb-2">
-              {category.heading}
-            </h3>
-            <ul className="space-y-1">
-              {category.items.map((subitem, subIndex) => (
-                <li
-                  key={subIndex}
-                  className="text-gray-700 hover:text-gray-900 cursor-pointer"
-                >
-                  {subitem}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-
-        {/* Image */}
-        <div className="hidden md:flex justify-center items-center">
-          <img
-            src={LOGO}
-            alt="Category Preview"
-            className="w-full h-auto rounded-lg"
-          />
-        </div>
-      </div>
-    </div>
-  );
-
-  // Toggle mobile submenu
-  const toggleMobileSubmenu = (index) => {
-    setMobileSubmenuOpen(mobileSubmenuOpen === index ? null : index);
-  };
-
   return (
     <header className="bg-white w-full py-2 px-4 sticky top-0 z-50 border-b">
       <div className="max-w-7xl mx-auto">
@@ -168,8 +80,8 @@ export default function Header() {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <img
-             src={LOGO}
-			 alt="Brand Logo"
+                src={LOGO}
+                alt="Brand Logo"
                 className="h-16 w-auto"
               />
             </Link>
@@ -177,17 +89,14 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center justify-center space-x-6 flex-1">
-            {userRole === "admin" && isUserSignedIn ? (
-              renderNavLinks(adminNavLinks)
-            ) : (
-              <>
-                {renderNavLinks(userNavLinks)}
-                {menuItems.map((item, index) => (
+            {renderNavLinks(userNavLinks)}
+            {Array.isArray(menuItems) && menuItems.length > 0
+              ? menuItems.map((item, index) => (
                   <div
                     key={index}
                     className="relative group cursor-pointer text-gray-700 hover:text-gray-900 font-medium"
-                    onMouseEnter={() => setDropdownOpen(index)}
-                    onMouseLeave={() => setDropdownOpen(null)}
+                    onMouseEnter={() => setActiveDropdown(index)}
+                    onMouseLeave={() => setActiveDropdown(null)}
                   >
                     {/* Menu Item with Underline Animation */}
                     <span className="relative after:absolute after:left-0 after:bottom-0 after:h-[1px] after:bg-black after:w-0 after:transition-all after:duration-300 after:ease-in-out group-hover:after:w-full">
@@ -195,13 +104,42 @@ export default function Header() {
                     </span>
 
                     {/* Dropdown Menu */}
-                    {dropdownOpen === index &&
-                      item.submenu &&
-                      renderDropdownMenu(item.submenu, index)}
+                    {activeDropdown === index && item.submenu && (
+                      <div className="fixed z-10 left-0 top-[115px] bg-white w-full shadow-lg py-6">
+                        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
+                          {/* Submenu Items */}
+                          {item.submenu.map((category, catIndex) => (
+                            <div key={catIndex} className="space-y-2">
+                              <h3 className="text-gray-900 font-semibold mb-2">
+                                {category.heading}
+                              </h3>
+                              <ul className="space-y-1">
+                                {category.items.map((subitem, subIndex) => (
+                                  <li
+                                    key={subIndex}
+                                    className="text-gray-700 hover:text-gray-900 cursor-pointer"
+                                  >
+                                    {subitem}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+
+                          {/* Image */}
+                          <div className="hidden md:flex justify-center items-center">
+                            <img
+                              src={LOGO}
+                              alt="Category Preview"
+                              className="w-full h-auto rounded-lg"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </>
-            )}
+                ))
+              : null}
           </nav>
 
           {/* Right Controls */}
@@ -223,21 +161,14 @@ export default function Header() {
             </div>
 
             {/* User Authentication */}
-            <div className="hidden sm:block">
-              {isUserSignedIn ? (
-                <button className="rounded-full bg-gray-200 p-2">
-                  <img
-                    src="https://placehold.co/32x32"
-                    alt="User"
-                    className="h-6 w-6 rounded-full"
-                  />
-                </button>
-              ) : (
-                <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                  Sign In
-                </button>
-              )}
-            </div>
+            <SignedIn>
+              <button className="rounded-full bg-gray-200 p-2">
+                <UserButton size={20} />
+              </button>
+            </SignedIn>
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
 
             {/* Favorites */}
             <Link
@@ -245,11 +176,11 @@ export default function Header() {
               className="relative p-2 rounded-full hover:bg-gray-100"
             >
               <Heart size={20} />
-              {favorites.length > 0 && (
+              {favorites ? (
                 <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   {favorites.length}
                 </span>
-              )}
+              ) : null}
             </Link>
 
             {/* Cart */}
@@ -258,11 +189,11 @@ export default function Header() {
               className="relative p-2 rounded-full hover:bg-gray-100"
             >
               <ShoppingCart size={20} />
-              {cartItems.length > 0 && (
+              {cartItems ? (
                 <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   {cartItems.length}
                 </span>
-              )}
+              ) : null}
             </Link>
 
             {/* Country Selector */}
@@ -278,7 +209,7 @@ export default function Header() {
 
             {/* Mobile Menu Trigger */}
             <button
-              onClick={() => setMobileMenuOpen(true)}
+              onClick={handleMobileMenuToggle}
               className="lg:hidden p-2 rounded-md hover:bg-gray-100"
             >
               <Menu className="h-5 w-5" />
@@ -294,7 +225,7 @@ export default function Header() {
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/25"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={handleMobileMenuToggle}
           />
 
           {/* Sidebar */}
@@ -304,13 +235,13 @@ export default function Header() {
               <div className="border-b p-4 flex items-center justify-between">
                 <Link to="/" className="flex items-center">
                   <img
-             src={LOGO}
-			 alt="Brand Logo"
+                    src={LOGO}
+                    alt="Brand Logo"
                     className="h-10 w-auto"
                   />
                 </Link>
                 <button
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={handleMobileMenuToggle}
                   className="p-2 rounded-md hover:bg-gray-100"
                 >
                   <X className="h-5 w-5" />
@@ -337,67 +268,39 @@ export default function Header() {
 
               {/* User Authentication - Mobile */}
               <div className="p-4 border-b">
-                {isUserSignedIn ? (
+                <SignedIn>
                   <div className="flex items-center space-x-3">
                     <button className="rounded-full bg-gray-200 p-2">
-                      <img
-                        src="https://placehold.co/32x32"
-                        alt="User"
-                        className="h-6 w-6 rounded-full"
-                      />
+                      <UserButton size={20} />
                     </button>
                     <span className="text-sm font-medium">My Account</span>
                   </div>
-                ) : (
-                  <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 w-full">
-                    Sign In
-                  </button>
-                )}
+                </SignedIn>
+                <SignedOut>
+                  <SignInButton />
+                </SignedOut>
               </div>
 
               {/* Navigation Links */}
               <div className="flex-1 overflow-auto py-2">
                 <nav className="flex flex-col space-y-1 px-2">
-                  {userRole === "admin" && isUserSignedIn ? (
-                    // Admin Links
-                    adminNavLinks.map((link, index) => (
-                      <Link
-                        key={index}
-                        to={link.to}
-                        className="py-2 px-3 rounded-md hover:bg-gray-100 text-gray-700 hover:text-gray-900"
-                      >
-                        {link.label}
-                      </Link>
-                    ))
-                  ) : (
-                    // User Links
-                    <>
-                      {userNavLinks.map((link, index) => (
-                        <Link
-                          key={index}
-                          to={link.to}
-                          className="py-2 px-3 rounded-md hover:bg-gray-100 text-gray-700 hover:text-gray-900"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
-
-                      {/* Menu Items with Collapsible Dropdowns */}
-                      {menuItems.map((item, index) => (
+                  {renderNavLinks(userNavLinks)}
+                  {Array.isArray(menuItems) && menuItems.length > 0
+                    ? menuItems.map((item, index) => (
                         <div key={index} className="w-full">
                           <button
-                            onClick={() => toggleMobileSubmenu(index)}
+                            onClick={() => setActiveDropdown(index)}
                             className="flex items-center justify-between w-full py-2 px-3 rounded-md hover:bg-gray-100 text-gray-700 hover:text-gray-900"
                           >
                             <span>{item.name}</span>
                             <ChevronDown
                               className={`h-4 w-4 transition-transform ${
-                                mobileSubmenuOpen === index ? "rotate-180" : ""
+                                activeDropdown === index ? 'rotate-180' : ''
                               }`}
                             />
                           </button>
 
-                          {mobileSubmenuOpen === index && (
+                          {activeDropdown === index && (
                             <div className="pl-4">
                               {item.submenu.map((category, catIndex) => (
                                 <div key={catIndex} className="py-2">
@@ -421,9 +324,8 @@ export default function Header() {
                             </div>
                           )}
                         </div>
-                      ))}
-                    </>
-                  )}
+                      ))
+                    : null}
                 </nav>
               </div>
 
