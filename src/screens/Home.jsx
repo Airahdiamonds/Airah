@@ -402,104 +402,104 @@ function Home() {
           </div>
         </div>
       </section>
-      <section className="w-full bg-black mt-2 py-10">
-  <div className="relative w-full px-4">
-    <h2 className="text-4xl font-extrabold text-white mb-4 text-center">
-      EXPERIENCE THE <br /> DIAMOND REVOLUTION
-    </h2>
-    <p className="text-lg text-gray-400 mb-8 text-center max-w-3xl mx-auto">
-      Spin actual diamonds in 360° HD and zoom in up to 40x. One of the world's
-      biggest collections of loose diamonds, at your fingertips.
-    </p>
+      <section className="w-full bg-black  py-10">
+        <div className="relative w-full px-4">
+          <h2 className="text-4xl font-extrabold text-white mb-4 text-center">
+            EXPERIENCE THE <br /> DIAMOND REVOLUTION
+          </h2>
+          <p className="text-lg text-gray-400 mb-8 text-center max-w-3xl mx-auto">
+            Spin actual diamonds in 360° HD and zoom in up to 40x. One of the
+            world's biggest collections of loose diamonds, at your fingertips.
+          </p>
 
-    {/* Swiper Component */}
-    <div className="relative">
-      {/* Left Arrow */}
-      <div className="relative w-full">
-        <button
-          onClick={goToPrevSlide}
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-gray-800 bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-md transition-all"
-        >
-          &#10094;
-        </button>
+          {/* Swiper Component */}
+          <div className="relative">
+            {/* Left Arrow */}
+            <div className="relative w-full">
+              <button
+                onClick={goToPrevSlide}
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-gray-800 bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-md transition-all"
+              >
+                &#10094;
+              </button>
 
-        {/* Swiper */}
-        <Swiper
-          modules={[Navigation, Autoplay]}
-          spaceBetween={20}
-          breakpoints={{
-            320: { slidesPerView: 1 },
-            480: { slidesPerView: 2 },
-            768: { slidesPerView: 3 },
-            1024: { slidesPerView: 4 },
-            1280: { slidesPerView: 5 },
-          }}
-          navigation={{
-            nextEl: ".swiper-button-next",
-            prevEl: ".swiper-button-prev",
-          }}
-          autoplay={{ delay: 2500, disableOnInteraction: false }}
-          loop={true}
-          className="relative"
-        >
-          {diamonds.map((diamond) => (
-            <SwiperSlide key={diamond.id} className="text-center">
-              <div className="overflow-hidden pt-2 transition-all hover:scale-105 flex flex-col items-center bg-gray-900 rounded-lg shadow-lg">
-                {/* Image */}
-                <div className="w-full">
-                  <img
-                    src={diamond.image}
-                    alt={diamond.title}
-                    className="w-full h-48 object-contain rounded-t-lg"
-                  />
-                </div>
+              {/* Swiper */}
+              <Swiper
+                modules={[Navigation, Autoplay]}
+                spaceBetween={20}
+                breakpoints={{
+                  320: { slidesPerView: 1 },
+                  480: { slidesPerView: 2 },
+                  768: { slidesPerView: 3 },
+                  1024: { slidesPerView: 4 },
+                  1280: { slidesPerView: 5 },
+                }}
+                navigation={{
+                  nextEl: ".swiper-button-next",
+                  prevEl: ".swiper-button-prev",
+                }}
+                autoplay={{ delay: 2500, disableOnInteraction: false }}
+                loop={true}
+                className="relative"
+              >
+                {diamonds.map((diamond) => (
+                  <SwiperSlide key={diamond.id} className="text-center">
+                    <div className="overflow-hidden  transition-all hover:scale-105 flex flex-col items-center bg-gray-900 rounded-lg shadow-lg">
+                      {/* Image */}
+                      <div className="w-full">
+                        <img
+                          src={diamond.image}
+                          alt={diamond.title}
+                          className="w-full h-48 object-contain rounded-t-lg"
+                        />
+                      </div>
 
-                {/* Title, Rating, and Description */}
-                <div className="w-full py-3 px-4 bg-gray-900 text-center">
-                  <p className="text-lg font-semibold text-white">
-                    {diamond.title}
-                  </p>
+                      {/* Title, Rating, and Description */}
+                      <div className="w-full py-3 px-4 bg-gray-900 text-center">
+                        <p className="text-lg font-semibold text-white">
+                          {diamond.title}
+                        </p>
 
-                  <p className="flex justify-center gap-1 text-yellow-500 mt-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={16}
-                        fill="currentColor"
-                        stroke="none"
-                      />
-                    ))}
-                  </p>
+                        <p className="flex justify-center gap-1 text-yellow-500 mt-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              size={16}
+                              fill="currentColor"
+                              stroke="none"
+                            />
+                          ))}
+                        </p>
 
-                  <p className="text-sm text-gray-400 mt-2">
-                    A premium, high-quality diamond with exceptional clarity and
-                    brilliance.
-                  </p>
+                        <p className="text-sm text-gray-400 mt-2">
+                          A premium, high-quality diamond with exceptional
+                          clarity and brilliance.
+                        </p>
 
-                  {/* "Shop Now" Link */}
-                  <a
-                    href="/shop"
-                    className="mt-3 inline-block text-white font-semibold text-xs hover:text-yellow-400 transition-all"
-                  >
-                    Buy Now
-                  </a>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+                        {/* "Shop Now" Link */}
+                        <a
+                          href="/shop"
+                          className="mt-3 inline-block text-white font-semibold text-xs hover:text-yellow-400 transition-all"
+                        >
+                          Buy Now
+                        </a>
+                      </div>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
 
-        {/* Right Arrow */}
-        <button
-          onClick={goToNextSlide}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-gray-800 bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-md transition-all"
-        >
-          &#10095;
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
+              {/* Right Arrow */}
+              <button
+                onClick={goToNextSlide}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-gray-800 bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-md transition-all"
+              >
+                &#10095;
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section
         className="relative bg-cover bg-center bg-no-repeat bg-fixed flex flex-col md:flex-row items-center justify-center "
