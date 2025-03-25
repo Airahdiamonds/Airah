@@ -6,7 +6,7 @@ import {
 	setImageURLs,
 } from '../redux/ringCustomizationSlice'
 import { useEffect, useState } from 'react'
-import { getCustomStyle, getStyle } from '../utils/api'
+import { getCustomStyle } from '../utils/api'
 import { convertPrice, headStyles, metals, shankStyles } from '../utils/helpers'
 import { useLocation } from 'react-router-dom'
 
@@ -21,44 +21,16 @@ function Ring() {
 	const [product, setProduct] = useState(null)
 	const [showFilters, setShowFilters] = useState(false)
 	const [activeTab, setActiveTab] = useState('earring')
-	// const [ringStyle, setRingStyle] = useState({
-	// 	headStyle: 'Four Prong',
-	// 	headMetal: '14K White Gold',
-	// 	shankStyle: 'Solitaire',
-	// 	shankMetal: '14K White Gold',
-	// })
-
-	// useEffect(() => {
-	// 	setRingStyle((prev) => ({
-	// 		...prev,
-	// 		headStyle: productDetails[0].ring.headStyle,
-	// 	}))
-	// 	setRingStyle((prev) => ({
-	// 		...prev,
-	// 		headMetal: productDetails[0].ring.headMetal,
-	// 	}))
-	// 	setRingStyle((prev) => ({
-	// 		...prev,
-	// 		shankStyle: productDetails[0].ring.shankStyle,
-	// 	}))
-	// 	setRingStyle((prev) => ({
-	// 		...prev,
-	// 		shankMetal: productDetails[0].ring.shankMetal,
-	// 	}))
-	// }, [productDetails])
 
 	useEffect(() => {
-		console.log(state)
-		if (state === 'cart') {
-			getStyle(productDetails[0].ring?.product_id).then((res) => {
-				setProduct(res.data[0])
-			})
+		if (state) {
+			setProduct(state)
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	useEffect(() => {
-		if (state !== 'cart') {
+		if (state === null) {
 			if (productDetails.length > 0 && productDetails[0].ring) {
 				getCustomStyle({
 					head_style: productDetails[0].ring.headStyle,

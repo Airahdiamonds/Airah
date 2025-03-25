@@ -16,6 +16,7 @@ import {
 	setShowRing,
 } from '../redux/ringCustomizationSlice'
 import { useNavigate } from 'react-router-dom'
+import { getStyle } from '../utils/api'
 
 const Cart = () => {
 	const [selectedSize, setSelectedSize] = useState('6')
@@ -51,12 +52,12 @@ const Cart = () => {
 		}
 	}, [cartItems, discount, coupon])
 
-	useEffect(() => {
-		if (isSignedIn && dbId) {
-			dispatch(fetchUserCartItems(dbId))
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isSignedIn, dbId])
+	// useEffect(() => {
+	// 	if (isSignedIn && dbId) {
+	// 		dispatch(fetchUserCartItems(dbId))
+	// 	}
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [isSignedIn, dbId])
 
 	const handleRemove = (productId) => {
 		dispatch(removeFromCart({ userId: dbId, productId }))
@@ -67,22 +68,28 @@ const Cart = () => {
 		if (item.product_id !== null) {
 			navigate(`/products/${item.product_id}`)
 		} else {
-			dispatch(
-				setCustomization({
-					diamond: {
-						product_id: item.diamond_id,
-						diamond_price: item.diamond_price,
-					},
-					ring: {
-						product_id: item.ring_style_id,
-						ring_price: item.ring_style_price,
-					},
-					total_cost: +item.diamond_price + +item.ring_style_price,
-				})
-			)
-			dispatch(setShowDiamond(true))
-			dispatch(setShowRing(true))
-			navigate('/customize', { state: 'cart' })
+			getStyle(item.ring_style_id).then((res) => {
+				dispatch(
+					setCustomization({
+						diamond: {
+							product_id: item.diamond_id,
+							diamond_price: item.diamond_price,
+						},
+						ring: {
+							product_id: item.ring_style_id,
+							ring_price: item.ring_style_price,
+							headStyle: res.data[0].head_style,
+							headMetal: res.data[0].head_metal,
+							shankStyle: res.data[0].shank_style,
+							shankMetal: res.data[0].shank_metal,
+						},
+						total_cost: +item.diamond_price + +item.ring_style_price,
+					})
+				)
+				dispatch(setShowDiamond(true))
+				dispatch(setShowRing(true))
+				navigate('/customize', { state: res.data[0] })
+			})
 		}
 	}
 
