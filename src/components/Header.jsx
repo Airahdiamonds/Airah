@@ -102,7 +102,7 @@ export default function Header() {
 
 										{/* Dropdown Menu */}
 										{activeDropdown === index && item.submenu && (
-											<div className="fixed z-10 left-0 top-[115px] bg-white w-full shadow-lg py-6">
+											<div className="fixed z-10 left-0 top-[82px] bg-white w-full shadow-lg py-6">
 												<div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
 													{/* Submenu Items */}
 													{item.submenu.map((category, catIndex) => (
