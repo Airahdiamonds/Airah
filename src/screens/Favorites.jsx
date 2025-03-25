@@ -15,6 +15,7 @@ import {
 	setShowRing,
 	setStep,
 } from '../redux/ringCustomizationSlice'
+import { getStyle } from '../utils/api'
 
 const Favorites = () => {
 	const { user, isSignedIn } = useUser()
@@ -25,13 +26,6 @@ const Favorites = () => {
 	const { currency, country, INR_rate, GBP_rate } = useSelector(
 		(state) => state.localization
 	)
-
-	// useEffect(() => {
-	// 	if (dbId) {
-	// 		dispatch(fetchUserFavorites(dbId))
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [])
 
 	const [favoritesSynced, setFavoritesSynced] = useState(false)
 
@@ -55,11 +49,12 @@ const Favorites = () => {
 						)
 					)
 				)
+				await dispatch(fetchUserFavorites(dbId))
+
 				dispatch(clearLocalFavorites()) // Clear local after syncing
 			}
 
 			// Now fetch the user's favorites
-			await dispatch(fetchUserFavorites(dbId))
 
 			// Mark as synced so UI can continue
 			setFavoritesSynced(true)
@@ -97,6 +92,10 @@ const Favorites = () => {
 					ring: {
 						product_id: null,
 						ring_price: null,
+						headStyle: 'Four Prong',
+						headMetal: '14K White Gold',
+						shankStyle: 'Solitaire',
+						shankMetal: '14K White Gold',
 					},
 					total_cost: null,
 				})
@@ -105,22 +104,28 @@ const Favorites = () => {
 			dispatch(setShowDiamond(true))
 			navigate('/customize')
 		} else {
-			dispatch(
-				setCustomization({
-					diamond: {
-						product_id: null,
-						diamond_price: null,
-					},
-					ring: {
-						product_id: item.ring_style_id,
-						ring_price: item.ring_style_price,
-					},
-					total_cost: null,
-				})
-			)
-			dispatch(setStep(2))
-			dispatch(setShowRing(true))
-			navigate('/customize', { state: 'cart' })
+			getStyle(item.ring_style_id).then((res) => {
+				dispatch(
+					setCustomization({
+						diamond: {
+							product_id: null,
+							diamond_price: null,
+						},
+						ring: {
+							product_id: item.ring_style_id,
+							ring_price: item.ring_style_price,
+							headStyle: res.data[0].head_style,
+							headMetal: res.data[0].head_metal,
+							shankStyle: res.data[0].shank_style,
+							shankMetal: res.data[0].shank_metal,
+						},
+						total_cost: null,
+					})
+				)
+				dispatch(setStep(2))
+				dispatch(setShowRing(true))
+				navigate('/customize', { state: res.data[0] })
+			})
 		}
 	}
 
