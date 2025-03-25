@@ -25,6 +25,7 @@ import {
 	addDiamond,
 	getAllDiamonds,
 	getDiamond,
+	getFilteredDiamonds,
 	updateDiamond,
 } from './drizzle/features/diamonds.js'
 import {
@@ -316,6 +317,34 @@ app.get('/api/getCustomStyle', async (req, res) => {
 	} catch (err) {
 		console.log('getCustomStyle Error: ' + err)
 		res.status(500).json({ error: 'Failed to get style' })
+	}
+})
+
+app.get('/api/getAllFilteredDiamonds', async (req, res) => {
+	const {
+		clerk_user_id,
+		sizes,
+		clarities,
+		colors,
+		shapes,
+		cuts,
+		minPrice,
+		maxPrice,
+	} = req.query
+	try {
+		const data = await getFilteredDiamonds({
+			clerk_user_id,
+			sizes: sizes ? sizes.split(',') : [],
+			clarities: clarities ? clarities.split(',') : [],
+			shapes: shapes ? shapes.split(',') : [],
+			colors: colors ? colors.split(',') : [],
+			cuts: cuts ? cuts.split(',') : [],
+			minPrice: minPrice ? Number(minPrice) : undefined,
+			maxPrice: maxPrice ? Number(maxPrice) : undefined,
+		})
+		res.json(data)
+	} catch (error) {
+		res.status(500).json({ error: error.message })
 	}
 })
 

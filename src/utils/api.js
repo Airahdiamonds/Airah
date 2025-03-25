@@ -407,3 +407,18 @@ export const getCustomStyle = async ({
 		return null
 	}
 }
+
+export const getAllFilteredDiamonds = async (query) => {
+	try {
+		const response = await axios.get(
+			`${REACT_APP_API_URL}/getAllFilteredDiamonds`,
+			{
+				params: query,
+			}
+		)
+		return response
+	} catch (error) {
+		console.error('Error fetching getAllFilteredDiamonds:', error)
+		return null
+	}
+}
