@@ -1,6 +1,37 @@
-import WhiteGoldSVG from '../assets/14K_White_Gold.svg'
-import head from '../assets/h01.png'
-import shank from '../assets/s01_C.png'
+// Import images for headStyles
+import headFourProng from '../assets/head/h02.png';
+import headSixProng from '../assets/head/h03.png';
+import headClassicBasket from '../assets/head/h04.png';
+import headSurpriseDiamond from '../assets/head/h05.png';
+import headSurpriseSapphire from '../assets/head/h06.png';
+import headLotusBasket from '../assets/head/h07.png';
+import headTulipBasket from '../assets/head/h08.png';
+import headScallopedSixProng from '../assets/head/h09.png';
+import headVintageBasket from '../assets/head/h10.png';
+import headPaveHalo from '../assets/head/h11.png';
+import headSapphireHalo from '../assets/head/h12.png';
+import headFrenchPaveHalo from '../assets/head/h13.png';
+import headFallingEdgeHalo from '../assets/head/h14.png';
+
+// Import images for metals
+import whiteGoldSVG from '../assets/metal/14K_White_Gold.svg';
+import yellowGoldSVG from '../assets/metal/14K_Yellow_Gold.svg';
+import roseGoldSVG from '../assets/metal/14K_Rose_Gold.svg';
+import platinumSVG from '../assets/metal/Platinum.svg';
+
+// Import images for shankStyles
+import shankSolitaire from '../assets/shank/s01_C.png';
+import shankFrenchPave from '../assets/shank/s02_C.png';
+import shankUShapedPave from '../assets/shank/s03_C.png';
+import shankKnifeEdgePave from '../assets/shank/s04_C.png';
+import shankKnifeEdgeSolitaire from '../assets/shank/s05_C.png';
+import shankMarquiseDiamond from '../assets/shank/s06_C.png';
+import shankMarquiseSaphire from '../assets/shank/s07_C.png';
+import shankCathedralPave from '../assets/shank/s08_C.png';
+import shankRopeSolitaire from '../assets/shank/s09_C.png';
+import shankRopePave from '../assets/shank/s10_C.png';
+import shankSleekAccent from '../assets/shank/s11_C.png';
+import shankChannelSet from '../assets/shank/s12_C.png';
 
 export const convertFormData = (data) => {
 	const updatedData = { ...data }
@@ -95,45 +126,42 @@ export const convertPrice = (price, country, INR_rate, GBP_rate) => {
 }
 
 export const headStyles = [
-	{ name: 'Four Prong', image: head },
-	{ name: 'Six Prong', image: head },
-	{ name: 'Classic Basket', image: head },
-	{ name: 'Surprise Diamond', image: head },
-	{ name: 'Surprise Sapphire', image: head },
-	{ name: 'Lotus Basket', image: head },
-	{ name: 'Tulip Basket', image: head },
-	{ name: 'Scalloped Six Prong', image: head },
-	{ name: 'Vintage Basket', image: head },
-	{ name: 'Pave Halo', image: head },
-	{ name: 'Sapphire Halo', image: head },
-	{ name: 'French Pave Halo', image: head },
-	{ name: 'Falling Edge Halo', image: head },
-]
+	{ name: 'Four Prong', image: headFourProng },
+	{ name: 'Six Prong', image: headSixProng },
+	{ name: 'Classic Basket', image: headClassicBasket },
+	{ name: 'Surprise Diamond', image: headSurpriseDiamond },
+	{ name: 'Surprise Sapphire', image: headSurpriseSapphire },
+	{ name: 'Lotus Basket', image: headLotusBasket },
+	{ name: 'Tulip Basket', image: headTulipBasket },
+	{ name: 'Scalloped Six Prong', image: headScallopedSixProng },
+	{ name: 'Vintage Basket', image: headVintageBasket },
+	{ name: 'Pave Halo', image: headPaveHalo },
+	{ name: 'Sapphire Halo', image: headSapphireHalo },
+	{ name: 'French Pave Halo', image: headFrenchPaveHalo },
+	{ name: 'Falling Edge Halo', image: headFallingEdgeHalo },
+];
 
 export const metals = [
-	{ name: '14K White Gold', image: WhiteGoldSVG },
-	{ name: '14K Yellow Gold', image: WhiteGoldSVG },
-	{ name: '14K Rose Gold', image: WhiteGoldSVG },
-	{ name: '18K White Gold', image: WhiteGoldSVG },
-	{ name: '18K Yellow Gold', image: WhiteGoldSVG },
-	{ name: '18K Rose Gold', image: WhiteGoldSVG },
-	{ name: 'Platinum', image: WhiteGoldSVG },
-]
+	{ name: '14K White Gold', image: whiteGoldSVG },
+	{ name: '14K Yellow Gold', image: yellowGoldSVG },
+	{ name: '14K Rose Gold', image: roseGoldSVG },
+	{ name: 'Platinum', image: platinumSVG },
+];
 
 export const shankStyles = [
-	{ name: 'Solitaire', image: shank },
-	{ name: 'French Pave', image: shank },
-	{ name: 'U Shaped Pave', image: shank },
-	{ name: 'Knife Edge Pave', image: shank },
-	{ name: 'Knife Edge Solitaire', image: shank },
-	{ name: 'Marquise Diamond', image: shank },
-	{ name: 'Marquise Saphire', image: shank },
-	{ name: 'Cathedral Pave', image: shank },
-	{ name: 'Rope Solitaire', image: shank },
-	{ name: 'Rope Pave', image: shank },
-	{ name: 'Sleek Accent', image: shank },
-	{ name: 'Channel Set', image: shank },
-]
+	{ name: 'Solitaire', image: shankSolitaire },
+	{ name: 'French Pave', image: shankFrenchPave },
+	{ name: 'U Shaped Pave', image: shankUShapedPave },
+	{ name: 'Knife Edge Pave', image: shankKnifeEdgePave },
+	{ name: 'Knife Edge Solitaire', image: shankKnifeEdgeSolitaire },
+	{ name: 'Marquise Diamond', image: shankMarquiseDiamond },
+	{ name: 'Marquise Saphire', image: shankMarquiseSaphire },
+	{ name: 'Cathedral Pave', image: shankCathedralPave },
+	{ name: 'Rope Solitaire', image: shankRopeSolitaire },
+	{ name: 'Rope Pave', image: shankRopePave },
+	{ name: 'Sleek Accent', image: shankSleekAccent },
+	{ name: 'Channel Set', image: shankChannelSet },
+];
 
 export const menuItems = [
 	{
