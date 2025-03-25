@@ -93,8 +93,7 @@ export default function Header() {
 									<div
 										key={index}
 										className="relative group cursor-pointer text-gray-700 hover:text-gray-900 font-medium"
-										onMouseEnter={() => setActiveDropdown(index)}
-										onMouseLeave={() => setActiveDropdown(null)}
+										onClick={() => setActiveDropdown(index === activeDropdown ? null : index)}
 									>
 										{/* Menu Item with Underline Animation */}
 										<span className="relative after:absolute after:left-0 after:bottom-0 after:h-[1px] after:bg-black after:w-0 after:transition-all after:duration-300 after:ease-in-out group-hover:after:w-full">
@@ -283,14 +282,12 @@ export default function Header() {
 										? menuItems.map((item, index) => (
 												<div key={index} className="w-full">
 													<button
-														onClick={() => setActiveDropdown(index)}
+														onClick={() => setActiveDropdown(index === activeDropdown ? null : index)}
 														className="flex items-center justify-between w-full py-2 px-3 rounded-md hover:bg-gray-100 text-gray-700 hover:text-gray-900"
 													>
 														<span>{item.name}</span>
 														<ChevronDown
-															className={`h-4 w-4 transition-transform ${
-																activeDropdown === index ? 'rotate-180' : ''
-															}`}
+															className={`h-4 w-4 transition-transform ${activeDropdown === index ? 'rotate-180' : ''}`}
 														/>
 													</button>
 
