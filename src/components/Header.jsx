@@ -1,29 +1,39 @@
-import { useState, useEffect } from 'react';
-import { ShoppingCart, Heart, Search, Menu, X, ChevronDown  } from 'lucide-react';
-import LOGO from '../assets/logo.webp';
+import { useState, useEffect } from "react";
+import {
+  ShoppingCart,
+  Heart,
+  Search,
+  Menu,
+  X,
+  ChevronDown,
+} from "lucide-react";
+import LOGO from "../assets/logo.webp";
 import {
   SignedIn,
   SignedOut,
   SignInButton,
   UserButton,
   useUser,
-} from '@clerk/clerk-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchCurrencyRates, setCountry } from '../redux/localizationSlice';
-import { Link, useNavigate } from 'react-router-dom';
-import { fetchUserCartItems, fetchUserFavorites } from '../redux/favoritesCartSlice';
-import { menuItems } from '../utils/helpers';
+} from "@clerk/clerk-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCurrencyRates, setCountry } from "../redux/localizationSlice";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  fetchUserCartItems,
+  fetchUserFavorites,
+} from "../redux/favoritesCartSlice";
+import { menuItems } from "../utils/helpers";
 
 const userNavLinks = [
-  { to: '/customize', label: 'Customize' },
-  { to: '/product', label: 'Products' },
-  { to: '/Edu', label: 'Education' },
+  { to: "/customize", label: "Customize" },
+  { to: "/product", label: "Products" },
+  { to: "/Edu", label: "Education" },
 ];
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { country } = useSelector((state) => state.localization);
@@ -56,7 +66,7 @@ export default function Header() {
   };
 
   const handleSearch = () => {
-    navigate('/search', { state: { query } });
+    navigate("/search", { state: { query } });
   };
 
   // Render navigation links dynamically
@@ -79,11 +89,7 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img
-                src={LOGO}
-                alt="Brand Logo"
-                className="h-16 w-auto"
-              />
+              <img src={LOGO} alt="Brand Logo" className="h-16 w-auto" />
             </Link>
           </div>
 
@@ -162,10 +168,11 @@ export default function Header() {
 
             {/* User Authentication */}
             <SignedIn>
-              <button className="rounded-full bg-gray-200 p-2">
-                <UserButton size={20} />
+              <button className="relative w-10 h-10 rounded-full flex items-center justify-center animate-gradient bg-gradient-to-r from-black via-gray-500 to-white">
+                <UserButton size={20} className="relative z-10" />
               </button>
             </SignedIn>
+
             <SignedOut>
               <SignInButton />
             </SignedOut>
@@ -234,11 +241,7 @@ export default function Header() {
               {/* Header */}
               <div className="border-b p-4 flex items-center justify-between">
                 <Link to="/" className="flex items-center">
-                  <img
-                    src={LOGO}
-                    alt="Brand Logo"
-                    className="h-10 w-auto"
-                  />
+                  <img src={LOGO} alt="Brand Logo" className="h-10 w-auto" />
                 </Link>
                 <button
                   onClick={handleMobileMenuToggle}
@@ -270,10 +273,9 @@ export default function Header() {
               <div className="p-4 border-b">
                 <SignedIn>
                   <div className="flex items-center space-x-3">
-                    <button className="rounded-full bg-gray-200 p-2">
-                      <UserButton size={20} />
+                  <button className="relative w-10 h-10 rounded-full flex items-center justify-center animate-gradient bg-gradient-to-r from-black via-gray-500 to-white">
+                  <UserButton size={20} />
                     </button>
-                    <span className="text-sm font-medium">My Account</span>
                   </div>
                 </SignedIn>
                 <SignedOut>
@@ -295,7 +297,7 @@ export default function Header() {
                             <span>{item.name}</span>
                             <ChevronDown
                               className={`h-4 w-4 transition-transform ${
-                                activeDropdown === index ? 'rotate-180' : ''
+                                activeDropdown === index ? "rotate-180" : ""
                               }`}
                             />
                           </button>
