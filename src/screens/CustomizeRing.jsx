@@ -79,33 +79,34 @@ const CustomizeRing = () => {
 	return (
 		<div className="min-h-screen bg-gray-50 flex flex-col">
 			<div className="w-[96%] border border-gray-300 mt-10 h-[100px] mx-auto flex">
-				{steps.map((step) => (
+				{steps.map((currentStep) => (
 					<div
-						key={step.id}
-						className="w-1/3 h-full border-r border-gray-300 flex items-center justify-between p-4 last:border-r-0"
+						key={currentStep.id}
+						className={`w-1/3 h-full border-r border-gray-300 flex items-center justify-between p-4 last:border-r-0 
+						${currentStep.id === step ? 'bg-slate-500 text-white font-bold' : 'bg-white'}`}
 					>
 						<div className="flex items-center">
-							<span className="text-3xl mr-4">{step.id}</span>
-							<span className="text-sm font-medium">{step.title}</span>
+							<span className="text-3xl mr-4">{currentStep.id}</span>
+							<span className="text-sm font-medium">{currentStep.title}</span>
 						</div>
 						<div className="flex items-center space-x-2">
 							<div className="flex flex-col items-center">
-								<span className="text-sm">{step.price}</span>
-								{step.id !== 3 && (
+								<span className="text-sm">{currentStep.price}</span>
+								{currentStep.id !== 3 && (
 									<div className="flex space-x-2">
 										<button
-											onClick={() => dispatch(setStep(step.id))}
+											onClick={() => dispatch(setStep(currentStep.id))}
 											className="text-xs"
 										>
 											View
 										</button>
-										<button onClick={step.remove} className="text-xs">
+										<button onClick={currentStep.remove} className="text-xs">
 											Remove
 										</button>
 									</div>
 								)}
 							</div>
-							<img src={Image} alt="something" className="h-20 w-20" />
+							<img src={Image} alt="currentStep" className="h-20 w-20" />
 						</div>
 					</div>
 				))}

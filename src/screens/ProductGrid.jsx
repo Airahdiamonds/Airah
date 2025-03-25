@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts } from '../redux/userProductsSlice'
 import { convertPrice } from '../utils/helpers'
@@ -15,6 +15,7 @@ import {
 	removeFromFavoritesLocal,
 } from '../redux/favoritesCartSlice'
 import ImageCarousel from '../components/ImageCarousel'
+import Filters from '../components/Filters'
 
 const filterOptions = [
 	{ label: 'Diamond Type', options: ['All', 'Natural', 'Lab Grown'] },
@@ -35,6 +36,13 @@ export default function ProductGrid() {
 	const { user } = useUser()
 	const dbId = user?.publicMetadata?.dbId
 	const { favorites } = useSelector((state) => state.favoritesCart)
+	const [filters, setFilters] = useState({
+		diamondSize: [],
+		diamondClarity: [],
+		diamondShape: [],
+		diamondColor: [],
+		diamondCut: [],
+	})
 
 	useEffect(() => {
 		if (!dbId) {
@@ -93,7 +101,7 @@ export default function ProductGrid() {
 
 	return (
 		<div className="min-h-screen bg-white flex flex-col items-center">
-			<h1 className="text-3xl font-bold text-black">
+			<h1 className="text-3xl font-bold text-black mt-5">
 				READY TO SHIP DIAMOND ENGAGEMENT RINGS
 			</h1>
 			<p className="text-lg text-black mb-6">
@@ -113,53 +121,58 @@ export default function ProductGrid() {
 					</select>
 				))}
 			</div>
-
-			<main className="flex-1 w-full p-8">
-				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-					{products.map((product) => (
-						<button
-							onClick={() => handleClick(product.product_id)}
-							key={product.product_id}
-							className="bg-white shadow-lg text-center transition-transform transform hover:scale-105 hover:shadow-xl border border-[#be9080]"
-						>
-							<div
-								className="absolute bottom-28 right-4 text-2xl cursor-pointer text-[#be9080]"
-								onClick={(e) => handleFavorite(e, product.product_id)}
-							>
-								{isProductFavorited(product.product_id) ? (
-									<FaHeart className="text-red-500" />
-								) : (
-									<FaRegHeart />
-								)}
-							</div>
-							<ImageCarousel
-								images={product.image_URL}
-								className="w-full h-72 object-cover border-b border-[#be9080] transition duration-500 ease-in-out"
-							/>
-							<div className="p-4">
-								<h2 className="text-xl font-light mb-2 text-[#be9080]">
-									{product.name}
-								</h2>
-								<p className="text-[#be9080] mb-4 text-lg font-light">
-									{currency}
-									{convertPrice(
-										product.total_cost,
-										country,
-										INR_rate,
-										GBP_rate
-									)}
-								</p>
-								<p className="text-[#be9080] mb-4 text-sm font-light">
-									<div className="flex justify-center">
-										<StarRating rating={product.average_rating || 0} /> (
-										{product.review_count})
-									</div>
-								</p>
-							</div>
-						</button>
-					))}
+			<div className="flex">
+				<div className="w-[20%] hidden lg:block p-4">
+					<Filters filters={filters} setFilters={setFilters} />
 				</div>
-			</main>
+
+				<main className="flex-1 w-full p-8">
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+						{products.map((product) => (
+							<button
+								onClick={() => handleClick(product.product_id)}
+								key={product.product_id}
+								className="bg-white shadow-lg text-center transition-transform transform hover:scale-105 hover:shadow-xl border border-[#be9080]"
+							>
+								<div
+									className="absolute bottom-28 right-4 text-2xl cursor-pointer text-[#be9080]"
+									onClick={(e) => handleFavorite(e, product.product_id)}
+								>
+									{isProductFavorited(product.product_id) ? (
+										<FaHeart className="text-red-500" />
+									) : (
+										<FaRegHeart />
+									)}
+								</div>
+								<ImageCarousel
+									images={product.image_URL}
+									className="w-full h-72 object-cover border-b border-[#be9080] transition duration-500 ease-in-out"
+								/>
+								<div className="p-4">
+									<h2 className="text-xl font-light mb-2 text-[#be9080]">
+										{product.name}
+									</h2>
+									<p className="text-[#be9080] mb-4 text-lg font-light">
+										{currency}
+										{convertPrice(
+											product.total_cost,
+											country,
+											INR_rate,
+											GBP_rate
+										)}
+									</p>
+									<p className="text-[#be9080] mb-4 text-sm font-light">
+										<div className="flex justify-center">
+											<StarRating rating={product.average_rating || 0} /> (
+											{product.review_count})
+										</div>
+									</p>
+								</div>
+							</button>
+						))}
+					</div>
+				</main>
+			</div>
 
 			<footer className="w-full bg-white text-[#be9080] text-center py-6 mt-8">
 				<p className="text-black">
