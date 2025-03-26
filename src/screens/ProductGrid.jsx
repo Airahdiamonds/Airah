@@ -121,13 +121,13 @@ export default function ProductGrid() {
 					</select>
 				))}
 			</div>
-			<div className="flex">
+			<div className="w-full flex">
 				<div className="w-[20%] hidden lg:block p-4">
 					<Filters filters={filters} setFilters={setFilters} />
 				</div>
 
 				<main className="flex-1 w-full p-8">
-					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 						{products.map((product) => (
 							<button
 								onClick={() => handleClick(product.product_id)}

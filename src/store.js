@@ -6,6 +6,7 @@ import localizationReducer from './redux/localizationSlice'
 import ringCustomizationReducer from './redux/ringCustomizationSlice'
 import favoritesCartReducer from './redux/favoritesCartSlice'
 import userProductsReducer from './redux/userProductsSlice'
+import ordersReducer from './redux/ordersSlice'
 
 const persistConfig = {
 	key: 'root',
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
 	localization: localizationReducer,
 	favoritesCart: favoritesCartReducer,
 	userProducts: userProductsReducer,
+	orders: ordersReducer,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

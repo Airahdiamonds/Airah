@@ -16,6 +16,7 @@ import {
 	fetchUserFavorites,
 } from '../redux/favoritesCartSlice'
 import { menuItems } from '../utils/helpers'
+import CustomUserMenu from './CustomUserMenu'
 
 const userNavLinks = [
 	{ to: '/customize', label: 'Customize' },
@@ -161,9 +162,10 @@ export default function Header() {
 
 						{/* User Authentication */}
 						<SignedIn>
-							<button className="rounded-full bg-gray-200 p-2">
-								<UserButton size={20} />
-							</button>
+							{/* <button className="rounded-full bg-gray-200 p-2"> */}
+							{/* <UserButton size={20} /> */}
+							<CustomUserMenu />
+							{/* </button> */}
 						</SignedIn>
 						<SignedOut>
 							<SignInButton />

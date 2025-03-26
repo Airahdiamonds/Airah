@@ -7,6 +7,7 @@
     "scripts": {
         "start": "nodemon server.js",
         "dev": "concurrently \"npm start\" \"npm run db:studio\"",
+        "seedWindows": "node ./drizzle/seed.js",
         "seed": "node /drizzle/seed.js",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",

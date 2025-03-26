@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import {
-	getAllDiamonds,
 	getAllFilteredDiamonds,
 	getAllProducts,
 	getAllStyles,
@@ -30,18 +29,6 @@ export const fetchProducts = createAsyncThunk(
 		}
 	}
 )
-
-// export const fetchDiamonds = createAsyncThunk(
-// 	'products/fetchDiamonds',
-// 	async (dbId, { rejectWithValue }) => {
-// 		try {
-// 			const response = await getAllDiamonds(dbId)
-// 			return response.data
-// 		} catch (error) {
-// 			return rejectWithValue(error.message)
-// 		}
-// 	}
-// )
 
 export const fetchDiamonds = createAsyncThunk(
 	'products/fetchDiamonds',

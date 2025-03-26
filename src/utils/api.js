@@ -422,3 +422,41 @@ export const getAllFilteredDiamonds = async (query) => {
 		return null
 	}
 }
+
+export const fetchUserOrders = async (userId) => {
+	try {
+		const response = await axios.get(
+			`${REACT_APP_API_URL}/orders?userId=${userId}`
+		)
+		return response.data
+	} catch (error) {
+		console.error('Error fetching orders:', error)
+		return []
+	}
+}
+
+export const cancelUserOrder = async (orderId) => {
+	try {
+		const response = await axios.post(`${REACT_APP_API_URL}/cancelOrder`, {
+			orderId,
+		})
+		return response.data
+	} catch (error) {
+		console.error('Error cancelling orders:', error)
+		return null
+	}
+}
+
+export const createUserOrder = async ({ dbId, cartItems, totalPrice }) => {
+	try {
+		const response = await axios.post(`${REACT_APP_API_URL}/createOrder`, {
+			dbId,
+			cartItems,
+			totalPrice,
+		})
+		return response.data
+	} catch (error) {
+		console.error('Error creating order: ', error)
+		return null
+	}
+}

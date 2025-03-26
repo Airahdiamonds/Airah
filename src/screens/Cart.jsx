@@ -3,6 +3,7 @@ import { FaGem, FaRing } from 'react-icons/fa'
 import { useUser, SignInButton } from '@clerk/clerk-react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+	clearCart,
 	clearCoupon,
 	fetchUserCartItems,
 	removeFromCart,
@@ -17,6 +18,7 @@ import {
 } from '../redux/ringCustomizationSlice'
 import { useNavigate } from 'react-router-dom'
 import { getStyle } from '../utils/api'
+import { createOrder } from '../redux/ordersSlice'
 
 const Cart = () => {
 	const [selectedSize, setSelectedSize] = useState('6')
@@ -51,13 +53,6 @@ const Cart = () => {
 			setDisabled(true)
 		}
 	}, [cartItems, discount, coupon])
-
-	// useEffect(() => {
-	// 	if (isSignedIn && dbId) {
-	// 		dispatch(fetchUserCartItems(dbId))
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [isSignedIn, dbId])
 
 	const handleRemove = (productId) => {
 		dispatch(removeFromCart({ userId: dbId, productId }))
@@ -103,6 +98,18 @@ const Cart = () => {
 			setDisabled(true) // Disable only if coupon is valid
 		} catch (error) {
 			console.error(error) // Handle error properly
+		}
+	}
+
+	const handleCheckout = async () => {
+		if (cartItems.length === 0) return
+
+		try {
+			await dispatch(createOrder({ dbId, cartItems, totalPrice })).unwrap() // Unwrap ensures proper error handling
+			dispatch(clearCart())
+			navigate('/orders')
+		} catch (error) {
+			console.error('Order creation failed:', error)
 		}
 	}
 
@@ -406,7 +413,10 @@ const Cart = () => {
 				</div>
 
 				{/* Checkout Button (Black & White with Effects) */}
-				<button className="w-full py-3 bg-black text-white font-semibold rounded-md transition hover:bg-gray-800 active:scale-95">
+				<button
+					onClick={handleCheckout}
+					className="w-full py-3 bg-black text-white font-semibold rounded-md transition hover:bg-gray-800 active:scale-95"
+				>
 					Checkout
 				</button>
 

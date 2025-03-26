@@ -9,7 +9,6 @@ import cors from 'cors'
 import {
 	addProduct,
 	getAllProducts,
-	getAllRings,
 	getProduct,
 	updateProduct,
 } from './drizzle/features/products.js'
@@ -46,6 +45,11 @@ import {
 	removeFromFavorites,
 } from './drizzle/features/favorites.js'
 import { addReview, getProductReviews } from './drizzle/features/reviews.js'
+import {
+	cancelOrder,
+	createOrder,
+	getOrdersByUser,
+} from './drizzle/features/orders.js'
 
 dotenv.config()
 
@@ -235,31 +239,31 @@ app.put('/api/admin/updateProduct/:product_id', async (req, res) => {
 	}
 })
 
-app.get('/api/admin/getAllProductsByCategory/:category', async (req, res) => {
-	try {
-		const { category } = req.params
-		let data
+// app.get('/api/admin/getAllProductsByCategory/:category', async (req, res) => {
+// 	try {
+// 		const { category } = req.params
+// 		let data
 
-		const categoryHandlers = {
-			diamond: getAllDiamonds,
-			ring: getAllRings,
-		}
+// 		const categoryHandlers = {
+// 			diamond: getAllDiamonds,
+// 			ring: getAllRings,
+// 		}
 
-		if (categoryHandlers[category]) {
-			data = await categoryHandlers[category]()
-		} else {
-			return res.status(400).json({ error: `Invalid category: ${category}` })
-		}
+// 		if (categoryHandlers[category]) {
+// 			data = await categoryHandlers[category]()
+// 		} else {
+// 			return res.status(400).json({ error: `Invalid category: ${category}` })
+// 		}
 
-		res.json(data)
-	} catch (err) {
-		console.error(
-			`Error fetching products for category "${req.params.category}":`,
-			err
-		)
-		res.status(500).json({ error: 'Failed to fetch products' })
-	}
-})
+// 		res.json(data)
+// 	} catch (err) {
+// 		console.error(
+// 			`Error fetching products for category "${req.params.category}":`,
+// 			err
+// 		)
+// 		res.status(500).json({ error: 'Failed to fetch products' })
+// 	}
+// })
 
 app.get('/api/admin/getAllUsers', async (req, res) => {
 	try {
@@ -537,6 +541,39 @@ app.post('/api/validateCoupon', async (req, res) => {
 	} catch (err) {
 		console.log('validateCoupon Error:', err.message)
 		res.status(400).json({ error: err.message })
+	}
+})
+
+app.get('/api/orders', async (req, res) => {
+	try {
+		const { userId } = req.query
+		const data = await getOrdersByUser(userId)
+		res.json(data)
+	} catch (err) {
+		console.log('getOrdersByUser Error: ' + err)
+		res.status(500).json({ error: 'Failed to get order list' })
+	}
+})
+
+app.post('/api/cancelOrder', async (req, res) => {
+	try {
+		const { orderId } = req.body
+		await cancelOrder(orderId)
+		res.json({ success: true })
+	} catch (err) {
+		console.log('cancelOrder Error: ' + err)
+		res.status(500).json({ error: 'Failed to cancel order' })
+	}
+})
+
+app.post('/api/createOrder', async (req, res) => {
+	try {
+		const { dbId, cartItems, totalPrice } = req.body
+		const newOrder = await createOrder({ dbId, cartItems, totalPrice })
+		res.json(newOrder)
+	} catch (err) {
+		console.log('createOrder Error:', err)
+		res.status(500).json({ error: 'Failed to create order' })
 	}
 })
 

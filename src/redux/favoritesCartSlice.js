@@ -132,6 +132,9 @@ const favoritesCartSlice = createSlice({
 			state.coupon = null
 			state.discount = 0
 		},
+		clearCart: (state) => {
+			state.cartItems = []
+		},
 		addToFavoritesLocal: (state, action) => {
 			// Add to local Redux state
 			let exists
@@ -257,5 +260,6 @@ export const {
 	addToFavoritesLocal,
 	removeFromFavoritesLocal,
 	clearLocalFavorites,
+	clearCart,
 } = favoritesCartSlice.actions
 export default favoritesCartSlice.reducer
