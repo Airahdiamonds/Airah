@@ -10,6 +10,10 @@ export async function getOrdersByUser(userId) {
 		.where(eq(ordersTable.user_id, userId))
 }
 
+export async function getOrdersAdmin() {
+	return await db.select().from(ordersTable)
+}
+
 export async function createOrder({ dbId, cartItems, totalPrice }) {
 	const [newOrder] = await db
 		.insert(ordersTable)
@@ -40,5 +44,12 @@ export async function cancelOrder(orderId) {
 	await db
 		.update(ordersTable)
 		.set({ status: 'cancelled' })
+		.where(eq(ordersTable.order_id, orderId))
+}
+
+export async function updateStatus(orderId, status) {
+	await db
+		.update(ordersTable)
+		.set({ status })
 		.where(eq(ordersTable.order_id, orderId))
 }
