@@ -48,7 +48,9 @@ import { addReview, getProductReviews } from './drizzle/features/reviews.js'
 import {
 	cancelOrder,
 	createOrder,
+	getOrdersAdmin,
 	getOrdersByUser,
+	updateStatus,
 } from './drizzle/features/orders.js'
 
 dotenv.config()
@@ -552,6 +554,27 @@ app.get('/api/orders', async (req, res) => {
 	} catch (err) {
 		console.log('getOrdersByUser Error: ' + err)
 		res.status(500).json({ error: 'Failed to get order list' })
+	}
+})
+
+app.get('/api/admin/orders', async (req, res) => {
+	try {
+		const data = await getOrdersAdmin()
+		res.json(data)
+	} catch (err) {
+		console.log('getOrdersByUser Error: ' + err)
+		res.status(500).json({ error: 'Failed to get order list' })
+	}
+})
+
+app.post('/api/admin/updateStatus', async (req, res) => {
+	try {
+		const { orderId, status } = req.body
+		await updateStatus(orderId, status)
+		res.json({ success: true })
+	} catch (err) {
+		console.log('cancelOrder Error: ' + err)
+		res.status(500).json({ error: 'Failed to cancel order' })
 	}
 })
 
