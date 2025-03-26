@@ -23,6 +23,7 @@ import Product from './screens/Product'
 import SearchGrid from './screens/SearchGrid'
 import AdvertisementStrip from './components/addstrip' // Importing Ad Strip
 import AddCoupon from './screens/Admin/AddCoupon'
+import Orders from './screens/Orders'
 
 function App() {
 	return (
@@ -49,6 +50,7 @@ function App() {
 					<Route path="/stylesList" element={<StylesList />} />
 					<Route path="/search" element={<SearchGrid />} />
 					<Route path="/addCoupon" element={<AddCoupon />} />
+					<Route path="/orders" element={<Orders />} />
 				</Routes>
 				<Footer />
 			</PersistGate>

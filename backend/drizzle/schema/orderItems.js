@@ -1,5 +1,5 @@
-import { pgTable, serial } from 'drizzle-orm/pg-core'
-import { created_at, price, quantity, updated_at } from '../schemaHelpers.js'
+import { decimal, integer, pgTable, serial } from 'drizzle-orm/pg-core'
+import { created_at, quantity, updated_at } from '../schemaHelpers.js'
 import { productsTable } from './products.js'
 import { ordersTable } from './orders.js'
 import { relations } from 'drizzle-orm'
@@ -11,17 +11,25 @@ export const orderItemsTable = pgTable('order_items', {
 	order_id: serial().references(() => ordersTable.order_id, {
 		onDelete: 'cascade',
 	}),
-	product_id: serial().references(() => productsTable.product_id, {
-		onDelete: 'cascade',
-	}),
-	diamond_id: serial().references(() => diamondsTable.diamond_id, {
-		onDelete: 'cascade',
-	}),
-	ring_style_id: serial().references(() => ringStylesTable.ring_style_id, {
-		onDelete: 'cascade',
-	}),
+	product_id: integer('product_id')
+		.references(() => productsTable.product_id, {
+			onDelete: 'set null',
+		})
+		.default(null),
+	diamond_id: integer('diamond_id')
+		.references(() => diamondsTable.diamond_id, {
+			onDelete: 'set null',
+		})
+		.default(null),
+	ring_style_id: integer('ring_style_id')
+		.references(() => ringStylesTable.ring_style_id, {
+			onDelete: 'set null',
+		})
+		.default(null),
+	product_cost: decimal(10, 2),
+	diamond_cost: decimal(10, 2),
+	ring_cost: decimal(10, 2),
 	quantity,
-	price,
 	created_at,
 	updated_at,
 })

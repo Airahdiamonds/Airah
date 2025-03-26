@@ -1,4 +1,5 @@
 import { db } from './db.js'
+import { couponsTable } from './schema/coupons.js'
 import { diamondsTable } from './schema/diamonds.js'
 import { masterTable } from './schema/master.js'
 import { productsTable } from './schema/products.js'
@@ -16,13 +17,29 @@ async function seed() {
 				GBP_rate: '1.23',
 				INR_rate: '83.45',
 				gold_rate: '5000',
-				diamond_rate: '10000',
+				diamond_rate: '100',
 				created_at: new Date(),
 				updated_at: new Date(),
 			})
 			console.log('✅ Seeded masterTable')
 		} else {
 			console.log('ℹ️ masterTable already has data, skipping.')
+		}
+
+		// =========================
+		// COUPONS TABLE SEEDING
+		// =========================
+		const existingCoupon = await db.select().from(couponsTable).limit(1)
+		if (existingCoupon.length === 0) {
+			await db.insert(couponsTable).values({
+				code: 'PREM',
+				discount_percentage: 25,
+				expiry_date: '2025-03-25',
+				max_uses: 2,
+			})
+			console.log('✅ Seeded couponsTable')
+		} else {
+			console.log('ℹ️ couponsTable already has data, skipping.')
 		}
 
 		// =========================
@@ -37,22 +54,39 @@ async function seed() {
 					category: 'ring',
 					description: 'A beautifully crafted diamond ring.',
 					image_URL: ['/ring2.jpg', '/Wedding-rings.jpg'],
-					status: 'active',
-					source: 'natural',
-					shape: 'round',
-					cut: 'excellent',
-					color: 'D',
-					clarity: 'IF',
-					carat: '1.00',
-					diamond_price: '5000',
-					head_style: 'Four Prong',
-					head_style_price: '200',
-					head_metal: '14K White Gold',
-					head_metal_price: '300',
-					shank_style: 'Solitaire',
-					shank_style_price: '150',
-					shank_metal: '14K White Gold',
-					shank_metal_price: '250',
+					gold_quantity: '1',
+					gold_price: '100',
+					gold_total: '100',
+					round_quantity: '1',
+					round_price: '100',
+					round_total: '100',
+					oval_quantity: '1',
+					oval_price: '100',
+					oval_total: '100',
+					marquise_quantity: '1',
+					marquise_price: '100',
+					marquise_total: '100',
+					emerald_quantity: '1',
+					emerald_price: '100',
+					emerald_total: '100',
+					princess_quantity: '1',
+					princess_price: '100',
+					princess_total: '100',
+					pear_quantity: '1',
+					pear_price: '100',
+					pear_total: '100',
+					heart_quantity: '1',
+					heart_price: '100',
+					heart_total: '100',
+					other_diamond_quantity: '1',
+					other_diamond_price: '100',
+					other_diamond_total: '100',
+					gemstone_quantity: '1',
+					gemstone_price: '100',
+					gemstone_total: '100',
+					misc_cost: '10',
+					labour_cost: '10',
+					other_cost: '10',
 					total_cost: '5900',
 					created_at: new Date(),
 					updated_at: new Date(),

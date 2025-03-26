@@ -114,7 +114,7 @@ function DiamondGrid() {
 				<Filters filters={filters} setFilters={setFilters} />
 			</div>
 			<main className="flex-1 w-full p-8">
-				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 					{filteredDiamonds?.map((product) => (
 						<button
 							onClick={() => handleClick(product.diamond_id)}

@@ -26,7 +26,7 @@ function Product() {
 		})
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
-	const [activeTab, setActiveTab] = useState('earring')
+	// const [activeTab, setActiveTab] = useState('earring')
 
 	const handleClick = async () => {
 		await dispatch(
@@ -187,89 +187,67 @@ function Product() {
 							shown and cannot be altered.
 						</p>
 					</div>
-
-					{/* Tabs Navigation */}
-					<div className="flex justify-start border-b pb-2 relative">
-						<button
-							className={`px-6 py-2 text-gray-600 font-semibold transition-all duration-300 rounded-t-lg ${
-								activeTab === 'earring'
-									? 'text-gray-900 border-b-4 border-gray-900'
-									: 'hover:text-gray-900 hover:border-b-4 hover:border-gray-300'
-							}`}
-							onClick={() => setActiveTab('earring')}
-						>
-							Earring Information
-						</button>
-
-						<button
-							className={`px-6 py-2 text-gray-600 font-semibold transition-all duration-300 rounded-t-lg ${
-								activeTab === 'setting'
-									? 'text-gray-900 border-b-4 border-gray-900'
-									: 'hover:text-gray-900 hover:border-b-4 hover:border-gray-300'
-							}`}
-							onClick={() => setActiveTab('setting')}
-						>
-							Setting Information
-						</button>
-
-						{/* Decorative Highlight Bar */}
-					</div>
-
-					{/* Tab Content */}
 					<div className="mt-4">
-						{activeTab === 'earring' && (
-							<table className="w-full border-collapse text-left">
-								<tbody>
-									{[
-										['Metal', '14K White Gold'],
-										['Backing', 'Push Back'],
-										['Rhodium Finish', 'Yes'],
-										['Diamond Shape', 'Round'],
-										['Quantity', '2'],
-										['Average Total Carat', '0.25'],
-										['Average Color', 'H-I'],
-										['Average Clarity', 'SI1-SI2'],
-										['Setting Type', 'Prong'],
-									].map(([label, value], index) => (
+						<table className="w-full border-collapse text-left">
+							<tbody>
+								{[
+									['Gold Quantity', product?.gold_quantity],
+									['Gold Price', product?.gold_price],
+									['Gold Total', product?.gold_total],
+									['Round Quantity', product?.round_quantity],
+									['Round Price', product?.round_price],
+									['Round Total', product?.round_total],
+									['Oval Quantity', product?.oval_quantity],
+									['Oval Price', product?.oval_price],
+									['Oval Total', product?.oval_total],
+									['Marquise Quantity', product?.marquise_quantity],
+									['Marquise Price', product?.marquise_price],
+									['Marquise Total', product?.marquise_total],
+									['Emerald Quantity', product?.emerald_quantity],
+									['Emerald Price', product?.emerald_price],
+									['Emerald Total', product?.emerald_total],
+									['Princess Quantity', product?.princess_quantity],
+									['Princess Price', product?.princess_price],
+									['Princess Total', product?.princess_total],
+									['Pear Quantity', product?.pear_quantity],
+									['Pear Price', product?.pear_price],
+									['Pear Total', product?.pear_total],
+									['Heart Quantity', product?.heart_quantity],
+									['Heart Price', product?.heart_price],
+									['Heart Total', product?.heart_total],
+									['Other Diamond Quantity', product?.other_diamond_quantity],
+									['Other Diamond Price', product?.other_diamond_price],
+									['Other Diamond Total', product?.other_diamond_total],
+									['Gemstone Quantity', product?.gemstone_quantity],
+									['Gemstone Price', product?.gemstone_price],
+									['Gemstone Total', product?.gemstone_total],
+									['Misc Cost', product?.misc_cost],
+									['Labour Cost', product?.labour_cost],
+									['Other Cost', product?.other_cost],
+								]
+									.reduce((rows, item, index, array) => {
+										if (index % 2 === 0) {
+											rows.push([item, array[index + 1] || ['-', '-']])
+										}
+										return rows
+									}, [])
+									.map(([left, right], index) => (
 										<tr
-											key={label}
-											className={`${
-												index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
-											}`}
+											key={index}
+											className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}
 										>
 											<td className="py-2 px-4 font-semibold text-gray-700">
-												{label}
+												{left[0]}
 											</td>
-											<td className="py-2 px-4 text-gray-700">{value}</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						)}
-
-						{activeTab === 'setting' && (
-							<table className="w-full border-collapse text-left">
-								<tbody>
-									{[
-										['Metal', '14K White Gold'],
-										['Width', '2.00mm'],
-										['Rhodium Finish', 'Yes'],
-									].map(([label, value], index) => (
-										<tr
-											key={label}
-											className={`${
-												index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
-											}`}
-										>
+											<td className="py-2 px-4 text-gray-700">{left[1]}</td>
 											<td className="py-2 px-4 font-semibold text-gray-700">
-												{label}
+												{right[0]}
 											</td>
-											<td className="py-2 px-4 text-gray-700">{value}</td>
+											<td className="py-2 px-4 text-gray-700">{right[1]}</td>
 										</tr>
 									))}
-								</tbody>
-							</table>
-						)}
+							</tbody>
+						</table>
 					</div>
 				</div>
 			</div>
