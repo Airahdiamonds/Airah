@@ -1,4 +1,5 @@
 import { db } from './db.js'
+import { adminTable } from './schema/admin.js'
 import { couponsTable } from './schema/coupons.js'
 import { diamondsTable } from './schema/diamonds.js'
 import { masterTable } from './schema/master.js'
@@ -24,6 +25,23 @@ async function seed() {
 			console.log('✅ Seeded masterTable')
 		} else {
 			console.log('ℹ️ masterTable already has data, skipping.')
+		}
+
+		// =========================
+		// ADMIN TABLE SEEDING
+		// =========================
+		const existingAdmin = await db.select().from(adminTable).limit(1)
+		if (existingAdmin.length === 0) {
+			await db.insert(adminTable).values({
+				name: 'Prem Vispute',
+				email: 'prem@gmail.com',
+				password: 'prem123',
+				created_at: new Date(),
+				updated_at: new Date(),
+			})
+			console.log('✅ Seeded adminTable')
+		} else {
+			console.log('ℹ️ adminTable already has data, skipping.')
 		}
 
 		// =========================
