@@ -3,7 +3,7 @@ import { Webhook } from 'svix'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import ngrok from '@ngrok/ngrok'
-import { insertUser, getAllUsers } from './drizzle/features/users.js'
+import { insertUser, getAllUsers, getAdmin } from './drizzle/features/users.js'
 import { clerkClient } from '@clerk/express'
 import cors from 'cors'
 import {
@@ -597,6 +597,17 @@ app.post('/api/createOrder', async (req, res) => {
 	} catch (err) {
 		console.log('createOrder Error:', err)
 		res.status(500).json({ error: 'Failed to create order' })
+	}
+})
+
+app.post('/api/admin/login', async (req, res) => {
+	try {
+		const { email, password } = req.body
+		const data = await getAdmin(email, password)
+		res.json(data)
+	} catch (err) {
+		console.log('Login Error:', err)
+		res.status(500).json({ error: 'Failed to login' })
 	}
 })
 

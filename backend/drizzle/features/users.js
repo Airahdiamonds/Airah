@@ -1,4 +1,5 @@
 import { db } from '../db.js'
+import { adminTable } from '../schema/admin.js'
 import { userTable } from '../schema/users.js'
 import { eq } from 'drizzle-orm'
 
@@ -51,4 +52,14 @@ export async function getAllUsers() {
 	if (users == null) throw new Error('Failed to get products')
 
 	return users
+}
+
+export async function getAdmin(userId, password) {
+	const admin = await db
+		.select()
+		.from(adminTable)
+		.where(eq(adminTable.email, userId))
+		.where(eq(adminTable.password, password))
+	if (admin == null) throw new Error('Failed to get admin user')
+	return admin[0]
 }
