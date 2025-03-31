@@ -6,12 +6,20 @@
     "type": "module",
     "scripts": {
         "start": "nodemon server.js",
-        "dev": "concurrently \"npm start\" \"npm run db:studio\"",
+        "start:dev": "cross-env NODE_ENV=development nodemon server.js",
+        "start:prod": "cross-env NODE_ENV=production node server.js",
+        "dev": "concurrently \"npm start:dev\" \"npm run db:studio\"",
         "seedWindows": "node ./drizzle/seed.js",
         "seed": "node /drizzle/seed.js",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
-        "db:studio": "drizzle-kit studio"
+        "db:studio": "drizzle-kit studio",
+        "db:generate:dev": "cross-env NODE_ENV=development drizzle-kit generate",
+        "db:migrate:dev": "cross-env NODE_ENV=development drizzle-kit migrate",
+        "db:studio:dev": "cross-env NODE_ENV=development drizzle-kit studio",
+        "db:generate:prod": "cross-env NODE_ENV=production drizzle-kit generate",
+        "db:migrate:prod": "cross-env NODE_ENV=production drizzle-kit migrate",
+        "db:studio:prod": "cross-env NODE_ENV=production drizzle-kit studio"
     },
     "keywords": [],
     "author": "",

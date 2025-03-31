@@ -33,10 +33,12 @@
   },
   "scripts": {
     "start": "cross-env PORT=3006 react-scripts start",
+    "start:dev": "cross-env NODE_ENV=development PORT=3006 react-scripts start",
+    "start:prod": "cross-env NODE_ENV=production react-scripts build",
     "build": "react-scripts build",
-    "dev": "concurrently \"npm start\" \"npm run server\" \"npm run db\"",
-    "server": "cd backend && npm start",
-    "db": "cd backend && npm run db:studio"
+    "dev": "concurrently \"npm run start:dev\" \"npm run server\" \"npm run db\"",
+    "server": "cd backend && npm run start:dev",
+    "db": "cd backend && npm run db:studio:dev"
   },
   "eslintConfig": {
     "extends": [
