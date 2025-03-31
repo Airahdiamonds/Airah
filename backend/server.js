@@ -53,12 +53,23 @@ import {
 	updateStatus,
 } from './drizzle/features/orders.js'
 
-dotenv.config()
+const envFile =
+	process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
+
+dotenv.config({ path: envFile })
 
 const app = express()
 const port = process.env.PORT || 4000
 app.use(bodyParser.json())
-app.use(cors())
+app.use(
+	cors({
+		origin:
+			process.env.NODE_ENV === 'production'
+				? ['https://airahdiamonds.com', 'https://www.airahdiamonds.com']
+				: ['http://localhost:3006'],
+		credentials: true,
+	})
+)
 
 const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_KEY
 
@@ -611,10 +622,13 @@ app.post('/api/admin/login', async (req, res) => {
 	}
 })
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
 	console.log(`Server running on port ${port}`)
 })
 
-ngrok
-	.connect({ addr: 4000, authtoken_from_env: true })
-	.then((listener) => console.log(`Ingress established at: ${listener.url()}`))
+process.env.NODE_ENV === 'development' &&
+	ngrok
+		.connect({ addr: 4000, authtoken_from_env: true })
+		.then((listener) =>
+			console.log(`Ingress established at: ${listener.url()}`)
+		)
