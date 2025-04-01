@@ -116,55 +116,59 @@ function DiamondGrid() {
 
 	return (
 		<div className="flex">
-			{/* Filters */}
-			<div className="w-[20%] hidden lg:block p-4">
-				<Filters filters={filters} setFilters={setFilters} />
-			</div>
-			<main className="flex-1 w-full p-8">
-				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-					{filteredDiamonds?.map((product) => (
-						<button
-							onClick={() => handleClick(product.diamond_id)}
-							key={product.diamond_id}
-							className="bg-white shadow-lg text-center transition-transform transform hover:scale-105 hover:shadow-xl border border-[#be9080]"
-						>
-							<div
-								className="absolute bottom-20 right-4 text-2xl cursor-pointer text-[#be9080]"
-								onClick={(e) => handleFavorite(e, product.diamond_id)}
-							>
-								{isProductFavorited(product.diamond_id) ? (
-									<FaHeart className="text-red-500" />
-								) : (
-									<FaRegHeart />
-								)}
-							</div>
-							<ImageCarousel
-								images={product.image_URL}
-								className="w-full h-72 object-cover border-b border-[#be9080] transition duration-500 ease-in-out"
-							/>
-							<div className="p-4">
-								<h2 className="text-xl font-light mb-2 text-[#be9080]">
-									{product.name}
-								</h2>
-								<p className="text-[#be9080] text-lg mb-4 font-light">
-									{currency}
-									{convertPrice(
-										product.price,
-										country,
-										INR_rate,
-										GBP_rate,
-										AUD_rate,
-										OMR_rate,
-										AED_rate,
-										EUR_rate
-									)}
-								</p>
-							</div>
-						</button>
-					))}
-				</div>
-			</main>
-		</div>
+  {/* Filters */}
+  <div className="w-[23%] hidden lg:block p-4">
+    <Filters filters={filters} setFilters={setFilters} />
+  </div>
+  
+  <main className="flex-1 w-full p-4 lg:p-8">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
+      {filteredDiamonds?.map((product) => (
+        <button
+          onClick={() => handleClick(product.diamond_id)}
+          key={product.diamond_id}
+          className="bg-white shadow-md text-center transition-transform transform hover:scale-105 hover:shadow-xl border border-[#be9080] p-4 sm:p-0"
+        >
+          <div
+            className="absolute bottom-16 right-2 text-xl cursor-pointer text-[#be9080]"
+            onClick={(e) => handleFavorite(e, product.diamond_id)}
+          >
+            {isProductFavorited(product.diamond_id) ? (
+              <FaHeart className="text-red-500" />
+            ) : (
+              <FaRegHeart />
+            )}
+          </div>
+          
+          <ImageCarousel
+            images={product.image_URL}
+            className="w-full h-60 sm:h-72 object-cover border-b border-[#be9080] transition duration-500 ease-in-out"
+          />
+          
+          <div className="p-2 sm:p-4">
+            <h2 className="text-base sm:text-xl font-light mb-2 text-[#be9080]">
+              {product.name}
+            </h2>
+            <p className="text-sm sm:text-lg text-[#be9080] mb-4 font-light">
+              {currency}
+              {convertPrice(
+                product.price,
+                country,
+                INR_rate,
+                GBP_rate,
+                AUD_rate,
+                OMR_rate,
+                AED_rate,
+                EUR_rate
+              )}
+            </p>
+          </div>
+        </button>
+      ))}
+    </div>
+  </main>
+</div>
+
 	)
 }
 
