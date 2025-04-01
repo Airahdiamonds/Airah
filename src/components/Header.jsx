@@ -87,12 +87,12 @@ export default function Header() {
 					</div>
 
 					{/* Desktop Navigation */}
-					<nav className="hidden lg:flex items-center justify-center space-x-6 flex-1">
+					<nav className="center_1">
 						{Array.isArray(menuItems) && menuItems.length > 0
 							? menuItems.map((item, index) => (
 									<div
 										key={index}
-										className="relative group cursor-pointer text-gray-700 hover:text-gray-900 font-medium"
+										className="center_2"
 										onMouseEnter={() => setActiveDropdown(index)}
 										onMouseLeave={() => setActiveDropdown(null)}
 									>
@@ -103,11 +103,11 @@ export default function Header() {
 
 										{/* Dropdown Menu */}
 										{activeDropdown === index && item.submenu && (
-											<div className="fixed z-10 left-0 top-[82px] bg-white w-full shadow-lg py-6">
-												<div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
+											<div className="center_3">
+												<div className="center_4">
 													{/* Submenu Items */}
 													{item.submenu.map((category, catIndex) => (
-														<div key={catIndex} className="space-y-2">
+														<div key={catIndex} className="center_5">
 															<h3 className="text-gray-900 font-semibold mb-2">
 																{category.heading}
 															</h3>
