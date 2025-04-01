@@ -65,7 +65,11 @@ app.use(
 	cors({
 		origin:
 			process.env.NODE_ENV === 'production'
-				? ['https://airahdiamonds.com', 'https://www.airahdiamonds.com']
+				? [
+						'https://airahdiamonds.com',
+						'https://www.airahdiamonds.com',
+						'https://admin.airahdiamonds.com',
+				  ]
 				: ['http://localhost:3006'],
 		credentials: true,
 	})
