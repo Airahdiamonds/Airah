@@ -195,16 +195,84 @@ export const menuItems = [
 		name: 'Rings',
 		submenu: [
 			{
-				heading: 'Design Your Own',
-				items: [{ name: 'Start with a Diamond', link: '/customize' }],
-			},
-			{
 				heading: 'Rings',
 				items: [
 					{ name: 'Stackable Rings', link: '/product/Stackable%20Rings' },
 					{ name: 'Birthstone Rings', link: '/product/Birthstone%20Rings' },
 					{ name: 'Eternity Rings', link: '/rings/Eternity%20Rings' },
 					{ name: 'Fashion Rings', link: '/rings/Fashion%20Rings' },
+				],
+			},
+			{
+				heading: 'Ready-to-Ship',
+				items: [
+					{
+						name: 'Ready to Ship Engagement Rings',
+						link: '/product/Stackable%20Rings',
+					},
+					{
+						name: 'Preset Diamond Engagement Rings',
+						link: '/product/Birthstone%20Rings',
+					},
+				],
+			},
+			{
+				heading: 'Popular Styles',
+				items: [
+					{
+						name: 'Round Cut Rings',
+						link: '/product/Stackable%20Rings',
+					},
+					{
+						name: 'Princess Cut Rings',
+						link: '/product/Birthstone%20Rings',
+					},
+					{
+						name: 'Cushion Cut Rings',
+						link: '/product/Birthstone%20Rings',
+					},
+					{
+						name: 'Explore Mens Engagement Rings',
+						link: '/product/Birthstone%20Rings',
+					},
+					{
+						name: 'Top Engagement Rings',
+						link: '/product/Birthstone%20Rings',
+					},
+				],
+			},
+			{
+				heading: 'Engagement Ring Styles',
+				items: [
+					{ name: 'Solitaire', link: '/product/Stackable%20Rings' },
+					{ name: 'Pavé', link: '/product/Birthstone%20Rings' },
+					{ name: 'Channel-Set', link: '/rings/Eternity%20Rings' },
+					{ name: 'Side-Stone', link: '/rings/Fashion%20Rings' },
+					{ name: 'Bezel', link: '/rings/Fashion%20Rings' },
+					{ name: 'Hidden Halo', link: '/rings/Fashion%20Rings' },
+					{ name: 'Cluster', link: '/rings/Fashion%20Rings' },
+					{ name: 'Three-Stone', link: '/rings/Fashion%20Rings' },
+				],
+			},
+			{
+				heading: 'More Styles',
+				items: [
+					{ name: 'Tension', link: '/product/Stackable%20Rings' },
+					{ name: 'Floral', link: '/product/Birthstone%20Rings' },
+					{ name: 'Tiara', link: '/rings/Eternity%20Rings' },
+					{ name: 'Vintage', link: '/rings/Fashion%20Rings' },
+					{ name: 'Unique', link: '/rings/Fashion%20Rings' },
+					{ name: 'Cathedral', link: '/rings/Fashion%20Rings' },
+					{ name: 'Cluster', link: '/rings/Fashion%20Rings' },
+				],
+			},
+			{
+				heading: 'Shop by Metal',
+				items: [
+					{ name: 'Rose Gold', link: '/product/Stackable%20Rings' },
+					{ name: 'White Gold', link: '/product/Stackable%20Rings' },
+					{ name: 'Yellow Gold', link: '/product/Stackable%20Rings' },
+					{ name: 'Platinum', link: '/product/Stackable%20Rings' },
 				],
 			},
 		],

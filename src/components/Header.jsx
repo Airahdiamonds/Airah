@@ -19,6 +19,12 @@ import { menuItems } from '../utils/helpers'
 import CustomUserMenu from './CustomUserMenu'
 
 const userNavLinks = [
+	{ to: '/customize', label: 'Customize' },
+	// { to: '/product', label: 'Products' },
+	// { to: '/Edu', label: 'Education' },
+]
+
+const userNavLinks2 = [
 	// { to: '/customize', label: 'Customize' },
 	// { to: '/product', label: 'Products' },
 	{ to: '/Edu', label: 'Education' },
@@ -88,6 +94,7 @@ export default function Header() {
 
 					{/* Desktop Navigation */}
 					<nav className="center_1">
+						{renderNavLinks(userNavLinks)}
 						{Array.isArray(menuItems) && menuItems.length > 0
 							? menuItems.map((item, index) => (
 									<div
@@ -140,7 +147,7 @@ export default function Header() {
 									</div>
 							  ))
 							: null}
-						{renderNavLinks(userNavLinks)}
+						{renderNavLinks(userNavLinks2)}
 					</nav>
 
 					{/* Right Controls */}
