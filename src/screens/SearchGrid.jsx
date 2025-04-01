@@ -15,9 +15,16 @@ const SearchGrid = () => {
 	const location = useLocation()
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 
 	// Fetch search results whenever location.state changes
 	useEffect(() => {
@@ -94,7 +101,16 @@ const SearchGrid = () => {
 					<p className="text-gray-600 mb-4">{product.description}</p>
 					<p className="text-xl font-bold text-grey-500">
 						{currency}
-						{convertPrice(product.price, country, INR_rate, GBP_rate)}
+						{convertPrice(
+							product.price,
+							country,
+							INR_rate,
+							GBP_rate,
+							AUD_rate,
+							OMR_rate,
+							AED_rate,
+							EUR_rate
+						)}
 					</p>
 					<div className="flex space-x-4 mt-4">
 						<button

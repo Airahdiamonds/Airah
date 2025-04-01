@@ -23,9 +23,16 @@ const Favorites = () => {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { favorites, loading } = useSelector((state) => state.favoritesCart)
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 
 	const [favoritesSynced, setFavoritesSynced] = useState(false)
 
@@ -188,7 +195,11 @@ const Favorites = () => {
 										item.ring_style_price,
 									country,
 									INR_rate,
-									GBP_rate
+									GBP_rate,
+									AUD_rate,
+									OMR_rate,
+									AED_rate,
+									EUR_rate
 								)}
 							</p>
 							<div className="flex space-x-4 mt-4">

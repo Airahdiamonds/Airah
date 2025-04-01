@@ -17,9 +17,16 @@ const CustomizeRing = () => {
 	const { step, productDetails } = useSelector(
 		(state) => state.ringCustomization
 	)
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 
 	const steps = [
 		{
@@ -33,7 +40,11 @@ const CustomizeRing = () => {
 							productDetails[0].diamond?.diamond_price,
 							country,
 							INR_rate,
-							GBP_rate
+							GBP_rate,
+							AUD_rate,
+							OMR_rate,
+							AED_rate,
+							EUR_rate
 					  )),
 			remove: () => {
 				dispatch(resetDiamond())
@@ -52,7 +63,11 @@ const CustomizeRing = () => {
 							productDetails[0].ring?.ring_price,
 							country,
 							INR_rate,
-							GBP_rate
+							GBP_rate,
+							AUD_rate,
+							OMR_rate,
+							AED_rate,
+							EUR_rate
 					  )),
 			remove: () => {
 				dispatch(resetRing())
@@ -71,7 +86,11 @@ const CustomizeRing = () => {
 							productDetails[0].total_cost,
 							country,
 							INR_rate,
-							GBP_rate
+							GBP_rate,
+							AUD_rate,
+							OMR_rate,
+							AED_rate,
+							EUR_rate
 					  )),
 		},
 	]

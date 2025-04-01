@@ -26,10 +26,10 @@ import { menuItems } from "../utils/helpers";
 import CustomUserMenu from "./CustomUserMenu";
 
 const userNavLinks = [
-  { to: "/customize", label: "Customize" },
-  { to: "/product", label: "Products" },
-  { to: "/Edu", label: "Education" },
-];
+	// { to: '/customize', label: 'Customize' },
+	// { to: '/product', label: 'Products' },
+	{ to: '/Edu', label: 'Education' },
+]
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -93,60 +93,63 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center justify-center space-x-6 flex-1">
-            {renderNavLinks(userNavLinks)}
-            {Array.isArray(menuItems) && menuItems.length > 0
-              ? menuItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="relative group cursor-pointer text-gray-700 hover:text-gray-900 font-medium"
-                    onMouseEnter={() => setActiveDropdown(index)}
-                    onMouseLeave={() => setActiveDropdown(null)}
-                  >
-                    {/* Menu Item with Underline Animation */}
-                    <span className="relative after:absolute after:left-0 after:bottom-0 after:h-[1px] after:bg-black after:w-0 after:transition-all after:duration-300 after:ease-in-out group-hover:after:w-full">
-                      {item.name}
-                    </span>
+					{/* Desktop Navigation */}
+					<nav className="hidden lg:flex items-center justify-center space-x-6 flex-1">
+						{Array.isArray(menuItems) && menuItems.length > 0
+							? menuItems.map((item, index) => (
+									<div
+										key={index}
+										className="relative group cursor-pointer text-gray-700 hover:text-gray-900 font-medium"
+										onClick={() =>
+											setActiveDropdown(index === activeDropdown ? null : index)
+										}
+									>
+										{/* Menu Item with Underline Animation */}
+										<span className="relative after:absolute after:left-0 after:bottom-0 after:h-[1px] after:bg-black after:w-0 after:transition-all after:duration-300 after:ease-in-out group-hover:after:w-full">
+											{item.name}
+										</span>
 
-                    {/* Dropdown Menu */}
-                    {activeDropdown === index && item.submenu && (
-                      <div className="fixed z-10 left-0 top-[82px] bg-white w-full shadow-lg py-6">
-                        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
-                          {/* Submenu Items */}
-                          {item.submenu.map((category, catIndex) => (
-                            <div key={catIndex} className="space-y-2">
-                              <h3 className="text-gray-900 font-semibold mb-2">
-                                {category.heading}
-                              </h3>
-                              <ul className="space-y-1">
-                                {category.items.map((subitem, subIndex) => (
-                                  <li
-                                    key={subIndex}
-                                    className="text-gray-700 hover:text-gray-900 cursor-pointer"
-                                  >
-                                    {subitem}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ))}
+										{/* Dropdown Menu */}
+										{activeDropdown === index && item.submenu && (
+											<div className="fixed z-10 left-0 top-[82px] bg-white w-full shadow-lg py-6">
+												<div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 px-4">
+													{/* Submenu Items */}
+													{item.submenu.map((category, catIndex) => (
+														<div key={catIndex} className="space-y-2">
+															<h3 className="text-gray-900 font-semibold mb-2">
+																{category.heading}
+															</h3>
+															<ul className="space-y-1">
+																{category.items.map((subitem, subIndex) => (
+																	<li
+																		key={subIndex}
+																		className="text-gray-700 hover:text-gray-900 cursor-pointer"
+																	>
+																		<Link to={subitem.link}>
+																			{subitem.name}
+																		</Link>
+																	</li>
+																))}
+															</ul>
+														</div>
+													))}
 
-                          {/* Image */}
-                          <div className="hidden md:flex justify-center items-center">
-                            <img
-                              src={LOGO}
-                              alt="Category Preview"
-                              className="w-full h-auto rounded-lg"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))
-              : null}
-          </nav>
+													{/* Image */}
+													<div className="hidden md:flex justify-center items-center">
+														<img
+															src={LOGO}
+															alt="Category Preview"
+															className="w-full h-auto rounded-lg"
+														/>
+													</div>
+												</div>
+											</div>
+										)}
+									</div>
+							  ))
+							: null}
+						{renderNavLinks(userNavLinks)}
+					</nav>
 
           {/* Right Controls */}
           <div className="flex items-center space-x-2 md:space-x-4">
@@ -203,16 +206,20 @@ export default function Header() {
               ) : null}
             </Link>
 
-            {/* Country Selector */}
-            <select
-              value={country}
-              onChange={handleCountryChange}
-              className="hidden sm:block py-1 px-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="INR">INR</option>
-              <option value="USD">USD</option>
-              <option value="GBP">GBP</option>
-            </select>
+						{/* Country Selector */}
+						<select
+							value={country}
+							onChange={handleCountryChange}
+							className="hidden sm:block py-1 px-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+						>
+							<option value="INR">INR</option>
+							<option value="USD">USD</option>
+							<option value="GBP">GBP</option>
+							<option value="EUR">EUR</option>
+							<option value="AUD">AUD</option>
+							<option value="OMR">OMR</option>
+							<option value="AED">AED</option>
+						</select>
 
             {/* Mobile Menu Trigger */}
             <button

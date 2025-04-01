@@ -11,7 +11,8 @@ export async function addProduct(data) {
 	return { success: true }
 }
 
-export async function getAllProducts(clerk_user_id) {
+export async function getAllProducts(clerk_user_id, subCategory) {
+	console.log(subCategory)
 	const allProducts = await db
 		.select({
 			product_id: productsTable.product_id,
@@ -25,6 +26,7 @@ export async function getAllProducts(clerk_user_id) {
 			image_URL: productsTable.image_URL,
 		})
 		.from(productsTable)
+		.where(eq(productsTable.subCategory, subCategory))
 		.leftJoin(
 			reviewsTable,
 			eq(productsTable.product_id, reviewsTable.product_id)

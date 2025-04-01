@@ -115,10 +115,13 @@ export const addProduct = async (data) => {
 	}
 }
 
-export const getAllProducts = async (userId) => {
+export const getAllProducts = async (userId, subCategory) => {
 	try {
 		const response = await axios.get(
-			`${REACT_APP_API_URL}/admin/getAllProducts/${userId}`
+			`${REACT_APP_API_URL}/admin/getAllProducts`,
+			{
+				params: { userId, subCategory },
+			}
 		)
 		return response
 	} catch (error) {

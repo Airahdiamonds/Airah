@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate, useParams } from 'react-router-dom'
 import { fetchProducts } from '../redux/userProductsSlice'
 import { convertPrice } from '../utils/helpers'
 import { StarRating } from '../components/StarRating'
-import { useNavigate } from 'react-router-dom'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import { useUser } from '@clerk/clerk-react'
 import {
@@ -30,10 +30,18 @@ export default function ProductGrid() {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { products } = useSelector((state) => state.userProducts)
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 	const { user } = useUser()
+	const { subCategory } = useParams()
 	const dbId = user?.publicMetadata?.dbId
 	const { favorites } = useSelector((state) => state.favoritesCart)
 	const [filters, setFilters] = useState({
@@ -65,8 +73,8 @@ export default function ProductGrid() {
 			dispatch(clearLocalFavorites())
 			dispatch(fetchUserFavorites(dbId))
 		}
-		dispatch(fetchProducts(dbId))
-	}, [dbId, dispatch])
+		dispatch(fetchProducts({ dbId, subCategory }))
+	}, [dbId, dispatch, subCategory])
 
 	const isProductFavorited = (product_id) => {
 		return favorites.some((fav) => fav.product_id === product_id)
@@ -158,7 +166,11 @@ export default function ProductGrid() {
 											product.total_cost,
 											country,
 											INR_rate,
-											GBP_rate
+											GBP_rate,
+											AUD_rate,
+											OMR_rate,
+											AED_rate,
+											EUR_rate
 										)}
 									</p>
 									<p className="text-[#be9080] mb-4 text-sm font-light">
