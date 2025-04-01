@@ -53,7 +53,7 @@ function Product() {
 		<>
 			<button
 				className="justify-start w-full flex ms-20"
-				onClick={() => navigate('/product')}
+				onClick={() => navigate(`/product/${product?.subCategory}`)}
 			>
 				{'< '}
 				Go back to Products
