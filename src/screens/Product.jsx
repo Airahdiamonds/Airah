@@ -13,9 +13,16 @@ function Product() {
 	const { id } = useParams()
 	const { user } = useUser()
 	const dbId = user?.publicMetadata?.dbId
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 	const [product, setProduct] = useState(null)
 	const ringSizes = ['4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14']
 	const [selectedSize, setSelectedSize] = useState(ringSizes[0])
@@ -46,7 +53,7 @@ function Product() {
 		<>
 			<button
 				className="justify-start w-full flex ms-20"
-				onClick={() => navigate('/product')}
+				onClick={() => navigate(`/product/${product?.subCategory}`)}
 			>
 				{'< '}
 				Go back to Products
@@ -70,7 +77,16 @@ function Product() {
 					<p className="text-lg">{product?.carat} Total Carat Weight</p>
 					<div className="text-2xl font-light text-green-900">
 						{currency}
-						{convertPrice(product?.total_cost, country, INR_rate, GBP_rate)}
+						{convertPrice(
+							product?.total_cost,
+							country,
+							INR_rate,
+							GBP_rate,
+							AUD_rate,
+							OMR_rate,
+							AED_rate,
+							EUR_rate
+						)}
 						<p className="text-sm text-gray-500">(Sub Total)</p>
 					</div>
 

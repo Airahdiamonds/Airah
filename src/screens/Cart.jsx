@@ -26,9 +26,16 @@ const Cart = () => {
 	const [promo, setPromo] = useState('')
 	const [disabled, setDisabled] = useState(false)
 
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 	const { cartItems, loading, error, discount, coupon } = useSelector(
 		(state) => state.favoritesCart
 	)
@@ -171,7 +178,11 @@ const Cart = () => {
 															item.product_price,
 															country,
 															INR_rate,
-															GBP_rate
+															GBP_rate,
+															AUD_rate,
+															OMR_rate,
+															AED_rate,
+															EUR_rate
 														)}
 													</p>
 													<div className="flex flex-wrap gap-2 mt-2">
@@ -243,7 +254,11 @@ const Cart = () => {
 															item.diamond_price,
 															country,
 															INR_rate,
-															GBP_rate
+															GBP_rate,
+															AUD_rate,
+															OMR_rate,
+															AED_rate,
+															EUR_rate
 														)}
 													</p>
 												</div>
@@ -258,7 +273,11 @@ const Cart = () => {
 															item.ring_style_price,
 															country,
 															INR_rate,
-															GBP_rate
+															GBP_rate,
+															AUD_rate,
+															OMR_rate,
+															AED_rate,
+															EUR_rate
 														)}
 													</p>
 
@@ -320,7 +339,16 @@ const Cart = () => {
 					<p className="text-lg font-medium text-gray-700">Subtotal</p>
 					<p className="text-xl font-semibold text-gray-900">
 						{currency}
-						{convertPrice(totalPrice.toFixed(2), country, INR_rate, GBP_rate)}
+						{convertPrice(
+							totalPrice.toFixed(2),
+							country,
+							INR_rate,
+							GBP_rate,
+							AUD_rate,
+							OMR_rate,
+							AED_rate,
+							EUR_rate
+						)}
 					</p>
 				</div>
 
@@ -383,7 +411,16 @@ const Cart = () => {
 					<p className="text-xl font-semibold text-gray-900">
 						{currency}
 						{Number(
-							convertPrice(totalPrice, country, INR_rate, GBP_rate)
+							convertPrice(
+								totalPrice,
+								country,
+								INR_rate,
+								GBP_rate,
+								AUD_rate,
+								OMR_rate,
+								AED_rate,
+								EUR_rate
+							)
 						).toFixed(2)}
 					</p>
 				</div>
@@ -396,7 +433,16 @@ const Cart = () => {
 					<p className="text-xl font-semibold text-gray-900">
 						{currency}
 						{Number(
-							convertPrice(totalPrice / 3, country, INR_rate, GBP_rate)
+							convertPrice(
+								totalPrice / 3,
+								country,
+								INR_rate,
+								GBP_rate,
+								AUD_rate,
+								OMR_rate,
+								AED_rate,
+								EUR_rate
+							)
 						).toFixed(2)}
 					</p>
 				</div>

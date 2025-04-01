@@ -1,37 +1,37 @@
 // Import images for headStyles
-import headFourProng from '../assets/head/h02.png';
-import headSixProng from '../assets/head/h03.png';
-import headClassicBasket from '../assets/head/h04.png';
-import headSurpriseDiamond from '../assets/head/h05.png';
-import headSurpriseSapphire from '../assets/head/h06.png';
-import headLotusBasket from '../assets/head/h07.png';
-import headTulipBasket from '../assets/head/h08.png';
-import headScallopedSixProng from '../assets/head/h09.png';
-import headVintageBasket from '../assets/head/h10.png';
-import headPaveHalo from '../assets/head/h11.png';
-import headSapphireHalo from '../assets/head/h12.png';
-import headFrenchPaveHalo from '../assets/head/h13.png';
-import headFallingEdgeHalo from '../assets/head/h14.png';
+import headFourProng from '../assets/head/h02.png'
+import headSixProng from '../assets/head/h03.png'
+import headClassicBasket from '../assets/head/h04.png'
+import headSurpriseDiamond from '../assets/head/h05.png'
+import headSurpriseSapphire from '../assets/head/h06.png'
+import headLotusBasket from '../assets/head/h07.png'
+import headTulipBasket from '../assets/head/h08.png'
+import headScallopedSixProng from '../assets/head/h09.png'
+import headVintageBasket from '../assets/head/h10.png'
+import headPaveHalo from '../assets/head/h11.png'
+import headSapphireHalo from '../assets/head/h12.png'
+import headFrenchPaveHalo from '../assets/head/h13.png'
+import headFallingEdgeHalo from '../assets/head/h14.png'
 
 // Import images for metals
-import whiteGoldSVG from '../assets/metal/14K_White_Gold.svg';
-import yellowGoldSVG from '../assets/metal/14K_Yellow_Gold.svg';
-import roseGoldSVG from '../assets/metal/14K_Rose_Gold.svg';
-import platinumSVG from '../assets/metal/Platinum.svg';
+import whiteGoldSVG from '../assets/metal/14K_White_Gold.svg'
+import yellowGoldSVG from '../assets/metal/14K_Yellow_Gold.svg'
+import roseGoldSVG from '../assets/metal/14K_Rose_Gold.svg'
+import platinumSVG from '../assets/metal/Platinum.svg'
 
 // Import images for shankStyles
-import shankSolitaire from '../assets/shank/s01_C.png';
-import shankFrenchPave from '../assets/shank/s02_C.png';
-import shankUShapedPave from '../assets/shank/s03_C.png';
-import shankKnifeEdgePave from '../assets/shank/s04_C.png';
-import shankKnifeEdgeSolitaire from '../assets/shank/s05_C.png';
-import shankMarquiseDiamond from '../assets/shank/s06_C.png';
-import shankMarquiseSaphire from '../assets/shank/s07_C.png';
-import shankCathedralPave from '../assets/shank/s08_C.png';
-import shankRopeSolitaire from '../assets/shank/s09_C.png';
-import shankRopePave from '../assets/shank/s10_C.png';
-import shankSleekAccent from '../assets/shank/s11_C.png';
-import shankChannelSet from '../assets/shank/s12_C.png';
+import shankSolitaire from '../assets/shank/s01_C.png'
+import shankFrenchPave from '../assets/shank/s02_C.png'
+import shankUShapedPave from '../assets/shank/s03_C.png'
+import shankKnifeEdgePave from '../assets/shank/s04_C.png'
+import shankKnifeEdgeSolitaire from '../assets/shank/s05_C.png'
+import shankMarquiseDiamond from '../assets/shank/s06_C.png'
+import shankMarquiseSaphire from '../assets/shank/s07_C.png'
+import shankCathedralPave from '../assets/shank/s08_C.png'
+import shankRopeSolitaire from '../assets/shank/s09_C.png'
+import shankRopePave from '../assets/shank/s10_C.png'
+import shankSleekAccent from '../assets/shank/s11_C.png'
+import shankChannelSet from '../assets/shank/s12_C.png'
 
 export const convertFormData = (data) => {
 	const updatedData = { ...data }
@@ -112,7 +112,26 @@ export const stylesJson = {
 	shank_metal_price: '',
 }
 
-export const convertPrice = (price, country, INR_rate, GBP_rate) => {
+export const convertPrice = (
+	price,
+	country,
+	INR_rate,
+	GBP_rate,
+	AUD_rate,
+	OMR_rate,
+	AED_rate,
+	EUR_rate
+) => {
+	console.log(
+		price,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate
+	)
 	switch (country) {
 		case 'INR':
 			return price * INR_rate
@@ -120,6 +139,14 @@ export const convertPrice = (price, country, INR_rate, GBP_rate) => {
 			return price * GBP_rate
 		case 'USD':
 			return price
+		case 'AUD':
+			return price * AUD_rate
+		case 'AED':
+			return price * AED_rate
+		case 'OMR':
+			return price * OMR_rate
+		case 'EUR':
+			return price * EUR_rate
 		default:
 			return price
 	}
@@ -139,14 +166,14 @@ export const headStyles = [
 	{ name: 'Sapphire Halo', image: headSapphireHalo },
 	{ name: 'French Pave Halo', image: headFrenchPaveHalo },
 	{ name: 'Falling Edge Halo', image: headFallingEdgeHalo },
-];
+]
 
 export const metals = [
 	{ name: '14K White Gold', image: whiteGoldSVG },
 	{ name: '14K Yellow Gold', image: yellowGoldSVG },
 	{ name: '14K Rose Gold', image: roseGoldSVG },
 	{ name: 'Platinum', image: platinumSVG },
-];
+]
 
 export const shankStyles = [
 	{ name: 'Solitaire', image: shankSolitaire },
@@ -161,7 +188,7 @@ export const shankStyles = [
 	{ name: 'Rope Pave', image: shankRopePave },
 	{ name: 'Sleek Accent', image: shankSleekAccent },
 	{ name: 'Channel Set', image: shankChannelSet },
-];
+]
 
 export const menuItems = [
 	{
@@ -169,60 +196,16 @@ export const menuItems = [
 		submenu: [
 			{
 				heading: 'Design Your Own',
-				items: [
-					'Start with a Setting',
-					'Start with a Diamond',
-					'Start With A Lab Grown Diamond',
-					'Start with a Gemstone',
-				],
+				items: [{ name: 'Start with a Diamond', link: '/customize' }],
 			},
 			{
-				heading: 'Ready-to-Ship',
+				heading: 'Rings',
 				items: [
-					'Ready to Ship Engagement Rings',
-					'Preset Diamond Engagement Rings',
+					{ name: 'Stackable Rings', link: '/product/Stackable%20Rings' },
+					{ name: 'Birthstone Rings', link: '/product/Birthstone%20Rings' },
+					{ name: 'Eternity Rings', link: '/rings/Eternity%20Rings' },
+					{ name: 'Fashion Rings', link: '/rings/Fashion%20Rings' },
 				],
-			},
-			{
-				heading: 'Popular Styles',
-				items: [
-					'Round Cut Rings',
-					'Princess Cut Rings',
-					'Cushion Cut Rings',
-					"Explore Men's Engagement Rings",
-					'Top Engagement Rings',
-					'Customize Your Engagement Ring',
-					'The Ring Studio',
-				],
-			},
-			{
-				heading: 'Engagement Ring Styles',
-				items: [
-					'Solitaire',
-					'Pavé',
-					'Channel-Set',
-					'Side-Stone',
-					'Bezel',
-					'Halo',
-					'Hidden Halo',
-					'Three-Stone',
-				],
-			},
-			{
-				heading: 'More Styles',
-				items: [
-					'Tension',
-					'Floral',
-					'Tiara',
-					'Vintage',
-					'Unique',
-					'Cathedral',
-					'Cluster',
-				],
-			},
-			{
-				heading: 'Shop by Metal',
-				items: ['Rose Gold', 'White Gold', 'Yellow Gold', 'Platinum'],
 			},
 		],
 	},
@@ -232,68 +215,93 @@ export const menuItems = [
 			{
 				heading: 'Earrings',
 				items: [
-					'Stud Earrings',
-					'Hoop Earrings',
-					'Drop Earrings',
-					'Chandelier Earrings',
+					{ name: 'Stud Earrings', link: '/earrings/Stud%20Earrings' },
+					{ name: 'Hoop Earrings', link: '/earrings/Hoop%20Earrings' },
+					{ name: 'Drop Earrings', link: '/earrings/Drop%20Earrings' },
+					{
+						name: 'Chandelier Earrings',
+						link: '/earrings/Chandelier%20Earrings',
+					},
 				],
 			},
 			{
 				heading: 'Bracelets',
 				items: [
-					'Bangle Bracelets',
-					'Tennis Bracelets',
-					'Cuff Bracelets',
-					'Charm Bracelets',
+					{ name: 'Bangle Bracelets', link: '/bracelets/Bangle%20Bracelets' },
+					{ name: 'Tennis Bracelets', link: '/bracelets/Tennis%20Bracelets' },
+					{ name: 'Cuff Bracelets', link: '/bracelets/Cuff%20Bracelets' },
+					{ name: 'Charm Bracelets', link: '/bracelets/Charm%20Bracelets' },
 				],
 			},
 			{
 				heading: 'Necklaces',
 				items: [
-					'Pendant Necklaces',
-					'Choker Necklaces',
-					'Lariat Necklaces',
-					'Statement Necklaces',
-				],
-			},
-			{
-				heading: 'Rings',
-				items: [
-					'Stackable Rings',
-					'Birthstone Rings',
-					'Eternity Rings',
-					'Fashion Rings',
+					{ name: 'Pendant Necklaces', link: '/necklaces/Pendant%20Necklaces' },
+					{ name: 'Choker Necklaces', link: '/necklaces/Choker%20Necklaces' },
+					{ name: 'Lariat Necklaces', link: '/necklaces/Lariat%20Necklaces' },
+					{
+						name: 'Statement Necklaces',
+						link: '/necklaces/Statement%20Necklaces',
+					},
 				],
 			},
 		],
 	},
-
 	{
 		name: 'FAQ',
 		submenu: [
 			{
 				heading: 'Orders & Shipping',
 				items: [
-					'Track Your Order',
-					'Shipping Policies',
-					'International Shipping',
+					{
+						name: 'Track Your Order',
+						link: '/faq/orders-shipping/track-order',
+					},
+					{
+						name: 'Shipping Policies',
+						link: '/faq/orders-shipping/shipping-policies',
+					},
+					{
+						name: 'International Shipping',
+						link: '/faq/orders-shipping/international',
+					},
 				],
 			},
 			{
 				heading: 'Returns & Exchanges',
 				items: [
-					'Return Policy',
-					'How to Return an Item',
-					'Exchanges & Store Credit',
+					{
+						name: 'Return Policy',
+						link: '/faq/returns-exchanges/return-policy',
+					},
+					{
+						name: 'How to Return an Item',
+						link: '/faq/returns-exchanges/how-to-return',
+					},
+					{
+						name: 'Exchanges & Store Credit',
+						link: '/faq/returns-exchanges/exchanges',
+					},
 				],
 			},
 			{
 				heading: 'Payment & Financing',
-				items: ['Accepted Payment Methods', 'Financing Options', 'Gift Cards'],
+				items: [
+					{
+						name: 'Accepted Payment Methods',
+						link: '/faq/payment/accepted-methods',
+					},
+					{ name: 'Financing Options', link: '/faq/payment/financing' },
+					{ name: 'Gift Cards', link: '/faq/payment/gift-cards' },
+				],
 			},
 			{
 				heading: 'Customization & Engraving',
-				items: ['Custom Jewelry', 'Engraving Services', 'Special Orders'],
+				items: [
+					{ name: 'Custom Jewelry', link: '/faq/customization/custom-jewelry' },
+					{ name: 'Engraving Services', link: '/faq/customization/engraving' },
+					{ name: 'Special Orders', link: '/faq/customization/special-orders' },
+				],
 			},
 		],
 	},

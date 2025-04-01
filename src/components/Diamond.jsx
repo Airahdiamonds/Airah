@@ -12,9 +12,16 @@ import { convertPrice } from '../utils/helpers'
 function Diamond() {
 	const dispatch = useDispatch()
 	const { productDetails } = useSelector((state) => state.ringCustomization)
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 
 	const [product, setProduct] = useState(null)
 	const [activeTab, setActiveTab] = useState('earring')
@@ -63,7 +70,16 @@ function Diamond() {
 					<p className="text-lg">{product?.size} Total Carat Weight</p>
 					<div className="text-2xl font-light text-green-900">
 						{currency}
-						{convertPrice(product?.price, country, INR_rate, GBP_rate)}
+						{convertPrice(
+							product?.price,
+							country,
+							INR_rate,
+							GBP_rate,
+							AUD_rate,
+							OMR_rate,
+							AED_rate,
+							EUR_rate
+						)}
 						<p className="text-sm text-gray-500">(Setting Price)</p>
 					</div>
 

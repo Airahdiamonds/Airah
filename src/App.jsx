@@ -36,7 +36,7 @@ function App() {
 					<Route path="/customize" element={<CustomizeRing />} />
 					<Route path="/favorites" element={<Favorites />} />
 					<Route path="/cart" element={<Cart />} />
-					<Route path="/Product" element={<ProductGrid />} />
+					<Route path="/product/:subCategory" element={<ProductGrid />} />
 					<Route path="/dashboard" element={<AdminDashboard />} />
 					<Route path="/addProducts" element={<AddProduct />} />
 					<Route path="/productsList" element={<ProductsList />} />

@@ -14,9 +14,16 @@ function Ring() {
 	const dispatch = useDispatch()
 	const { state } = useLocation()
 	const { productDetails } = useSelector((state) => state.ringCustomization)
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 
 	const [product, setProduct] = useState(null)
 	const [showFilters, setShowFilters] = useState(false)
@@ -98,7 +105,11 @@ function Ring() {
 								Number(product?.shank_metal_price),
 							country,
 							INR_rate,
-							GBP_rate
+							GBP_rate,
+							AUD_rate,
+							OMR_rate,
+							AED_rate,
+							EUR_rate
 						)}
 						<p className="text-sm text-gray-500">(Setting Price)</p>
 					</div>

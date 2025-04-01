@@ -23,9 +23,16 @@ function DiamondGrid() {
 	const dispatch = useDispatch()
 	const { diamonds } = useSelector((state) => state.userProducts)
 	const { favorites } = useSelector((state) => state.favoritesCart)
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 	const { user } = useUser()
 	const dbId = user?.publicMetadata?.dbId
 	const [filters, setFilters] = useState({
@@ -141,7 +148,16 @@ function DiamondGrid() {
 								</h2>
 								<p className="text-[#be9080] text-lg mb-4 font-light">
 									{currency}
-									{convertPrice(product.price, country, INR_rate, GBP_rate)}
+									{convertPrice(
+										product.price,
+										country,
+										INR_rate,
+										GBP_rate,
+										AUD_rate,
+										OMR_rate,
+										AED_rate,
+										EUR_rate
+									)}
 								</p>
 							</div>
 						</button>

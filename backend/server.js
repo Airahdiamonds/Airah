@@ -222,9 +222,9 @@ app.post('/api/admin/addProduct', async (req, res) => {
 	}
 })
 
-app.get('/api/admin/getAllProducts/:clerk_user_id?', async (req, res) => {
+app.get('/api/admin/getAllProducts', async (req, res) => {
 	try {
-		let { clerk_user_id } = req.params
+		let { clerk_user_id, subCategory } = req.query // Extract from query params
 
 		if (
 			!clerk_user_id ||
@@ -234,7 +234,7 @@ app.get('/api/admin/getAllProducts/:clerk_user_id?', async (req, res) => {
 			clerk_user_id = null
 		}
 
-		const data = await getAllProducts(clerk_user_id)
+		const data = await getAllProducts(clerk_user_id, subCategory) // Pass both parameters
 		res.json(data)
 	} catch (err) {
 		console.error('getAllProducts Error:', err)

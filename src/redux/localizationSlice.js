@@ -35,6 +35,18 @@ const localizationSlice = createSlice({
 				case 'GBP':
 					state.currency = '£'
 					break
+				case 'EUR':
+					state.currency = '€'
+					break
+				case 'OMR':
+					state.currency = '﷼'
+					break
+				case 'AED':
+					state.currency = 'د.إ'
+					break
+				case 'AUD':
+					state.currency = 'A$'
+					break
 				default:
 					state.currency = '₹'
 			}
@@ -50,6 +62,10 @@ const localizationSlice = createSlice({
 				const latestRates = action.payload?.slice(-1)[0] || {}
 				state.GBP_rate = latestRates.GBP_rate ?? state.GBP_rate
 				state.INR_rate = latestRates.INR_rate ?? state.INR_rate
+				state.AED_rate = latestRates.AED_rate ?? state.AED_rate
+				state.AUD_rate = latestRates.AUD_rate ?? state.AUD_rate
+				state.OMR_rate = latestRates.OMR_rate ?? state.OMR_rate
+				state.EUR_rate = latestRates.EUR_rate ?? state.EUR_rate
 			})
 			.addCase(fetchCurrencyRates.rejected, (state, action) => {
 				state.loading = false

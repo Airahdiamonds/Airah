@@ -18,9 +18,16 @@ export default function OrdersPage() {
 	const [filter, setFilter] = useState('All')
 	const { user } = useUser()
 	const dbId = user?.publicMetadata?.dbId
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 
 	useEffect(() => {
 		if (dbId) {
@@ -88,7 +95,11 @@ export default function OrdersPage() {
 										order.total_amount,
 										country,
 										INR_rate,
-										GBP_rate
+										GBP_rate,
+										AUD_rate,
+										OMR_rate,
+										AED_rate,
+										EUR_rate
 									)}
 								</td>
 								<td className="p-3">

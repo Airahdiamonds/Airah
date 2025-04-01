@@ -19,9 +19,16 @@ function RingGrid() {
 	const dispatch = useDispatch()
 	const { styles } = useSelector((state) => state.userProducts)
 	const { favorites } = useSelector((state) => state.favoritesCart)
-	const { currency, country, INR_rate, GBP_rate } = useSelector(
-		(state) => state.localization
-	)
+	const {
+		currency,
+		country,
+		INR_rate,
+		GBP_rate,
+		AUD_rate,
+		OMR_rate,
+		AED_rate,
+		EUR_rate,
+	} = useSelector((state) => state.localization)
 	const { user } = useUser()
 	const dbId = user?.publicMetadata?.dbId
 
@@ -121,7 +128,11 @@ function RingGrid() {
 												Number(product.shank_metal_price),
 											country,
 											INR_rate,
-											GBP_rate
+											GBP_rate,
+											AUD_rate,
+											OMR_rate,
+											AED_rate,
+											EUR_rate
 										)}
 									</p>
 								</div>

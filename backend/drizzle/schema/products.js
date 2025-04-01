@@ -1,5 +1,12 @@
 import { relations } from 'drizzle-orm'
-import { decimal, pgEnum, pgTable, serial, text } from 'drizzle-orm/pg-core'
+import {
+	decimal,
+	jsonb,
+	pgEnum,
+	pgTable,
+	serial,
+	text,
+} from 'drizzle-orm/pg-core'
 import {
 	created_at,
 	description,
@@ -13,7 +20,29 @@ import { cartTable } from './cart.js'
 import { reviewsTable } from './reviews.js'
 
 export const productCategory = ['ring', 'necklace', 'pendant', 'bracelet']
+export const productSubCategory = [
+	'Stackable Rings',
+	'Birthstone Rings',
+	'Eternity Rings',
+	'Fashion Rings',
+	'Stud Earrings',
+	'Hoop Earrings',
+	'Drop Earrings',
+	'Chandelier Earrings',
+	'Bangle Bracelets',
+	'Tennis Bracelets',
+	'Cuff Bracelets',
+	'Charm Bracelets',
+	'Pendant Necklaces',
+	'Choker Necklaces',
+	'Lariat Necklaces',
+	'Statement Necklaces',
+]
 export const productCategoryEnum = pgEnum('product_category', productCategory)
+export const productSubCategoryEnum = pgEnum(
+	'product_sub_category',
+	productSubCategory
+)
 
 export const productsTable = pgTable('products', {
 	product_id: serial('product_id').primaryKey(),
@@ -24,6 +53,8 @@ export const productsTable = pgTable('products', {
 	name: text().notNull(),
 	category: productCategoryEnum().default('ring'),
 	description,
+	subCategory: productSubCategoryEnum().default('Stackable Rings'),
+	tags: jsonb('product_tags').default([]).notNull(),
 	image_URL,
 	gold_quantity: decimal(10, 2),
 	gold_price: decimal(10, 2),
