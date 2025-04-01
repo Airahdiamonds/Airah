@@ -21,7 +21,7 @@ const Filters = ({ filters, setFilters }) => {
 
 	// Toggle state for collapsible filters
 	const [openFilters, setOpenFilters] = useState({
-		diamondSize: true,
+		diamondSize: false,
 		diamondClarity: false,
 		diamondShape: false,
 		diamondColor: false,
@@ -43,53 +43,55 @@ const Filters = ({ filters, setFilters }) => {
 
 	return (
 		<div className="w-full lg:w-80 bg-white shadow-lg rounded-lg p-6 sticky top-4">
-			<h2 className="text-xl font-semibold text-[#be9080] mb-4">Filters</h2>
+			<h2 className="text-xl font-semibold text-[#be9080] mb-6">Filters</h2>
 
-			{/* Filter Groups */}
-			<FilterGroup
-				title="Diamond Size"
-				options={diamondSize}
-				selected={filters.diamondSize}
-				onChange={(value) => handleFilterChange('diamondSize', value)}
-				isOpen={openFilters.diamondSize}
-				toggle={() => toggleFilter('diamondSize')}
-			/>
+			{/* Filter Groups in a Horizontal Layout */}
+			<div className="flex flex-wrap justify-between gap-4">
+				<FilterGroup
+					title="Diamond Size"
+					options={diamondSize}
+					selected={filters.diamondSize}
+					onChange={(value) => handleFilterChange('diamondSize', value)}
+					isOpen={openFilters.diamondSize}
+					toggle={() => toggleFilter('diamondSize')}
+				/>
 
-			<FilterGroup
-				title="Clarity"
-				options={diamondClarity}
-				selected={filters.diamondClarity}
-				onChange={(value) => handleFilterChange('diamondClarity', value)}
-				isOpen={openFilters.diamondClarity}
-				toggle={() => toggleFilter('diamondClarity')}
-			/>
+				<FilterGroup
+					title="Clarity"
+					options={diamondClarity}
+					selected={filters.diamondClarity}
+					onChange={(value) => handleFilterChange('diamondClarity', value)}
+					isOpen={openFilters.diamondClarity}
+					toggle={() => toggleFilter('diamondClarity')}
+				/>
 
-			<FilterGroup
-				title="Shape"
-				options={diamondShape}
-				selected={filters.diamondShape}
-				onChange={(value) => handleFilterChange('diamondShape', value)}
-				isOpen={openFilters.diamondShape}
-				toggle={() => toggleFilter('diamondShape')}
-			/>
+				<FilterGroup
+					title="Shape"
+					options={diamondShape}
+					selected={filters.diamondShape}
+					onChange={(value) => handleFilterChange('diamondShape', value)}
+					isOpen={openFilters.diamondShape}
+					toggle={() => toggleFilter('diamondShape')}
+				/>
 
-			<FilterGroup
-				title="Color"
-				options={diamondColor}
-				selected={filters.diamondColor}
-				onChange={(value) => handleFilterChange('diamondColor', value)}
-				isOpen={openFilters.diamondColor}
-				toggle={() => toggleFilter('diamondColor')}
-			/>
+				<FilterGroup
+					title="Color"
+					options={diamondColor}
+					selected={filters.diamondColor}
+					onChange={(value) => handleFilterChange('diamondColor', value)}
+					isOpen={openFilters.diamondColor}
+					toggle={() => toggleFilter('diamondColor')}
+				/>
 
-			<FilterGroup
-				title="Cut"
-				options={diamondCut}
-				selected={filters.diamondCut}
-				onChange={(value) => handleFilterChange('diamondCut', value)}
-				isOpen={openFilters.diamondCut}
-				toggle={() => toggleFilter('diamondCut')}
-			/>
+				<FilterGroup
+					title="Cut"
+					options={diamondCut}
+					selected={filters.diamondCut}
+					onChange={(value) => handleFilterChange('diamondCut', value)}
+					isOpen={openFilters.diamondCut}
+					toggle={() => toggleFilter('diamondCut')}
+				/>
+			</div>
 
 			{/* Reset Button */}
 			<button
@@ -119,20 +121,23 @@ const FilterGroup = ({
 	isOpen,
 	toggle,
 }) => (
-	<div className="mb-4 border-b border-gray-300 pb-2">
+	<div className="mb-4 w-full">
+		{/* Filter Title */}
 		<button
 			onClick={toggle}
-			className="flex justify-between w-full text-lg font-medium text-[#be9080] py-2"
+			className="flex justify-between w-full text-lg font-medium text-[#be9080] py-2 border-b border-gray-300 mb-2"
 		>
 			{title}
 			{isOpen ? <FaChevronUp /> : <FaChevronDown />}
 		</button>
+		
+		{/* Filter Options */}
 		{isOpen && (
-			<div className="grid grid-cols-2 gap-2 mt-2">
+			<div className="flex flex-wrap gap-2">
 				{options.map((option) => (
 					<label
 						key={option}
-						className="flex items-center space-x-2 bg-gray-100 p-2 rounded-md cursor-pointer hover:bg-gray-200"
+						className="flex items-center space-x-2 bg-gray-100 p-2 rounded-md cursor-pointer hover:bg-gray-200 transition-all duration-300 ease-in-out"
 					>
 						<input
 							type="checkbox"
