@@ -15,7 +15,7 @@ function Diamond() {
 	const {
 		currency,
 		country,
-		INR_rate,
+		USD_rate,
 		GBP_rate,
 		AUD_rate,
 		OMR_rate,
@@ -71,15 +71,15 @@ function Diamond() {
 					<div className="text-2xl font-light text-green-900">
 						{currency}
 						{convertPrice(
-							product?.price,
+							Number(product?.price),
 							country,
-							INR_rate,
+							USD_rate,
 							GBP_rate,
 							AUD_rate,
 							OMR_rate,
 							AED_rate,
 							EUR_rate
-						)}
+						).toFixed(2)}
 						<p className="text-sm text-gray-500">(Setting Price)</p>
 					</div>
 

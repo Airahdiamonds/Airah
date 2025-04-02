@@ -21,7 +21,7 @@ export default function OrdersPage() {
 	const {
 		currency,
 		country,
-		INR_rate,
+		USD_rate,
 		GBP_rate,
 		AUD_rate,
 		OMR_rate,
@@ -92,15 +92,15 @@ export default function OrdersPage() {
 								<td className="p-3 font-bold">
 									{currency}
 									{convertPrice(
-										order.total_amount,
+										Number(order.total_amount),
 										country,
-										INR_rate,
+										USD_rate,
 										GBP_rate,
 										AUD_rate,
 										OMR_rate,
 										AED_rate,
 										EUR_rate
-									)}
+									).toFixed(2)}
 								</td>
 								<td className="p-3">
 									{order.status === 'pending' && (

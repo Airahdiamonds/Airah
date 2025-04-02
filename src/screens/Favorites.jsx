@@ -26,7 +26,7 @@ const Favorites = () => {
 	const {
 		currency,
 		country,
-		INR_rate,
+		USD_rate,
 		GBP_rate,
 		AUD_rate,
 		OMR_rate,
@@ -56,7 +56,9 @@ const Favorites = () => {
 						)
 					)
 				)
-				await dispatch(fetchUserFavorites(dbId))
+				setTimeout(() => {
+					dispatch(fetchUserFavorites(dbId))
+				}, 500)
 
 				dispatch(clearLocalFavorites()) // Clear local after syncing
 			}
@@ -190,17 +192,17 @@ const Favorites = () => {
 							<p className="text-xl font-bold text-grey-500">
 								{currency}
 								{convertPrice(
-									item.product_price ||
-										item.diamond_price ||
-										item.ring_style_price,
+									Number(item.product_price) ||
+										Number(item.diamond_price) ||
+										Number(item.ring_style_price),
 									country,
-									INR_rate,
+									USD_rate,
 									GBP_rate,
 									AUD_rate,
 									OMR_rate,
 									AED_rate,
 									EUR_rate
-								)}
+								).toFixed(2)}
 							</p>
 							<div className="flex space-x-4 mt-4">
 								<button

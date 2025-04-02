@@ -115,7 +115,7 @@ export const stylesJson = {
 export const convertPrice = (
 	price,
 	country,
-	INR_rate,
+	USD_rate,
 	GBP_rate,
 	AUD_rate,
 	OMR_rate,
@@ -125,7 +125,7 @@ export const convertPrice = (
 	console.log(
 		price,
 		country,
-		INR_rate,
+		USD_rate,
 		GBP_rate,
 		AUD_rate,
 		OMR_rate,
@@ -134,11 +134,11 @@ export const convertPrice = (
 	)
 	switch (country) {
 		case 'INR':
-			return price * INR_rate
+			return price
 		case 'GBP':
 			return price * GBP_rate
 		case 'USD':
-			return price
+			return price * USD_rate
 		case 'AUD':
 			return price * AUD_rate
 		case 'AED':
@@ -151,6 +151,25 @@ export const convertPrice = (
 			return price
 	}
 }
+
+// switch (country) {
+// 	case 'INR':
+// 		return price * INR_rate
+// 	case 'GBP':
+// 		return price * GBP_rate
+// 	case 'USD':
+// 		return price
+// 	case 'AUD':
+// 		return price * AUD_rate
+// 	case 'AED':
+// 		return price * AED_rate
+// 	case 'OMR':
+// 		return price * OMR_rate
+// 	case 'EUR':
+// 		return price * EUR_rate
+// 	default:
+// 		return price
+// }
 
 export const headStyles = [
 	{ name: 'Four Prong', image: headFourProng },

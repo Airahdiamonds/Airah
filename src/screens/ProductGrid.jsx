@@ -33,7 +33,7 @@ export default function ProductGrid() {
 	const {
 		currency,
 		country,
-		INR_rate,
+		USD_rate,
 		GBP_rate,
 		AUD_rate,
 		OMR_rate,
@@ -163,15 +163,15 @@ export default function ProductGrid() {
 									<p className="text-[#be9080] mb-4 text-lg font-light">
 										{currency}
 										{convertPrice(
-											product.total_cost,
+											Number(product.total_cost),
 											country,
-											INR_rate,
+											USD_rate,
 											GBP_rate,
 											AUD_rate,
 											OMR_rate,
 											AED_rate,
 											EUR_rate
-										)}
+										).toFixed(2)}
 									</p>
 									<p className="text-[#be9080] mb-4 text-sm font-light">
 										<div className="flex justify-center">

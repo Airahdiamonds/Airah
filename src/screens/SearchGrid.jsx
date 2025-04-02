@@ -18,7 +18,7 @@ const SearchGrid = () => {
 	const {
 		currency,
 		country,
-		INR_rate,
+		USD_rate,
 		GBP_rate,
 		AUD_rate,
 		OMR_rate,
@@ -44,18 +44,22 @@ const SearchGrid = () => {
 	}, [location.state]) // Dependency array includes location.state
 
 	const handleView = (item) => {
-		if (item.type === 1) {
+		if (item.type === 3) {
 			navigate(`/products/${item.product_id}`)
-		} else if (item.type === 2) {
+		} else if (item.type === 1) {
 			dispatch(
 				setCustomization({
 					diamond: {
 						product_id: item.diamond_id,
-						diamond_price: item.diamond_price,
+						diamond_price: item.price,
 					},
 					ring: {
 						product_id: null,
 						ring_price: null,
+						headStyle: 'Four Prong',
+						headMetal: '14K White Gold',
+						shankStyle: 'Solitaire',
+						shankMetal: '14K White Gold',
 					},
 					total_cost: null,
 				})
@@ -72,7 +76,15 @@ const SearchGrid = () => {
 					},
 					ring: {
 						product_id: item.ring_style_id,
-						ring_price: item.ring_style_price,
+						ring_price:
+							Number(item.head_style_price) +
+							Number(item.head_metal_price) +
+							Number(item.shank_style_price) +
+							Number(item.shank_metal_price),
+						headStyle: item.head_style,
+						headMetal: item.head_metal,
+						shankStyle: item.shank_style,
+						shankMetal: item.shank_metal,
 					},
 					total_cost: null,
 				})
@@ -102,15 +114,22 @@ const SearchGrid = () => {
 					<p className="text-xl font-bold text-grey-500">
 						{currency}
 						{convertPrice(
-							product.price,
+							product.type === 1
+								? Number(product.price)
+								: product.type === 2
+								? Number(product?.head_style_price) +
+								  Number(product?.head_metal_price) +
+								  Number(product?.shank_style_price) +
+								  Number(product?.shank_metal_price)
+								: Number(product.total_cost),
 							country,
-							INR_rate,
+							USD_rate,
 							GBP_rate,
 							AUD_rate,
 							OMR_rate,
 							AED_rate,
 							EUR_rate
-						)}
+						).toFixed(2)}
 					</p>
 					<div className="flex space-x-4 mt-4">
 						<button

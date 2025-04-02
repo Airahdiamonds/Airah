@@ -8,6 +8,7 @@ import { clerkClient } from '@clerk/express'
 import cors from 'cors'
 import {
 	addProduct,
+	getAdminProducts,
 	getAllProducts,
 	getProduct,
 	updateProduct,
@@ -70,7 +71,7 @@ app.use(
 						'https://www.airahdiamonds.com',
 						'https://admin.airahdiamonds.com',
 				  ]
-				: ['http://localhost:3006'],
+				: ['http://localhost:3006', 'http://localhost:3005'],
 		credentials: true,
 	})
 )
@@ -242,6 +243,16 @@ app.get('/api/admin/getAllProducts', async (req, res) => {
 		res.json(data)
 	} catch (err) {
 		console.error('getAllProducts Error:', err)
+		res.status(500).json({ error: 'Failed to get all products' })
+	}
+})
+
+app.get('/api/admin/getAdminProducts', async (req, res) => {
+	try {
+		const data = await getAdminProducts()
+		res.json(data)
+	} catch (err) {
+		console.error('getAdminProducts Error:', err)
 		res.status(500).json({ error: 'Failed to get all products' })
 	}
 })
