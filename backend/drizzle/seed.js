@@ -15,12 +15,12 @@ async function seed() {
 		const existingMaster = await db.select().from(masterTable).limit(1)
 		if (existingMaster.length === 0) {
 			await db.insert(masterTable).values({
-				GBP_rate: '1.23',
-				INR_rate: '83.45',
-				AUD_rate: '1.50',
-				AED_rate: '4.50',
-				OMR_rate: '0.38',
-				EUR_rate: '0.85',
+				GBP_rate: '0.0091',
+				USD_rate: '0.012',
+				AUD_rate: '0.019',
+				AED_rate: '0.043',
+				OMR_rate: '0.0045',
+				EUR_rate: '0.011',
 				gold_rate: '5000',
 				diamond_rate: '100',
 				created_at: new Date(),

@@ -11,6 +11,12 @@ export async function addProduct(data) {
 	return { success: true }
 }
 
+export async function getAdminProducts() {
+	const allProducts = await db.select().from(productsTable)
+	// No need to check for null, as an empty array is a valid response
+	return allProducts
+}
+
 export async function getAllProducts(clerk_user_id, subCategory) {
 	console.log(subCategory)
 	const allProducts = await db

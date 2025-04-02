@@ -16,7 +16,7 @@ function Product() {
 	const {
 		currency,
 		country,
-		INR_rate,
+		USD_rate,
 		GBP_rate,
 		AUD_rate,
 		OMR_rate,
@@ -72,21 +72,20 @@ function Product() {
 				</div>
 
 				{/* Right Side - Content */}
-				<div className="w-full md:w-2/5 border border-[#bf927f] p-8 space-y-4 flex flex-col max-h-fit md:sticky top-40 self-start">
+				<div className="w-full md:w-2/5 p-8 space-y-4 flex flex-col max-h-fit md:sticky top-40 self-start">
 					<h2 className="text-4xl special">{product?.name}</h2>
-					<p className="text-lg">{product?.carat} Total Carat Weight</p>
 					<div className="text-2xl font-light text-green-900">
 						{currency}
 						{convertPrice(
-							product?.total_cost,
+							Number(product?.total_cost),
 							country,
-							INR_rate,
+							USD_rate,
 							GBP_rate,
 							AUD_rate,
 							OMR_rate,
 							AED_rate,
 							EUR_rate
-						)}
+						).toFixed(2)}
 						<p className="text-sm text-gray-500">(Sub Total)</p>
 					</div>
 
@@ -197,49 +196,26 @@ function Product() {
 				<div className="">
 					<p className="text-gray-700 font-medium">SKU: {product?.SKU}</p>
 					<p className="text-gray-600 mt-2">{product?.description}</p>
-					<div className="bg-yellow-100 p-3 rounded-lg my-4 border-l-4 border-yellow-500">
+					<div className="bg-yellow-100 p-3 rounded-lg my-4 border-l-4 border-yellow-500 w-1/2">
 						<p className="text-yellow-800 font-medium">
 							<strong>DISCLAIMER:</strong> Earring backings are provided as
 							shown and cannot be altered.
 						</p>
 					</div>
 					<div className="mt-4">
-						<table className="w-full border-collapse text-left">
+						<table className="w-1/2 border-collapse text-left">
 							<tbody>
 								{[
 									['Gold Quantity', product?.gold_quantity],
-									['Gold Price', product?.gold_price],
-									['Gold Total', product?.gold_total],
 									['Round Quantity', product?.round_quantity],
-									['Round Price', product?.round_price],
-									['Round Total', product?.round_total],
 									['Oval Quantity', product?.oval_quantity],
-									['Oval Price', product?.oval_price],
-									['Oval Total', product?.oval_total],
 									['Marquise Quantity', product?.marquise_quantity],
-									['Marquise Price', product?.marquise_price],
-									['Marquise Total', product?.marquise_total],
 									['Emerald Quantity', product?.emerald_quantity],
-									['Emerald Price', product?.emerald_price],
-									['Emerald Total', product?.emerald_total],
 									['Princess Quantity', product?.princess_quantity],
-									['Princess Price', product?.princess_price],
-									['Princess Total', product?.princess_total],
 									['Pear Quantity', product?.pear_quantity],
-									['Pear Price', product?.pear_price],
-									['Pear Total', product?.pear_total],
 									['Heart Quantity', product?.heart_quantity],
-									['Heart Price', product?.heart_price],
-									['Heart Total', product?.heart_total],
 									['Other Diamond Quantity', product?.other_diamond_quantity],
-									['Other Diamond Price', product?.other_diamond_price],
-									['Other Diamond Total', product?.other_diamond_total],
 									['Gemstone Quantity', product?.gemstone_quantity],
-									['Gemstone Price', product?.gemstone_price],
-									['Gemstone Total', product?.gemstone_total],
-									['Misc Cost', product?.misc_cost],
-									['Labour Cost', product?.labour_cost],
-									['Other Cost', product?.other_cost],
 								]
 									.reduce((rows, item, index, array) => {
 										if (index % 2 === 0) {
@@ -255,11 +231,11 @@ function Product() {
 											<td className="py-2 px-4 font-semibold text-gray-700">
 												{left[0]}
 											</td>
-											<td className="py-2 px-4 text-gray-700">{left[1]}</td>
+											<td className="py-2 px-4 text-gray-700">{left[1]}g</td>
 											<td className="py-2 px-4 font-semibold text-gray-700">
 												{right[0]}
 											</td>
-											<td className="py-2 px-4 text-gray-700">{right[1]}</td>
+											<td className="py-2 px-4 text-gray-700">{right[1]}g</td>
 										</tr>
 									))}
 							</tbody>

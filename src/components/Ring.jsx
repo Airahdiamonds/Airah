@@ -17,7 +17,7 @@ function Ring() {
 	const {
 		currency,
 		country,
-		INR_rate,
+		USD_rate,
 		GBP_rate,
 		AUD_rate,
 		OMR_rate,
@@ -104,13 +104,13 @@ function Ring() {
 								Number(product?.shank_style_price) +
 								Number(product?.shank_metal_price),
 							country,
-							INR_rate,
+							USD_rate,
 							GBP_rate,
 							AUD_rate,
 							OMR_rate,
 							AED_rate,
 							EUR_rate
-						)}
+						).toFixed(2)}
 						<p className="text-sm text-gray-500">(Setting Price)</p>
 					</div>
 

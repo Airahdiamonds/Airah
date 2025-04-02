@@ -5,7 +5,7 @@ const initialState = {
 	country: 'INR',
 	currency: '₹',
 	GBP_rate: 0,
-	INR_rate: 0,
+	USD_rate: 0,
 	loading: false,
 	error: null,
 }
@@ -61,7 +61,7 @@ const localizationSlice = createSlice({
 				state.loading = false
 				const latestRates = action.payload?.slice(-1)[0] || {}
 				state.GBP_rate = latestRates.GBP_rate ?? state.GBP_rate
-				state.INR_rate = latestRates.INR_rate ?? state.INR_rate
+				state.USD_rate = latestRates.USD_rate ?? state.USD_rate
 				state.AED_rate = latestRates.AED_rate ?? state.AED_rate
 				state.AUD_rate = latestRates.AUD_rate ?? state.AUD_rate
 				state.OMR_rate = latestRates.OMR_rate ?? state.OMR_rate

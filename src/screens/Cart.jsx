@@ -3,7 +3,6 @@ import { FaGem, FaRing } from 'react-icons/fa'
 import { useUser, SignInButton } from '@clerk/clerk-react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-	clearCart,
 	clearCoupon,
 	fetchUserCartItems,
 	removeFromCart,
@@ -23,13 +22,14 @@ import { createOrder } from '../redux/ordersSlice'
 const Cart = () => {
 	const [selectedSize, setSelectedSize] = useState('6')
 	const [totalPrice, setTotalPrice] = useState(0)
+	const [maintotalPrice, setMainTotalPrice] = useState(0)
 	const [promo, setPromo] = useState('')
 	const [disabled, setDisabled] = useState(false)
 
 	const {
 		currency,
 		country,
-		INR_rate,
+		USD_rate,
 		GBP_rate,
 		AUD_rate,
 		OMR_rate,
@@ -54,6 +54,7 @@ const Cart = () => {
 			return total + itemTotal * item.quantity
 		}, 0)
 		setTotalPrice(newTotal)
+		setMainTotalPrice(newTotal)
 		if (cartItems.length > 0 && discount) {
 			setTotalPrice((prevTotal) => Math.max(prevTotal - discount, 0))
 			setPromo(coupon)
@@ -113,7 +114,9 @@ const Cart = () => {
 
 		try {
 			await dispatch(createOrder({ dbId, cartItems, totalPrice })).unwrap() // Unwrap ensures proper error handling
-			dispatch(clearCart())
+			cartItems.forEach((item) => {
+				dispatch(removeFromCart({ userId: dbId, productId: item.cart_id }))
+			})
 			navigate('/orders')
 		} catch (error) {
 			console.error('Order creation failed:', error)
@@ -175,15 +178,15 @@ const Cart = () => {
 													<p className="text-xl font-bold text-gray-500">
 														{currency}
 														{convertPrice(
-															item.product_price,
+															Number(item.product_price),
 															country,
-															INR_rate,
+															USD_rate,
 															GBP_rate,
 															AUD_rate,
 															OMR_rate,
 															AED_rate,
 															EUR_rate
-														)}
+														).toFixed(2)}
 													</p>
 													<div className="flex flex-wrap gap-2 mt-2">
 														{[
@@ -251,15 +254,15 @@ const Cart = () => {
 													<p className="text-xl font-bold text-gray-500">
 														{currency}
 														{convertPrice(
-															item.diamond_price,
+															Number(item.diamond_price),
 															country,
-															INR_rate,
+															USD_rate,
 															GBP_rate,
 															AUD_rate,
 															OMR_rate,
 															AED_rate,
 															EUR_rate
-														)}
+														).toFixed(2)}
 													</p>
 												</div>
 												<div>
@@ -270,15 +273,15 @@ const Cart = () => {
 													<p className="text-xl font-bold text-gray-500">
 														{currency}
 														{convertPrice(
-															item.ring_style_price,
+															Number(item.ring_style_price),
 															country,
-															INR_rate,
+															USD_rate,
 															GBP_rate,
 															AUD_rate,
 															OMR_rate,
 															AED_rate,
 															EUR_rate
-														)}
+														).toFixed(2)}
 													</p>
 
 													<div className="flex flex-wrap gap-2 mt-2">
@@ -340,15 +343,15 @@ const Cart = () => {
 					<p className="text-xl font-semibold text-gray-900">
 						{currency}
 						{convertPrice(
-							totalPrice.toFixed(2),
+							Number(maintotalPrice),
 							country,
-							INR_rate,
+							USD_rate,
 							GBP_rate,
 							AUD_rate,
 							OMR_rate,
 							AED_rate,
 							EUR_rate
-						)}
+						).toFixed(2)}
 					</p>
 				</div>
 
@@ -365,9 +368,17 @@ const Cart = () => {
 					<p className="text-lg font-medium text-gray-700">
 						Taxes/Duties Estimate
 					</p>
-					<p className="text-xl font-semibold text-gray-900">$TBD</p>
+					<p className="text-xl font-semibold text-gray-900">{currency}TBD</p>
 				</div>
-
+				{discount !== 0 && (
+					<div className="flex justify-between items-center mb-3">
+						<p className="text-lg font-medium text-gray-700">Discount</p>
+						<p className="text-xl font-semibold text-gray-900">
+							-{currency}
+							{discount}
+						</p>
+					</div>
+				)}
 				{/* Promo Code Input */}
 				<div className="mb-3">
 					<p className="text-lg font-medium text-gray-700 mb-1">Promo Code</p>
@@ -412,9 +423,9 @@ const Cart = () => {
 						{currency}
 						{Number(
 							convertPrice(
-								totalPrice,
+								Number(totalPrice),
 								country,
-								INR_rate,
+								USD_rate,
 								GBP_rate,
 								AUD_rate,
 								OMR_rate,
@@ -434,9 +445,9 @@ const Cart = () => {
 						{currency}
 						{Number(
 							convertPrice(
-								totalPrice / 3,
+								Number(totalPrice) / 3,
 								country,
-								INR_rate,
+								USD_rate,
 								GBP_rate,
 								AUD_rate,
 								OMR_rate,
