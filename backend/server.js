@@ -3,6 +3,10 @@ import { Webhook } from 'svix'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import ngrok from '@ngrok/ngrok'
+import multer from 'multer'
+import path, { dirname } from 'path'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
 import { insertUser, getAllUsers, getAdmin } from './drizzle/features/users.js'
 import { clerkClient } from '@clerk/express'
 import cors from 'cors'
@@ -60,6 +64,9 @@ const envFile =
 dotenv.config({ path: envFile })
 
 const app = express()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 const port = process.env.PORT || 4000
 app.use(bodyParser.json())
 app.use(
@@ -75,6 +82,15 @@ app.use(
 		credentials: true,
 	})
 )
+
+const storage = multer.diskStorage({
+	destination: './uploads/',
+	filename: (req, file, cb) => {
+		cb(null, Date.now() + path.extname(file.originalname)) // Unique filename
+	},
+})
+
+const upload = multer({ storage })
 
 const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_KEY
 
@@ -634,6 +650,65 @@ app.post('/api/admin/login', async (req, res) => {
 	} catch (err) {
 		console.log('Login Error:', err)
 		res.status(500).json({ error: 'Failed to login' })
+	}
+})
+
+app.post('/admin/upload', upload.any(), (req, res) => {
+	// Allow up to 10 images
+	console.log('Received files:', req.files.length)
+	if (!req.files || req.files.length === 0) {
+		return res.status(400).json({ error: 'No files uploaded' })
+	}
+
+	const fileUrls = req.files.map(
+		(file) => `${req.protocol}://${req.get('host')}/uploads/${file.filename}`
+	)
+	console.log('Returning file URLs:', fileUrls)
+	res.json({
+		message: 'Files uploaded successfully',
+		fileUrls: fileUrls,
+	})
+})
+
+app.get('/images', (req, res) => {
+	const uploadsDir = './uploads'
+
+	fs.readdir(uploadsDir, (err, files) => {
+		if (err) {
+			return res.status(500).json({ error: 'Unable to fetch images' })
+		}
+
+		const fileUrls = files.map(
+			(file) => `${req.protocol}://${req.get('host')}/uploads/${file}`
+		)
+
+		res.json({ images: fileUrls })
+	})
+})
+
+app.delete('/admin/delete', async (req, res) => {
+	const { url } = req.body
+
+	if (!url) {
+		return res
+			.status(400)
+			.json({ success: false, message: 'Image URL is required' })
+	}
+
+	// Extract filename from URL
+	const filename = path.basename(url)
+	const filePath = path.join(__dirname, 'uploads', filename)
+
+	try {
+		if (fs.existsSync(filePath)) {
+			fs.unlinkSync(filePath) // Delete the file
+			res.json({ success: true, message: 'Image deleted successfully' })
+		} else {
+			res.status(404).json({ success: false, message: 'File not found' })
+		}
+	} catch (error) {
+		console.error('Error deleting file:', error)
+		res.status(500).json({ success: false, message: 'Failed to delete image' })
 	}
 })
 

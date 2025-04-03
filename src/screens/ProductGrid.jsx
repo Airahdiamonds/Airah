@@ -17,15 +17,6 @@ import {
 import ImageCarousel from '../components/ImageCarousel'
 import Filters from '../components/Filters'
 
-const filterOptions = [
-	{ label: 'Diamond Type', options: ['All', 'Natural', 'Lab Grown'] },
-	{ label: 'Budget', options: ['All Budgets'] },
-	{ label: 'Style', options: ['All Ring Styles'] },
-	{ label: 'Shape', options: ['All Diamond Shapes'] },
-	{ label: 'Metal', options: ['All Metal Types'] },
-	{ label: 'Total Carat', options: ['View All'] },
-]
-
 export default function ProductGrid() {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
@@ -115,20 +106,6 @@ export default function ProductGrid() {
 			<p className="text-lg text-black mb-6">
 				Browse our collection of ready to ship diamond engagement rings.
 			</p>
-
-			<div className="flex flex-wrap justify-center gap-4 mb-6">
-				{filterOptions.map((option, index) => (
-					<select
-						key={index}
-						className="p-2 border rounded-lg bg-white text-[#be9080] border-[#be9080]"
-					>
-						<option>{option.label}</option>
-						{option.options.map((opt, idx) => (
-							<option key={idx}>{opt}</option>
-						))}
-					</select>
-				))}
-			</div>
 			<div className="w-full flex">
 				<div className="w-[22%] hidden lg:block p-4">
 					<Filters filters={filters} setFilters={setFilters} />
