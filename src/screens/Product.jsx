@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/clerk-react'
 import { addToCart, fetchUserCartItems } from '../redux/favoritesCartSlice'
 import ReviewsList from '../components/ReviewsList'
+import ProductImages from '../components/ProductImages'
 
 function Product() {
 	const dispatch = useDispatch()
@@ -61,15 +62,16 @@ function Product() {
 
 			<div className="flex flex-col md:flex-row items-center gap-8">
 				{/* Left Side - Image Grid */}
-				<div className="w-full md:w-3/5 grid grid-cols-2 gap-4">
-					{product?.image_URL.map((image) => (
+				{/* <div className="w-full md:w-3/5 grid grid-cols-2 gap-4"> */}
+				{/* {product?.image_URL.map((image) => (
 						<img
 							src={image}
 							alt="Ring 1"
 							className="w-full h-auto rounded-lg shadow-md"
 						/>
-					))}
-				</div>
+					))} */}
+				<ProductImages product={product} />
+				{/* </div> */}
 
 				{/* Right Side - Content */}
 				<div className="w-full md:w-2/5 p-8 space-y-4 flex flex-col max-h-fit md:sticky top-40 self-start">

@@ -67,18 +67,17 @@ function DiamondGrid() {
 		dispatch(fetchDiamonds({ dbId, filters }))
 	}, [dbId, dispatch, filters])
 
-
-	const StarRating = ({ rating }) => {
-		const stars = [];
-		for (let i = 0; i < 5; i++) {
-		  stars.push(
-			<span key={i} className={i < rating ? 'text-yellow-500' : 'text-gray-300'}>
-			  ★
-			</span>
-		  );
-		}
-		return <div className="flex">{stars}</div>;
-	  };
+	// const StarRating = ({ rating }) => {
+	// 	const stars = [];
+	// 	for (let i = 0; i < 5; i++) {
+	// 	  stars.push(
+	// 		<span key={i} className={i < rating ? 'text-yellow-500' : 'text-gray-300'}>
+	// 		  ★
+	// 		</span>
+	// 	  );
+	// 	}
+	// 	return <div className="flex">{stars}</div>;
+	//   };
 
 	const filteredDiamonds = diamonds?.filter((product) => {
 		return (
@@ -138,48 +137,47 @@ function DiamondGrid() {
 				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
 					{filteredDiamonds?.map((product) => (
 						<button
-						onClick={() => handleClick(product.diamond_id)}
-						key={product.diamond_id}
-						className="relative bg-white shadow-md text-left transition-transform transform hover:scale-105 hover:shadow-2xl border border-gray-200  rounded-lg"
-					  >
-						<ImageCarousel
-						  images={product.image_URL}
-						  className="w-full h-70 sm:h-70 object-cover border-b border-gray-200 transition duration-500 ease-in-out mb-4"
-						/>
-					  
-						<div className="flex items-center justify-between  px-4">
-						<h2 className="text-xl font-light mb-2 text-gray-600">
-						{product.name}
-						  </h2>
-						  <div
-							className="text-xl rounded-full p-1.5 border-2 border-red-300 bg-red-100 cursor-pointer text-red-500"
-							onClick={(e) => handleFavorite(e, product.diamond_id)}
-						  >
-							{isProductFavorited(product.diamond_id) ? (
-							  <FaHeart className="text-red-500" />
-							) : (
-							  <FaRegHeart />
-							)}
-						  </div>
-						</div>
-					  
-						<div className=" px-4 py-2">
-						<p className="text-gray-600  text-lg font-light">
-						{currency}
-							{convertPrice(
-							  Number(product.price),
-							  country,
-							  USD_rate,
-							  GBP_rate,
-							  AUD_rate,
-							  OMR_rate,
-							  AED_rate,
-							  EUR_rate
-							).toFixed(2)}
-						  </p>
-						 
-						</div>
-					  </button>
+							onClick={() => handleClick(product.diamond_id)}
+							key={product.diamond_id}
+							className="relative bg-white shadow-md text-left transition-transform transform hover:scale-105 hover:shadow-2xl border border-gray-200  rounded-lg"
+						>
+							<ImageCarousel
+								images={product.image_URL}
+								className="w-full h-70 sm:h-70 object-cover border-b border-gray-200 transition duration-500 ease-in-out mb-4"
+							/>
+
+							<div className="flex items-center justify-between  px-4">
+								<h2 className="text-xl font-light mb-2 text-gray-600">
+									{product.name}
+								</h2>
+								<div
+									className="text-xl rounded-full p-1.5 border-2 border-red-300 bg-red-100 cursor-pointer text-red-500"
+									onClick={(e) => handleFavorite(e, product.diamond_id)}
+								>
+									{isProductFavorited(product.diamond_id) ? (
+										<FaHeart className="text-red-500" />
+									) : (
+										<FaRegHeart />
+									)}
+								</div>
+							</div>
+
+							<div className=" px-4 py-2">
+								<p className="text-gray-600  text-lg font-light">
+									{currency}
+									{convertPrice(
+										Number(product.price),
+										country,
+										USD_rate,
+										GBP_rate,
+										AUD_rate,
+										OMR_rate,
+										AED_rate,
+										EUR_rate
+									).toFixed(2)}
+								</p>
+							</div>
+						</button>
 					))}
 				</div>
 			</main>
