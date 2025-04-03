@@ -4,23 +4,21 @@ import { motion } from "framer-motion";
 import EngagementRing from "../assets/banner.webp";
 import WeddingRing from "../assets/banner2.webp";
 import ring1 from "../assets/Prong2.png"; // Adjust the path as needed
-import ring2 from "../assets/demo2.png";
-import ring3 from "../assets/demoringcarousel.png";
+import ring2 from "../assets/demo2.jpg";
+import ring3 from "../assets/demoringcarousel.jpg";
 import ring4 from "../assets/pave-engagement-ring.png";
-import ring5 from "../assets/pave-engagement-ring (1).png";
-import bannerring from "../assets/Prong2.png";
-import model from "../assets/Wedding-rings.jpg";
-
-import bgImage2 from "../assets/mesh-236.png"; // Path to your background image
+import ring5 from "../assets/pave-engagement-ring (1).jpg";
+import model from "../assets/model.jpeg";
+import { Loader2 } from "lucide-react";
 import bgImage from "../assets/twy_BG.png"; // Path to your background image
 import leftImage from "../assets/twy.png";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { Heart } from "lucide-react"; // Importing Heart Icon
-import Slider from "react-slick";
+import customerVideo from "../assets/customerings.mp4";
 
 const diamonds = [
   { id: 1, image: ring5, title: "Brilliant Cut" },
@@ -36,22 +34,14 @@ const diamonds = [
 ];
 function Home() {
   const brands = [
-    "Nike",
-    "Adidas",
-    "Gucci",
-    "Prada",
-    "Rolex",
-    "Versace",
-    "Chanel",
-    "Puma",
-    "Reebok",
-    "Fendi",
-    "Louis Vuitton",
-    "Zara",
-    "Hermès",
-    "Burberry",
+    "Tiffany & Co.",
     "Cartier",
+    "Harry Winston",
+    "Bvlgari",
+    "Van Cleef & Arpels",
+
   ];
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const rings = [
     {
@@ -98,15 +88,7 @@ function Home() {
         "Material: 950 Platinum with a high-polish finish for an exquisite look.",
     },
   ];
-  const [activeTab, setActiveTab] = useState("features");
 
-  const tabContent = {
-    features:
-      "Our diamonds are ethically sourced and crafted to perfection, offering unmatched brilliance and clarity. Choose from various cuts and settings to create your dream jewelry piece.",
-    care: "Handle your diamonds with care by keeping them in a soft pouch. Clean with mild soap and a soft brush to maintain their shine. Avoid exposure to harsh chemicals.",
-    shipping:
-      "We offer insured worldwide shipping with secure packaging. Returns are accepted within 30 days with proof of purchase.",
-  };
   // Define the slides with imported images
   const slides = [
     {
@@ -122,6 +104,23 @@ function Home() {
         "Fashion is to please your eye. Shapes and proportions are for your intellect. I have an obsession with details and pattern.",
     },
   ];
+  const [activeTab, setActiveTab] = useState("features");
+  const [loading, setLoading] = useState(false);
+
+  const tabContent = {
+    features: "Crafted with precision, each diamond is cut to perfection to maximize brilliance and fire.",
+    care: "To maintain its sparkle, clean with a soft brush and mild soapy water. Store separately to prevent scratches.",
+    shipping: "Enjoy free worldwide shipping with a 30-day return policy. Secure, insured packaging included."
+  };
+
+
+
+  const handleCustomize = () => {
+    setLoading(true);
+    setTimeout(() => {
+      window.location.href = "/customize";
+    }, 2000);
+  };
 
   // Function to go to the next slide
   const goToNextSlide = () => {
@@ -134,20 +133,7 @@ function Home() {
       (prevSlide) => (prevSlide - 1 + slides.length) % slides.length
     );
   };
-  const settings = {
-    dots: true, // Enable dots
-    infinite: true, // Infinite loop
-    speed: 1000, // 1-second transition
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 2000, // Stops for 1 sec before moving
-    cssEase: "ease-in-out", // Smooth movement
-    arrows: false, // Hide arrows for a clean look
-    dotsClass: "slick-dots custom-dots", // Custom dots styling
-  };
-
-  const images = [model, model, model, model]; // All slides will show the model image
+  // All slides will show the model image
 
   // Set up auto-slide interval when the component mounts
   useEffect(() => {
@@ -161,38 +147,41 @@ function Home() {
   return (
     <div>
       {/* Hero Section with Carousel */}
-      <section className="relative w-full h-[100vh]">
-        {/* Carousel */}
-        <div className="absolute inset-0 w-full h-full overflow-hidden">
+      <section className="relative special w-full h-[100vh] overflow-hidden">
+        <div className="absolute inset-0 w-full h-full flex transition-transform duration-700 ease-in-out"
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        >
           {slides.map((slide, index) => (
             <div
               key={index}
-              className={`absolute inset-0 w-full h-full transition-all duration-500 ease-in-out ${
-                currentSlide === index ? "opacity-100" : "opacity-0"
-              }`}
+              className="relative w-full h-full flex-shrink-0"
               style={{
                 backgroundImage: `url(${slide.image})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                backgroundAttachment: "fixed",
               }}
             >
-              <div className="absolute inset-0 w-full h-full bg-black opacity-40"></div>
-              <div className="absolute inset-0 flex items-center justify-left px-4 md:px-8">
-                <div className="text-white text-left p-10">
-                  <h1 className="text-4xl md:text-6xl font-bold">
+              {/* Blurred Background Overlay */}
+              <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+
+              {/* Content Container */}
+              <div className="absolute inset-0 flex flex-col items-start justify-center px-6 md:px-20 lg:px-32">
+                <div className="text-white max-w-2xl animate-fadeInUp">
+                  <h1 className="text-4xl md:text-6xl font-extrabold tracking-wide leading-tight">
                     {slide.heading}
                   </h1>
-                  <p className="text-lg md:text-xl mt-4">{slide.subheading}</p>
-                  {/* Shop Jewelry Button */}
-                  <button className="mt-6 mr-4 px-8 py-3 bg-black text-white rounded-md text-lg font-semibold hover:bg-gray-800 border-1 border-white transition duration-300">
-                    Shop Diamonds
-                  </button>
-
-                  {/* Buy Diamonds Button */}
-                  <button className="mt-6 px-8 py-3 bg-white text-black text-lg rounded-md font-semibold border-1 border-black hover:bg-gray-200 transition duration-300">
-                    Buy Diamonds
-                  </button>
+                  <p className="text-lg md:text-xl mt-4 font-light">
+                    {slide.subheading}
+                  </p>
+                  <div className="mt-8">
+                    {/* CTA Button */}
+                    <a
+                      href="/product/Stackable%20Rings"
+                      className="px-8 py-3 bg-white text-gray-800 text-lg rounded-md font-semibold  hover:bg-gray-100 transition duration-300 shadow-lg animate-fadeInUp delay-200"
+                    >
+                      Shop  Rings
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -202,13 +191,13 @@ function Home() {
         {/* Carousel Controls */}
         <button
           onClick={goToPrevSlide}
-          className="absolute left-0 top-1/2 transform -translate-y-1/2 p-4 w-14 text-black bg-white m-2 hover:bg-opacity-75 rounded-full"
+          className="absolute left-6 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-lg"
         >
           &#10094;
         </button>
         <button
           onClick={goToNextSlide}
-          className="absolute right-0 top-1/2 transform -translate-y-1/2 p-4 w-14 text-black bg-white m-2 hover:bg-opacity-75 rounded-full"
+          className="absolute right-6 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-lg"
         >
           &#10095;
         </button>
@@ -242,12 +231,14 @@ function Home() {
               />
 
               {/* Content */}
-              <div className="p-4 sm:p-6 text-left bg-gray-100 flex flex-col flex-grow">
+              <div className="p-3 sm:p-3 text-left bg-gray-100 flex flex-col flex-grow">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                   {ring.title}
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-500 mt-1 flex-grow">
-                  {ring.description}
+                  {ring.features}
+                  {ring.material}
+
                 </p>
                 <button className="mt-3 py-3 px-6 bg-gray-800 text-white text-sm sm:text-base font-semibold rounded-md transition-opacity duration-300 hover:bg-gray-900">
                   Shop Now
@@ -263,37 +254,30 @@ function Home() {
           {/* Left Side - Product Details */}
           <div>
             <div className="flex justify-between items-center">
-              <h3 className="text-sm uppercase tracking-widest text-gray-400">
-                Diamond Customization
-              </h3>
+              <h3 className="text-sm uppercase tracking-widest text-gray-400">Diamond Customization</h3>
               <button className="text-white hover:text-red-500 transition">
                 <Heart size={24} />
               </button>
             </div>
 
-            <h2 className="text-4xl md:text-5xl font-bold mt-2">
-              Brilliant Diamonds
-            </h2>
+            <h2 className="text-4xl md:text-5xl font-bold mt-2">Create Your Perfect Diamond</h2>
             <p className="mt-4 text-gray-300 text-lg">
-              Create your perfect diamond jewelry. Choose your diamond,
-              customize the setting, and make it truly yours.
+              Select your ideal diamond, personalize the setting, and craft a unique piece that reflects your style.
             </p>
 
-            <h3 className="text-2xl md:text-3xl font-semibold mt-6">
-              Round Cut Diamond
-            </h3>
+            <h3 className="text-2xl md:text-3xl font-semibold mt-6">Round Cut Diamond</h3>
             <p className="text-3xl md:text-4xl font-bold mt-1">$2,999.00</p>
             <p className="mt-2 text-gray-400 text-lg">
-              Exquisite craftsmanship meets exceptional brilliance in this
-              round-cut diamond.
+              A timeless round-cut diamond, designed to radiate brilliance and elegance.
             </p>
 
             {/* Buttons */}
             <div className="mt-6 flex flex-col sm:flex-row gap-4">
-              <button className="bg-white text-black px-6 py-3 text-lg font-semibold rounded-md hover:bg-gray-300 transition">
-                ADD TO CART
-              </button>
-              <button className="bg-transparent text-white border border-white px-6 py-3 text-lg font-semibold rounded-md hover:bg-gray-800 transition">
+              <button
+                onClick={handleCustomize}
+                className="relative flex items-center justify-center bg-transparent text-white border border-white px-6 py-3 text-lg font-semibold rounded-md hover:bg-gray-800 transition"
+              >
+                {loading ? <Loader2 className="animate-spin mr-2" size={20} /> : null}
                 START WITH A SETTING
               </button>
             </div>
@@ -304,41 +288,30 @@ function Home() {
                 {["features", "care", "shipping"].map((tab) => (
                   <span
                     key={tab}
-                    className={`cursor-pointer pb-1 ${
-                      activeTab === tab
-                        ? "text-white font-semibold border-b-2 border-white"
-                        : ""
-                    }`}
+                    className={`cursor-pointer pb-1 ${activeTab === tab ? "text-white font-semibold border-b-2 border-white" : ""}`}
                     onClick={() => setActiveTab(tab)}
                   >
-                    {tab === "features"
-                      ? "Features"
-                      : tab === "care"
-                      ? "Product Care"
-                      : "Shipping & Returns"}
+                    {tab === "features" ? "Features" : tab === "care" ? "Product Care" : "Shipping & Returns"}
                   </span>
                 ))}
               </div>
-              <p className="mt-4 bg-white text-black text-lg p-4 rounded-md">
-                {tabContent[activeTab]}
-              </p>
+              <p className="mt-4 bg-white text-black text-lg p-4 rounded-md">{tabContent[activeTab]}</p>
             </div>
           </div>
 
           {/* Right Side - Image Slider */}
           <div className="w-full">
-            <Slider {...settings} className="w-full">
-              {images.map((src, index) => (
-                <div key={index} className="w-full">
-                  <img
-                    src={src}
-                    alt={`Diamond ${index + 1}`}
-                    className="w-full h-auto rounded-lg object-cover"
-                  />
-                </div>
-              ))}
-            </Slider>
+            <video
+              src={customerVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full rounded-lg object-cover"
+            />
           </div>
+
+
         </div>
       </section>
 
@@ -351,7 +324,7 @@ function Home() {
           <motion.div
             className="flex gap-12 text-3xl md:text-4xl font-bold uppercase text-gray-300 tracking-widest"
             animate={{ x: ["0%", "-100%"] }}
-            transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+            transition={{ repeat: Infinity, duration: 30, ease: "linear" }} // Reduced duration for faster movement
             whileHover={{ animationPlayState: "paused" }} // Pause on hover
           >
             {brands.concat(brands).map((brand, index) => (
@@ -363,6 +336,7 @@ function Home() {
               </div>
             ))}
           </motion.div>
+
         </div>
       </section>
       <section className="grid grid-cols-1 md:grid-cols-3 w-full ">
@@ -450,7 +424,7 @@ function Home() {
                         <img
                           src={diamond.image}
                           alt={diamond.title}
-                          className="w-full h-48 object-contain rounded-t-lg"
+                          className="w-full h-48 object-cover rounded-lg"
                         />
                       </div>
 
@@ -683,9 +657,8 @@ function Home() {
             {[...Array(4)].map((_, index) => (
               <div
                 key={index}
-                className={`grid grid-cols-1 md:grid-cols-2 gap-6 items-center ${
-                  index % 2 === 0 ? "" : "md:flex-row-reverse"
-                }`}
+                className={`grid grid-cols-1 md:grid-cols-2 gap-6 items-center ${index % 2 === 0 ? "" : "md:flex-row-reverse"
+                  }`}
               >
                 {index % 2 === 0 ? (
                   <>

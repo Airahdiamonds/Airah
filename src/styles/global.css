@@ -1,12 +1,12 @@
 @font-face {
-  font-family: 'Roboto';
-  src: url('../assets/fonts/Monsterat.ttf') format('truetype');
+  font-family: 'Glida';
+  src: url('../assets/fonts/Glida.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 * {
-  font-family: 'Monsterat';
+  font-family: 'Glida';
 }
 @font-face {
   font-family: 'Monsterat';
