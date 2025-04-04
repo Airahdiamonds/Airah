@@ -37,9 +37,9 @@ async function seed() {
 		const existingAdmin = await db.select().from(adminTable).limit(1)
 		if (existingAdmin.length === 0) {
 			await db.insert(adminTable).values({
-				name: 'Prem Vispute',
-				email: 'prem@gmail.com',
-				password: 'prem123',
+				name: 'Airah Admin',
+				email: 'admin@airah.com',
+				password: 'admin@123',
 				created_at: new Date(),
 				updated_at: new Date(),
 			})

@@ -7,8 +7,9 @@ import { convertPrice, formatDate } from '../utils/helpers'
 // Order Status Mapping for Tracking
 const statusSteps = {
 	Pending: 0,
-	Shipped: 1,
-	Delivered: 2,
+	Confirmed: 1,
+	Shipped: 2,
+	Delivered: 3,
 	Cancelled: -1,
 }
 
@@ -59,6 +60,7 @@ export default function OrdersPage() {
 				>
 					<option value="All">All</option>
 					<option value="pending">Pending</option>
+					<option value="confirmed">Confirmed</option>
 					<option value="shipped">Shipped</option>
 					<option value="delivered">Delivered</option>
 					<option value="cancelled">Cancelled</option>

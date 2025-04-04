@@ -7,7 +7,15 @@ import multer from 'multer'
 import path, { dirname } from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
-import { insertUser, getAllUsers, getAdmin } from './drizzle/features/users.js'
+import {
+	insertUser,
+	getAllUsers,
+	getAdmin,
+	getAllAdmin,
+	addAdmin,
+	updateAdmin,
+	deleteAdmin,
+} from './drizzle/features/users.js'
 import { clerkClient } from '@clerk/express'
 import cors from 'cors'
 import {
@@ -316,6 +324,16 @@ app.get('/api/admin/getAllUsers', async (req, res) => {
 	} catch (err) {
 		console.log('getAllUsers Error: ' + err)
 		res.status(500).json({ error: 'Failed to get all users' })
+	}
+})
+
+app.get('/api/admin/getAllAdmin', async (req, res) => {
+	try {
+		const data = await getAllAdmin()
+		res.json(data)
+	} catch (err) {
+		console.log('getAllAdmin Error: ' + err)
+		res.status(500).json({ error: 'Failed to get all admin' })
 	}
 })
 
@@ -648,13 +666,50 @@ app.post('/api/admin/login', async (req, res) => {
 		const data = await getAdmin(email, password)
 		res.json(data)
 	} catch (err) {
-		console.log('Login Error:', err)
-		res.status(500).json({ error: 'Failed to login' })
+		console.log('Login Error:', err.message)
+		res.status(401).json({ message: err.message || 'Failed to login' })
+	}
+})
+
+app.post('/api/admin/createAdmin', async (req, res) => {
+	try {
+		const { email, password, name } = req.body
+		const data = await addAdmin({
+			name,
+			email,
+			password,
+		})
+		res.json(data)
+	} catch (err) {
+		console.log('createAdmin Error:', err)
+		res.status(500).json({ error: 'Failed to create admin' })
+	}
+})
+
+app.put('/api/admin/updateAdmin/:id', async (req, res) => {
+	try {
+		const { id } = req.params
+		const { email, name, password } = req.body
+		const data = await updateAdmin({ id }, { email, name, password })
+		res.json(data)
+	} catch (err) {
+		console.log('updateAdmin Error:', err)
+		res.status(500).json({ error: 'Failed to update admin' })
+	}
+})
+
+app.delete('/api/admin/deleteAdmin/:id', async (req, res) => {
+	try {
+		const { id } = req.params
+		const data = await deleteAdmin({ id })
+		res.json(data)
+	} catch (err) {
+		console.log('deleteAdmin Error:', err)
+		res.status(500).json({ error: 'Failed to delete admin' })
 	}
 })
 
 app.post('/admin/upload', upload.any(), (req, res) => {
-	// Allow up to 10 images
 	console.log('Received files:', req.files.length)
 	if (!req.files || req.files.length === 0) {
 		return res.status(400).json({ error: 'No files uploaded' })

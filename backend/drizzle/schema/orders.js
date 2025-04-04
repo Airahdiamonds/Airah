@@ -5,7 +5,14 @@ import { relations } from 'drizzle-orm'
 import { orderItemsTable } from './orderItems.js'
 import { transactionsTable } from './transactions.js'
 
-export const status = ['pending', 'paid', 'shipped', 'delivered', 'cancelled']
+export const status = [
+	'pending',
+	'confirmed',
+	'paid',
+	'shipped',
+	'delivered',
+	'cancelled',
+]
 export const statusEnum = pgEnum('status', status)
 
 export const ordersTable = pgTable('orders', {

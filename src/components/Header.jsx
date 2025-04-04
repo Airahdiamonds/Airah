@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import { ShoppingCart, Heart, Search, Menu, X, ChevronDown } from 'lucide-react'
 import LOGO from '../assets/logo.webp'
@@ -67,6 +65,7 @@ export default function Header() {
 	}
 
 	const handleSearch = () => {
+		if (!query) return
 		navigate('/search', { state: query })
 	}
 
