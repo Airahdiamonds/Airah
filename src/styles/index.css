@@ -2,14 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
 @font-face {
   font-family: 'Monsterat';
   src: url('../assets/fonts/Monsterat.ttf') format('truetype');
@@ -19,7 +11,8 @@ body {
 
 * {
   font-family: 'Monsterat';
-}@keyframes scroll {
+}
+@keyframes scroll {
   from {
     transform: translateX(0);
   }
