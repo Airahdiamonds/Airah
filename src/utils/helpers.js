@@ -152,25 +152,6 @@ export const convertPrice = (
 	}
 }
 
-// switch (country) {
-// 	case 'INR':
-// 		return price * INR_rate
-// 	case 'GBP':
-// 		return price * GBP_rate
-// 	case 'USD':
-// 		return price
-// 	case 'AUD':
-// 		return price * AUD_rate
-// 	case 'AED':
-// 		return price * AED_rate
-// 	case 'OMR':
-// 		return price * OMR_rate
-// 	case 'EUR':
-// 		return price * EUR_rate
-// 	default:
-// 		return price
-// }
-
 export const headStyles = [
 	{ name: 'Four Prong', image: headFourProng },
 	{ name: 'Six Prong', image: headSixProng },
@@ -218,8 +199,8 @@ export const menuItems = [
 				items: [
 					{ name: 'Stackable Rings', link: '/product/Stackable%20Rings' },
 					{ name: 'Birthstone Rings', link: '/product/Birthstone%20Rings' },
-					{ name: 'Eternity Rings', link: '/rings/Eternity%20Rings' },
-					{ name: 'Fashion Rings', link: '/rings/Fashion%20Rings' },
+					{ name: 'Eternity Rings', link: '/product/Eternity%20Rings' },
+					{ name: 'Fashion Rings', link: '/product/Fashion%20Rings' },
 				],
 			},
 			{
@@ -265,12 +246,12 @@ export const menuItems = [
 				items: [
 					{ name: 'Solitaire', link: '/product/Stackable%20Rings' },
 					{ name: 'Pavé', link: '/product/Birthstone%20Rings' },
-					{ name: 'Channel-Set', link: '/rings/Eternity%20Rings' },
-					{ name: 'Side-Stone', link: '/rings/Fashion%20Rings' },
-					{ name: 'Bezel', link: '/rings/Fashion%20Rings' },
-					{ name: 'Hidden Halo', link: '/rings/Fashion%20Rings' },
-					{ name: 'Cluster', link: '/rings/Fashion%20Rings' },
-					{ name: 'Three-Stone', link: '/rings/Fashion%20Rings' },
+					{ name: 'Channel-Set', link: '/product/Eternity%20Rings' },
+					{ name: 'Side-Stone', link: '/product/Fashion%20Rings' },
+					{ name: 'Bezel', link: '/product/Fashion%20Rings' },
+					{ name: 'Hidden Halo', link: '/product/Fashion%20Rings' },
+					{ name: 'Cluster', link: '/product/Fashion%20Rings' },
+					{ name: 'Three-Stone', link: '/product/Fashion%20Rings' },
 				],
 			},
 			{
@@ -278,11 +259,11 @@ export const menuItems = [
 				items: [
 					{ name: 'Tension', link: '/product/Stackable%20Rings' },
 					{ name: 'Floral', link: '/product/Birthstone%20Rings' },
-					{ name: 'Tiara', link: '/rings/Eternity%20Rings' },
-					{ name: 'Vintage', link: '/rings/Fashion%20Rings' },
-					{ name: 'Unique', link: '/rings/Fashion%20Rings' },
-					{ name: 'Cathedral', link: '/rings/Fashion%20Rings' },
-					{ name: 'Cluster', link: '/rings/Fashion%20Rings' },
+					{ name: 'Tiara', link: '/product/Eternity%20Rings' },
+					{ name: 'Vintage', link: '/product/Fashion%20Rings' },
+					{ name: 'Unique', link: '/product/Fashion%20Rings' },
+					{ name: 'Cathedral', link: '/product/Fashion%20Rings' },
+					{ name: 'Cluster', link: '/product/Fashion%20Rings' },
 				],
 			},
 			{
@@ -302,33 +283,33 @@ export const menuItems = [
 			{
 				heading: 'Earrings',
 				items: [
-					{ name: 'Stud Earrings', link: '/earrings/Stud%20Earrings' },
-					{ name: 'Hoop Earrings', link: '/earrings/Hoop%20Earrings' },
-					{ name: 'Drop Earrings', link: '/earrings/Drop%20Earrings' },
+					{ name: 'Stud Earrings', link: '/product/Stud%20Earrings' },
+					{ name: 'Hoop Earrings', link: '/product/Hoop%20Earrings' },
+					{ name: 'Drop Earrings', link: '/product/Drop%20Earrings' },
 					{
 						name: 'Chandelier Earrings',
-						link: '/earrings/Chandelier%20Earrings',
+						link: '/product/Chandelier%20Earrings',
 					},
 				],
 			},
 			{
 				heading: 'Bracelets',
 				items: [
-					{ name: 'Bangle Bracelets', link: '/bracelets/Bangle%20Bracelets' },
-					{ name: 'Tennis Bracelets', link: '/bracelets/Tennis%20Bracelets' },
-					{ name: 'Cuff Bracelets', link: '/bracelets/Cuff%20Bracelets' },
-					{ name: 'Charm Bracelets', link: '/bracelets/Charm%20Bracelets' },
+					{ name: 'Bangle Bracelets', link: '/product/Bangle%20Bracelets' },
+					{ name: 'Tennis Bracelets', link: '/product/Tennis%20Bracelets' },
+					{ name: 'Cuff Bracelets', link: '/product/Cuff%20Bracelets' },
+					{ name: 'Charm Bracelets', link: '/product/Charm%20Bracelets' },
 				],
 			},
 			{
 				heading: 'Necklaces',
 				items: [
-					{ name: 'Pendant Necklaces', link: '/necklaces/Pendant%20Necklaces' },
-					{ name: 'Choker Necklaces', link: '/necklaces/Choker%20Necklaces' },
-					{ name: 'Lariat Necklaces', link: '/necklaces/Lariat%20Necklaces' },
+					{ name: 'Pendant Necklaces', link: '/product/Pendant%20Necklaces' },
+					{ name: 'Choker Necklaces', link: '/product/Choker%20Necklaces' },
+					{ name: 'Lariat Necklaces', link: '/product/Lariat%20Necklaces' },
 					{
 						name: 'Statement Necklaces',
-						link: '/necklaces/Statement%20Necklaces',
+						link: '/product/Statement%20Necklaces',
 					},
 				],
 			},
