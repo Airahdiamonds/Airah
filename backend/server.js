@@ -70,13 +70,7 @@ const envFile =
 	process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
 
 dotenv.config({ path: envFile })
-
 const app = express()
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
-const port = process.env.PORT || 4000
-app.use(bodyParser.json())
 app.use(
 	cors({
 		origin:
@@ -90,6 +84,11 @@ app.use(
 		credentials: true,
 	})
 )
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+const port = process.env.PORT || 4000
+app.use(bodyParser.json())
 
 const storage = multer.diskStorage({
 	destination: './uploads/',
