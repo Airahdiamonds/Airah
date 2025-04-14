@@ -1,155 +1,121 @@
 import { useState } from 'react'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
+import { motion } from 'framer-motion'
 
 const Filters = ({ filters, setFilters }) => {
 	const diamondSize = ['0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4']
 	const diamondClarity = ['SI2', 'SI1', 'VS2', 'VS1', 'VVS2', 'VVS1', 'IF']
-	const diamondShape = [
-		'round',
-		'princess',
-		'emerald',
-		'asscher',
-		'oval',
-		'pear',
-		'marquise',
-		'radiant',
-		'cushion',
-		'heart',
-	]
+	const diamondShape = ['round', 'princess', 'emerald', 'asscher', 'oval', 'pear', 'marquise', 'radiant', 'cushion', 'heart']
 	const diamondColor = ['D', 'E', 'F', 'G', 'H']
 	const diamondCut = ['regular', 'best', 'premium']
 
-	// Toggle state for collapsible filters
-	const [openFilters, setOpenFilters] = useState({
-		diamondSize: false,
-		diamondClarity: false,
-		diamondShape: false,
-		diamondColor: false,
-		diamondCut: false,
-	})
+	const [activeFilter, setActiveFilter] = useState(null)
 
 	const toggleFilter = (category) => {
-		setOpenFilters((prev) => ({ ...prev, [category]: !prev[category] }))
+		setActiveFilter(prev => (prev === category ? null : category))
 	}
 
 	const handleFilterChange = (category, value) => {
-		setFilters((prevFilters) => ({
-			...prevFilters,
-			[category]: prevFilters[category].includes(value)
-				? prevFilters[category].filter((item) => item !== value)
-				: [...prevFilters[category], value],
+		setFilters(prev => ({
+			...prev,
+			[category]: prev[category].includes(value)
+				? prev[category].filter(item => item !== value)
+				: [...prev[category], value]
 		}))
 	}
 
 	return (
-		<div className="w-full lg:w-80 bg-white shadow-lg rounded-lg p-6 sticky top-4">
-			<h2 className="text-xl font-semibold text-[#be9080] mb-6">Filters</h2>
+		<div className="w-full  flex justify-center  px-4">
+			<div className="w-full max-w-4xl  ">
 
-			{/* Filter Groups in a Horizontal Layout */}
-			<div className="flex flex-wrap justify-between gap-4">
-				<FilterGroup
-					title="Diamond Size"
-					options={diamondSize}
-					selected={filters.diamondSize}
-					onChange={(value) => handleFilterChange('diamondSize', value)}
-					isOpen={openFilters.diamondSize}
-					toggle={() => toggleFilter('diamondSize')}
-				/>
+				{/* Centered Tab Buttons + Reset */}
+				<div className="flex  flex-wrap justify-center items-center gap-3 mb-6">
+					<TabButton label="Size" active={activeFilter === 'diamondSize'} onClick={() => toggleFilter('diamondSize')} />
+					<TabButton label="Clarity" active={activeFilter === 'diamondClarity'} onClick={() => toggleFilter('diamondClarity')} />
+					<TabButton label="Shape" active={activeFilter === 'diamondShape'} onClick={() => toggleFilter('diamondShape')} />
+					<TabButton label="Color" active={activeFilter === 'diamondColor'} onClick={() => toggleFilter('diamondColor')} />
+					<TabButton label="Cut" active={activeFilter === 'diamondCut'} onClick={() => toggleFilter('diamondCut')} />
+					<ResetButton onClick={() =>
+						setFilters({
+							diamondSize: [],
+							diamondClarity: [],
+							diamondShape: [],
+							diamondColor: [],
+							diamondCut: [],
+						})
+					} />
+				</div>
 
-				<FilterGroup
-					title="Clarity"
-					options={diamondClarity}
-					selected={filters.diamondClarity}
-					onChange={(value) => handleFilterChange('diamondClarity', value)}
-					isOpen={openFilters.diamondClarity}
-					toggle={() => toggleFilter('diamondClarity')}
-				/>
-
-				<FilterGroup
-					title="Shape"
-					options={diamondShape}
-					selected={filters.diamondShape}
-					onChange={(value) => handleFilterChange('diamondShape', value)}
-					isOpen={openFilters.diamondShape}
-					toggle={() => toggleFilter('diamondShape')}
-				/>
-
-				<FilterGroup
-					title="Color"
-					options={diamondColor}
-					selected={filters.diamondColor}
-					onChange={(value) => handleFilterChange('diamondColor', value)}
-					isOpen={openFilters.diamondColor}
-					toggle={() => toggleFilter('diamondColor')}
-				/>
-
-				<FilterGroup
-					title="Cut"
-					options={diamondCut}
-					selected={filters.diamondCut}
-					onChange={(value) => handleFilterChange('diamondCut', value)}
-					isOpen={openFilters.diamondCut}
-					toggle={() => toggleFilter('diamondCut')}
-				/>
+				{/* Filter Options */}
+				<motion.div
+					initial={{ opacity: 0, height: 0 }}
+					animate={{ opacity: 1, height: 'auto' }}
+					transition={{ duration: 0.3 }}
+				>
+					{activeFilter === 'diamondSize' && (
+						<OptionsList options={diamondSize} selected={filters.diamondSize} onChange={(val) => handleFilterChange('diamondSize', val)} />
+					)}
+					{activeFilter === 'diamondClarity' && (
+						<OptionsList options={diamondClarity} selected={filters.diamondClarity} onChange={(val) => handleFilterChange('diamondClarity', val)} />
+					)}
+					{activeFilter === 'diamondShape' && (
+						<OptionsList options={diamondShape} selected={filters.diamondShape} onChange={(val) => handleFilterChange('diamondShape', val)} />
+					)}
+					{activeFilter === 'diamondColor' && (
+						<OptionsList options={diamondColor} selected={filters.diamondColor} onChange={(val) => handleFilterChange('diamondColor', val)} />
+					)}
+					{activeFilter === 'diamondCut' && (
+						<OptionsList options={diamondCut} selected={filters.diamondCut} onChange={(val) => handleFilterChange('diamondCut', val)} />
+					)}
+				</motion.div>
 			</div>
-
-			{/* Reset Button */}
-			<button
-				onClick={() =>
-					setFilters({
-						diamondSize: [],
-						diamondClarity: [],
-						diamondShape: [],
-						diamondColor: [],
-						diamondCut: [],
-					})
-				}
-				className="mt-6 w-full bg-red-500 text-white py-2 rounded-md shadow hover:bg-red-600 transition"
-			>
-				Reset Filters
-			</button>
 		</div>
 	)
 }
 
-// Collapsible Filter Group
-const FilterGroup = ({
-	title,
-	options,
-	selected,
-	onChange,
-	isOpen,
-	toggle,
-}) => (
-	<div className="mb-4 w-full">
-		{/* Filter Title */}
-		<button
-			onClick={toggle}
-			className="flex justify-between w-full text-lg font-medium text-[#be9080] py-2 border-b border-gray-300 mb-2"
-		>
-			{title}
-			{isOpen ? <FaChevronUp /> : <FaChevronDown />}
-		</button>
-		
-		{/* Filter Options */}
-		{isOpen && (
-			<div className="flex flex-wrap gap-2">
-				{options.map((option) => (
-					<label
-						key={option}
-						className="flex items-center space-x-2 bg-gray-100 p-2 rounded-md cursor-pointer hover:bg-gray-200 transition-all duration-300 ease-in-out"
-					>
-						<input
-							type="checkbox"
-							checked={selected.includes(option)}
-							onChange={() => onChange(option)}
-							className="h-4 w-4 text-[#be9080] focus:ring-[#be9080]"
-						/>
-						<span className="text-sm">{option}</span>
-					</label>
-				))}
-			</div>
-		)}
+// Tab Button Component
+const TabButton = ({ label, active, onClick }) => (
+	<motion.button
+		onClick={onClick}
+		whileTap={{ scale: 0.95 }}
+		className={`px-6 py-3  text-sm rounded-xl font-semibold transition-all border border-gray-400 ${
+			active
+				? 'bg-white text-gray-800 shadow-md'
+				: 'bg-white/70 text-gray-700 hover:bg-white'
+		}`}
+	>
+		{label} {active ? <FaChevronUp className="inline ml-1" /> : <FaChevronDown className="inline ml-1" />}
+	</motion.button>
+)
+
+// Reset Button
+const ResetButton = ({ onClick }) => (
+	<motion.button
+		onClick={onClick}
+		whileTap={{ scale: 0.95 }}
+		className="ml-2 px-5 py-3 border border-red-400 text-sm rounded-xl font-semibold bg-red-100 text-red-600 hover:bg-red-200 transition-all"
+	>
+		Reset
+	</motion.button>
+)
+
+// Option List
+const OptionsList = ({ options, selected, onChange }) => (
+	<div className="mt-6 flex flex-wrap justify-center gap-4">
+		{options.map((option) => (
+			<label
+				key={option}
+				className="flex items-center gap-2 bg-white/80 border border-gray-300 px-4 py-2 rounded-xl cursor-pointer hover:bg-white text-gray-800 transition"
+			>
+				<input
+					type="checkbox"
+					checked={selected.includes(option)}
+					onChange={() => onChange(option)}
+					className="accent-gray-700 h-4 w-4"
+				/>
+				<span className="text-sm">{option}</span>
+			</label>
+		))}
 	</div>
 )
 
