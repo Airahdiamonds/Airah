@@ -106,66 +106,64 @@ export default function ProductGrid() {
 			<p className="text-lg text-black mb-6">
 				Browse our collection of ready to ship diamond engagement rings.
 			</p>
-			<div className="w-full flex">
-				<div className="w-[22%] hidden lg:block p-4">
-					<Filters filters={filters} setFilters={setFilters} />
-				</div>
+			<div className="w-full px-4 md:px-8 mb-4">
+				<Filters filters={filters} setFilters={setFilters} />
+			</div>
 
-				<main className="flex-1 w-full p-8">
-					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-						{products.map((product) => (
-							<button
+			<main className="w-full px-4 md:px-8">
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+					{products.map((product) => (
+						<button
 							onClick={() => handleClick(product.product_id)}
 							key={product.product_id}
 							className="relative bg-white shadow-md text-left transition-transform transform hover:scale-105 hover:shadow-2xl border border-gray-200  rounded-lg"
-							>
-								<ImageCarousel
-							  images={product.image_URL}
-							  className="w-full h-72 object-cover  mb-2 transition duration-500 ease-in-out"
+						>
+							<ImageCarousel
+								images={product.image_URL}
+								className="w-full h-72 object-cover  mb-2 transition duration-500 ease-in-out"
 							/>
-							
-							
+
+
 							<div className="flex items-center justify-between  px-4">
-							<h2 className="text-xl font-light  text-gray-600">
-								{product.name}
-							  </h2>
-							  <div
-							className="text-xl rounded-full p-1.5 border-2 border-red-300 bg-red-100 cursor-pointer text-red-500"
-							onClick={(e) => handleFavorite(e, product.product_id)}
-							>
-							  {isProductFavorited(product.product_id) ? (
-								<FaHeart className="text-red-500" />
-							  ) : (
-								<FaRegHeart />
-							  )}
-							</div>
+								<h2 className="text-xl font-light  text-gray-600">
+									{product.name}
+								</h2>
+								<div
+									className="text-xl rounded-full p-1.5 border-2 border-red-300 bg-red-100 cursor-pointer text-red-500"
+									onClick={(e) => handleFavorite(e, product.product_id)}
+								>
+									{isProductFavorited(product.product_id) ? (
+										<FaHeart className="text-red-500" />
+									) : (
+										<FaRegHeart />
+									)}
+								</div>
 							</div>
 
 							<div className=" px-4 py-2">
 
-							  <p className="text-gray-600  text-lg font-light">
-								{currency}
-								{convertPrice(
-								  Number(product.total_cost),
-								  country,
-								  USD_rate,
-								  GBP_rate,
-								  AUD_rate,
-								  OMR_rate,
-								  AED_rate,
-								  EUR_rate
-								).toFixed(2)}
-							  </p>
-							  <p className="text-gray-600  text-sm font-light">
-								  <StarRating rating={product.average_rating || 0} /> (
-								  {product.review_count})
-							  </p>
+								<p className="text-gray-600  text-lg font-light">
+									{currency}
+									{convertPrice(
+										Number(product.total_cost),
+										country,
+										USD_rate,
+										GBP_rate,
+										AUD_rate,
+										OMR_rate,
+										AED_rate,
+										EUR_rate
+									).toFixed(2)}
+								</p>
+								<p className="text-gray-600  text-sm font-light">
+									<StarRating rating={product.average_rating || 0} /> (
+									{product.review_count})
+								</p>
 							</div>
-						  </button>
-						))}
-					</div>
-				</main>
-			</div>
+						</button>
+					))}
+				</div>
+			</main>
 
 			<footer className="w-full bg-white text-[#be9080] text-center py-6 mt-8">
 				<p className="text-black">
