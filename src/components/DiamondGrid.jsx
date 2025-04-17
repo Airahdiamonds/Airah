@@ -129,11 +129,11 @@ function DiamondGrid() {
 	return (
 		<div className="flex">
 			{/* Filters */}
-			<div className="w-[23%] hidden lg:block p-4">
+			<div className="w-[30%] hidden lg:block p-4">
 				<Filters filters={filters} setFilters={setFilters} />
 			</div>
 
-			<main className="flex-1 w-full p-4 lg:p-8">
+			<main className="flex-1 w-full p-2 lg:p-4">
 				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
 					{filteredDiamonds?.map((product) => (
 						<button
