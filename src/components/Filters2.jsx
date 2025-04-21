@@ -38,8 +38,8 @@ const Filters = ({ filters, setFilters }) => {
     <div className="w-full flex justify-center px-4">
       <div className="w-full max-w-6xl space-y-4 border border-gray-300 rounded-lg px-4 py-2 shadow-xl">
        <h1 className="text-2xl text-extrabold  special">Filters</h1>
-	    {/* Shape Filter */}
-		<button
+        {/* Shape Filter */}
+        <button
           onClick={() => setFilters(initialFilters)}
           className="px-4 py-2 bg-red-100 text-red-600 rounded-lg border border-red-400 text-sm"
         >
