@@ -65,6 +65,7 @@ import {
 	getOrdersByUser,
 	updateStatus,
 } from './drizzle/features/orders.js'
+import { sendEmail } from './emailService.js'
 
 const envFile =
 	process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
@@ -622,6 +623,14 @@ app.get('/api/orders', async (req, res) => {
 	try {
 		const { userId } = req.query
 		const data = await getOrdersByUser(userId)
+
+		// await sendEmail(
+		// 	customerEmail,
+		// 	'Order Confirmation',
+		// 	`Thank you for your order #${orderId}`,
+		// 	`<h1>Thank you for your order!</h1><p>Order ID: ${orderId}</p>`
+		//   );
+
 		res.json(data)
 	} catch (err) {
 		console.log('getOrdersByUser Error: ' + err)
