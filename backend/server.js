@@ -91,13 +91,26 @@ const port = process.env.PORT || 4000
 app.use(bodyParser.json())
 
 const storage = multer.diskStorage({
-	destination: './uploads/',
-	filename: (req, file, cb) => {
-		cb(null, Date.now() + path.extname(file.originalname)) // Unique filename
+	destination: (req, file, cb) => cb(null, 'uploads/'),
+	filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
+})
+
+const upload = multer({
+	storage,
+	limits: {
+		fileSize: 10 * 1024 * 1024, // 10MB per file
+		files: 10, // allow up to 10 files
 	},
 })
 
-const upload = multer({ storage })
+// const storage = multer.diskStorage({
+// 	destination: './uploads/',
+// 	filename: (req, file, cb) => {
+// 		cb(null, Date.now() + path.extname(file.originalname)) // Unique filename
+// 	},
+// })
+
+// const upload = multer({ storage })
 
 const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_KEY
 
@@ -708,7 +721,7 @@ app.delete('/api/admin/deleteAdmin/:id', async (req, res) => {
 	}
 })
 
-app.post('/admin/upload', upload.any(), (req, res) => {
+app.post('/admin/upload', upload.array('images', 10), (req, res) => {
 	console.log('Received files:', req.files.length)
 	if (!req.files || req.files.length === 0) {
 		return res.status(400).json({ error: 'No files uploaded' })
