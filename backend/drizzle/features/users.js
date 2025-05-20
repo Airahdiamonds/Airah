@@ -9,7 +9,7 @@ export async function insertUser(data) {
 		.values(data)
 		.returning()
 		.onConflictDoUpdate({
-			target: [userTable.clerk_user_id],
+			target: [userTable.email],
 			set: data,
 		})
 
@@ -113,4 +113,13 @@ export async function getAdmin(email, password) {
 	}
 
 	return admin[0]
+}
+
+export async function getUser(email) {
+	const user = await db
+		.select()
+		.from(userTable)
+		.where(eq(userTable.email, email))
+
+	return user[0]
 }

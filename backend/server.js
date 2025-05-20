@@ -15,6 +15,7 @@ import {
 	addAdmin,
 	updateAdmin,
 	deleteAdmin,
+	getUser,
 } from './drizzle/features/users.js'
 import { clerkClient } from '@clerk/express'
 import cors from 'cors'
@@ -66,12 +67,21 @@ import {
 	updateStatus,
 } from './drizzle/features/orders.js'
 import { sendEmail } from './emailService.js'
+import {
+	comparePasswords,
+	generateSalt,
+	hashPassword,
+} from './passwordHasher.js'
+import { createUserSession } from './session.js'
+import cookieParser from 'cookie-parser'
+import { redisClient } from './redis.js'
 
 const envFile =
 	process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
 
 dotenv.config({ path: envFile })
 const app = express()
+app.use(cookieParser())
 app.use(
 	cors({
 		origin:
@@ -786,6 +796,69 @@ app.delete('/admin/delete', async (req, res) => {
 		console.error('Error deleting file:', error)
 		res.status(500).json({ success: false, message: 'Failed to delete image' })
 	}
+})
+
+app.post('/api/users/signup', async (req, res) => {
+	const { email, name, password } = req.body
+	const existingUser = await getUser(email)
+	if (existingUser) {
+		return res.status(400).json({ error: 'User already exists' })
+	}
+	const salt = generateSalt()
+	const hashedPassword = await hashPassword(password, salt)
+	try {
+		const user = await insertUser({
+			email,
+			name,
+			password: hashedPassword,
+			salt,
+		})
+		await createUserSession(user, res)
+		res.json(user)
+	} catch (err) {
+		console.error('Signup Error:', err)
+		res.status(500).json({ error: 'Failed to create user' })
+	}
+})
+
+const COOKIE_SESSION_KEY = 'session-id'
+
+app.get('/api/me', async (req, res) => {
+	const sessionId = req.cookies[COOKIE_SESSION_KEY]
+	if (!sessionId) return res.status(401).json({ error: 'Not authenticated' })
+
+	const session = await redisClient.get(`session:${sessionId}`)
+	if (!session) return res.status(401).json({ error: 'Session expired' })
+
+	const { user_id, role } = session
+	res.json({ user_id, role })
+})
+
+app.post('/api/users/signin', async (req, res) => {
+	const { email, password } = req.body
+	const user = await getUser(email)
+	if (!user) {
+		return res.status(400).json({ error: 'Invalid credentials' })
+	}
+	const isValidPassword = await comparePasswords({
+		password,
+		salt: user.salt,
+		hashedPassword: user.password,
+	})
+	if (!isValidPassword) {
+		return res.status(400).json({ error: 'Invalid credentials' })
+	}
+	await createUserSession(user, res)
+	res.json(user)
+})
+
+app.post('/api/users/signout', async (req, res) => {
+	const sessionId = req.cookies[COOKIE_SESSION_KEY]
+	if (!sessionId) return res.status(401).json({ error: 'Not authenticated' })
+
+	await redisClient.del(`session:${sessionId}`)
+	res.clearCookie(COOKIE_SESSION_KEY)
+	res.json({ message: 'Logged out successfully' })
 })
 
 app.listen(port, '0.0.0.0', () => {

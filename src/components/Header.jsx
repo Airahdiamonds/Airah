@@ -17,6 +17,12 @@ import {
 } from '../redux/favoritesCartSlice'
 import { menuItems } from '../utils/helpers'
 import CustomUserMenu from './CustomUserMenu'
+import {
+	fetchCurrentUser,
+	signInUser,
+	signoutUser,
+	signUpUser,
+} from '../utils/api'
 
 const userNavLinks = [
 	{ to: '/customize', label: 'Customize' },
@@ -40,6 +46,28 @@ export default function Header() {
 	const { favorites, cartItems } = useSelector((state) => state.favoritesCart)
 	const { user, isSignedIn } = useUser()
 	const dbId = user?.publicMetadata?.dbId
+
+	const [isModalOpen, setIsModalOpen] = useState(false)
+	const [authMode, setAuthMode] = useState('login')
+	const [formData, setFormData] = useState({
+		name: '',
+		email: '',
+		password: '',
+		confirmPassword: '',
+	})
+	const [error, setError] = useState('')
+	const [success, setSuccess] = useState('')
+	const [currentUser, setCurrentUser] = useState(null)
+	useEffect(() => {
+		const getUser = async () => {
+			const user = await fetchCurrentUser()
+			if (user) {
+				setCurrentUser(user)
+				console.log(user)
+			}
+		}
+		getUser()
+	}, [])
 
 	// Fetch user data and currency rates on component mount
 	useEffect(() => {
@@ -67,6 +95,79 @@ export default function Header() {
 	const handleSearch = () => {
 		if (!query) return
 		navigate('/search', { state: query })
+	}
+
+	const handleInputChange = (e) => {
+		const { name, value } = e.target
+		setFormData((prev) => ({ ...prev, [name]: value }))
+		setError('') // Clear error on input change
+		setSuccess('') // Clear success on input change
+	}
+
+	const handleLogin = async (e) => {
+		e.preventDefault()
+		const { email, password } = formData
+
+		if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+			setError('Please enter a valid email address')
+			return
+		}
+		const result = await signInUser({ email, password })
+		if (result) {
+			setSuccess('Account created successfully! Please log in.')
+			setFormData({ email: '', password: '' })
+			const user = await fetchCurrentUser()
+			if (user) {
+				setCurrentUser(user)
+				console.log(user)
+			}
+			setIsModalOpen(false)
+		} else {
+			alert('Sign up failed')
+		}
+	}
+	const handleLogout = async () => {
+		await signoutUser()
+		setCurrentUser(null)
+	}
+	const handleSignUp = async (e) => {
+		e.preventDefault()
+		const { name, email, password, confirmPassword } = formData
+
+		// Basic validation
+		if (!name.trim()) {
+			setError('Full name is required')
+			return
+		}
+		if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+			setError('Please enter a valid email address')
+			return
+		}
+		if (password.length < 8) {
+			setError('Password must be at least 8 characters long')
+			return
+		}
+		if (password !== confirmPassword) {
+			setError('Passwords do not match')
+			return
+		}
+		if (formData.password !== formData.confirmPassword) {
+			alert('Passwords do not match')
+			return
+		}
+		const result = await signUpUser({ name, email, password })
+		if (result) {
+			setSuccess('Account created successfully! Please log in.')
+			setFormData({ name: '', email: '', password: '', confirmPassword: '' })
+			const user = await fetchCurrentUser()
+			if (user) {
+				setCurrentUser(user)
+				console.log(user)
+			}
+			setIsModalOpen(false)
+		} else {
+			alert('Sign up failed')
+		}
 	}
 
 	// Render navigation links dynamically
@@ -174,17 +275,195 @@ export default function Header() {
 						</div>
 
 						{/* User Authentication */}
-						<div className="relative">
-							<SignedIn>
-								<div className="flex items-center">
-									<CustomUserMenu />
+						<div className="relative font-sans">
+							{currentUser !== null ? (
+								<div className="flex items-center gap-3">
+									<img
+										src={user?.avatar || '/default-avatar.png'}
+										alt="User Avatar"
+										className="w-10 h-10 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700 transition-transform duration-300 hover:scale-105"
+									/>
+									<div className="relative group">
+										<button className="text-base font-semibold text-gray-900 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+											{user?.name || 'Account'}
+										</button>
+										<div className="absolute right-0 z-20 hidden group-hover:block w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+											<ul className="py-2">
+												<li>
+													<button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors duration-200">
+														Profile
+													</button>
+												</li>
+												<li>
+													<button
+														onClick={handleLogout}
+														className="w-full text-left px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors duration-200"
+													>
+														Log Out
+													</button>
+												</li>
+											</ul>
+										</div>
+									</div>
 								</div>
-							</SignedIn>
-							<SignedOut>
-								<button className="inline-flex items-center justify-center rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-700 text-white hover:bg-gray-800 h-9 px-4 py-2">
-									<SignInButton />
-								</button>
-							</SignedOut>
+							) : (
+								<>
+									<button
+										onClick={() => setIsModalOpen(true)}
+										className="inline-flex items-center justify-center rounded-full text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 h-10 px-6 py-2 shadow-md transition-all duration-300 transform hover:scale-105"
+									>
+										Account
+									</button>
+
+									{isModalOpen && (
+										<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-500">
+											<div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-2xl w-full max-w-md transform scale-95 animate-in">
+												<h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">
+													{authMode === 'login'
+														? 'Welcome Back'
+														: 'Create Account'}
+												</h2>
+
+												<div className="flex justify-center mb-6">
+													<div className="inline-flex bg-gray-100 dark:bg-gray-800 rounded-full p-1">
+														<label className="relative cursor-pointer">
+															<input
+																type="radio"
+																name="authMode"
+																value="login"
+																checked={authMode === 'login'}
+																onChange={() => setAuthMode('login')}
+																className="sr-only"
+															/>
+															<span
+																className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+																	authMode === 'login'
+																		? 'bg-blue-600 text-white shadow-md'
+																		: 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+																}`}
+															>
+																Login
+															</span>
+														</label>
+														<label className="relative cursor-pointer">
+															<input
+																type="radio"
+																name="authMode"
+																value="signup"
+																checked={authMode === 'signup'}
+																onChange={() => setAuthMode('signup')}
+																className="sr-only"
+															/>
+															<span
+																className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+																	authMode === 'signup'
+																		? 'bg-blue-600 text-white shadow-md'
+																		: 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+																}`}
+															>
+																Sign Up
+															</span>
+														</label>
+													</div>
+												</div>
+
+												{authMode === 'login' ? (
+													<form onSubmit={handleLogin} className="space-y-5">
+														<div>
+															<input
+																type="email"
+																name="email"
+																placeholder="Email"
+																value={formData.email}
+																onChange={handleInputChange}
+																required
+																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+															/>
+														</div>
+														<div>
+															<input
+																type="password"
+																name="password"
+																placeholder="Password"
+																value={formData.password}
+																onChange={handleInputChange}
+																required
+																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+															/>
+														</div>
+														<button
+															type="submit"
+															className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-md transition-all duration-300 transform hover:scale-105"
+														>
+															Log In
+														</button>
+													</form>
+												) : (
+													<form onSubmit={handleSignUp} className="space-y-5">
+														<div>
+															<input
+																type="text"
+																name="name"
+																placeholder="Full Name"
+																value={formData.name}
+																onChange={handleInputChange}
+																required
+																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+															/>
+														</div>
+														<div>
+															<input
+																type="email"
+																name="email"
+																placeholder="Email"
+																value={formData.email}
+																onChange={handleInputChange}
+																required
+																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+															/>
+														</div>
+														<div>
+															<input
+																type="password"
+																name="password"
+																placeholder="Password"
+																value={formData.password}
+																onChange={handleInputChange}
+																required
+																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+															/>
+														</div>
+														<div>
+															<input
+																type="password"
+																name="confirmPassword"
+																placeholder="Confirm Password"
+																value={formData.confirmPassword}
+																onChange={handleInputChange}
+																required
+																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+															/>
+														</div>
+														<button
+															type="submit"
+															className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-md transition-all duration-300 transform hover:scale-105"
+														>
+															Sign Up
+														</button>
+													</form>
+												)}
+
+												<button
+													onClick={() => setIsModalOpen(false)}
+													className="mt-6 w-full text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
+												>
+													Cancel
+												</button>
+											</div>
+										</div>
+									)}
+								</>
+							)}
 						</div>
 
 						{/* Favorites */}

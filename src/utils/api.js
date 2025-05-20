@@ -463,3 +463,63 @@ export const createUserOrder = async ({ dbId, cartItems, totalPrice }) => {
 		return null
 	}
 }
+
+export const signUpUser = async (userData) => {
+	try {
+		const response = await axios.post(
+			`${REACT_APP_API_URL}/users/signup`,
+			userData,
+			{
+				withCredentials: true,
+			}
+		)
+		return response.data
+	} catch (error) {
+		console.error('Error signing up user:', error)
+		return null
+	}
+}
+
+export const fetchCurrentUser = async () => {
+	try {
+		const response = await axios.get(
+			`${REACT_APP_API_URL}/me`,
+			{ withCredentials: true } // 👈 send session cookie
+		)
+		return response.data
+	} catch (error) {
+		return null
+	}
+}
+
+export const signInUser = async (userData) => {
+	try {
+		const response = await axios.post(
+			`${REACT_APP_API_URL}/users/signin`,
+			userData,
+			{
+				withCredentials: true,
+			}
+		)
+		return response.data
+	} catch (error) {
+		console.error('Error signing in user:', error)
+		return null
+	}
+}
+
+export const signoutUser = async () => {
+	try {
+		const response = await axios.post(
+			`${REACT_APP_API_URL}/users/signout`,
+			{},
+			{
+				withCredentials: true,
+			}
+		)
+		return response.data
+	} catch (error) {
+		console.error('Error signing out user:', error)
+		return null
+	}
+}
