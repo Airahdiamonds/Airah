@@ -75,6 +75,7 @@ import {
 import { createUserSession } from './session.js'
 import cookieParser from 'cookie-parser'
 import { redisClient } from './redis.js'
+import { handleGoogleLogin } from './drizzle/features/userOAuthAccount.js'
 
 const envFile =
 	process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
@@ -859,6 +860,43 @@ app.post('/api/users/signout', async (req, res) => {
 	await redisClient.del(`session:${sessionId}`)
 	res.clearCookie(COOKIE_SESSION_KEY)
 	res.json({ message: 'Logged out successfully' })
+})
+
+app.get('/api/auth/google/callback', async (req, res) => {
+	const code = req.query.code
+	const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		body: new URLSearchParams({
+			code,
+			client_id: process.env.GOOGLE_CLIENT_ID,
+			client_secret: process.env.GOOGLE_CLIENT_SECRET,
+			redirect_uri: 'http://localhost:4000/api/auth/google/callback',
+			grant_type: 'authorization_code',
+		}),
+	})
+
+	const tokenData = await tokenRes.json()
+	// tokenData contains access_token, id_token, refresh_token, etc.
+	// const idToken = tokenData.id_token
+
+	// Decode the ID token (JWT) or send it to Google API to fetch user info
+	const userInfoRes = await fetch(
+		'https://www.googleapis.com/oauth2/v3/userinfo',
+		{
+			headers: {
+				Authorization: `Bearer ${tokenData.access_token}`,
+			},
+		}
+	)
+	const userInfo = await userInfoRes.json()
+	const oAuthUser = await handleGoogleLogin(userInfo)
+	await createUserSession(oAuthUser, res)
+	// Authenticate or register user in your system
+	// Redirect to frontend with a session or JWT
+	res.redirect(`http://localhost:3006`)
 })
 
 app.listen(port, '0.0.0.0', () => {

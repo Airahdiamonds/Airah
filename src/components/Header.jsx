@@ -16,7 +16,7 @@ import {
 	fetchUserFavorites,
 } from '../redux/favoritesCartSlice'
 import { menuItems } from '../utils/helpers'
-import CustomUserMenu from './CustomUserMenu'
+import { FaGoogle } from 'react-icons/fa'
 import {
 	fetchCurrentUser,
 	signInUser,
@@ -168,6 +168,17 @@ export default function Header() {
 		} else {
 			alert('Sign up failed')
 		}
+	}
+	const handleGoogleAuth = () => {
+		const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
+		const redirectUri = 'http://localhost:4000/api/auth/google/callback' // Update this for production
+		const scope = encodeURIComponent('profile email')
+		const state = crypto.randomUUID() // Optional, useful for CSRF protection
+		const responseType = 'code'
+
+		const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}&state=${state}&access_type=offline&prompt=consent`
+
+		window.location.href = googleAuthUrl
 	}
 
 	// Render navigation links dynamically
@@ -452,6 +463,24 @@ export default function Header() {
 														</button>
 													</form>
 												)}
+												<div className="mt-6 space-y-2">
+													<p className="text-center text-sm text-gray-500 dark:text-gray-400">
+														or continue with
+													</p>
+													<div className="flex justify-center">
+														<button
+															onClick={handleGoogleAuth}
+															className="w-full flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
+														>
+															<FaGoogle />
+															<span>
+																{authMode === 'login'
+																	? 'Sign in with Google'
+																	: 'Sign up with Google'}
+															</span>
+														</button>
+													</div>
+												</div>
 
 												<button
 													onClick={() => setIsModalOpen(false)}
