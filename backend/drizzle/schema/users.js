@@ -5,6 +5,7 @@ import { ordersTable } from './orders.js'
 import { favoritesTable } from './favorites.js'
 import { cartTable } from './cart.js'
 import { reviewsTable } from './reviews.js'
+import { UserOAuthAccount } from './userOAuthAccount.js'
 
 export const userRole = ['admin', 'user']
 export const userRoleEnum = pgEnum('role', userRole)
@@ -25,4 +26,5 @@ export const userRelations = relations(userTable, ({ many }) => ({
 	favorites: many(favoritesTable),
 	cartItems: many(cartTable),
 	reviews: many(reviewsTable),
+	oAuthAccounts: many(UserOAuthAccount),
 }))
