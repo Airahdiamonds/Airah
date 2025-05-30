@@ -122,16 +122,6 @@ export const convertPrice = (
 	AED_rate,
 	EUR_rate
 ) => {
-	console.log(
-		price,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate
-	)
 	switch (country) {
 		case 'INR':
 			return price

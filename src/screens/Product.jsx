@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { getProduct } from '../utils/api'
 import { convertPrice } from '../utils/helpers'
 import { useNavigate, useParams } from 'react-router-dom'
-import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/clerk-react'
 import { addToCart, fetchUserCartItems } from '../redux/favoritesCartSlice'
 import ReviewsList from '../components/ReviewsList'
 import ProductImages from '../components/ProductImages'
@@ -12,8 +11,6 @@ function Product() {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { id } = useParams()
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
 	const {
 		currency,
 		country,
@@ -23,6 +20,8 @@ function Product() {
 		OMR_rate,
 		AED_rate,
 		EUR_rate,
+		currentUser,
+		guestUser,
 	} = useSelector((state) => state.localization)
 	const [product, setProduct] = useState(null)
 	const ringSizes = ['4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14']
@@ -37,16 +36,20 @@ function Product() {
 	// const [activeTab, setActiveTab] = useState('earring')
 
 	const handleClick = async () => {
+		console.log(guestUser)
 		await dispatch(
 			addToCart({
-				userId: dbId,
+				userId: currentUser,
+				guestId: guestUser,
 				productId: product.product_id,
 				diamondId: null,
 				ringStyleId: null,
 				quantity: 1,
 			})
 		)
-		await dispatch(fetchUserCartItems(dbId))
+		await dispatch(
+			fetchUserCartItems({ userId: currentUser, guestId: guestUser })
+		)
 		navigate('/cart')
 	}
 
@@ -122,21 +125,12 @@ function Product() {
 						</div>
 
 						<div>
-							<SignedIn>
-								<button
-									onClick={handleClick}
-									className="px-6 py-2 text-lg w-full h-16 bg-[#c9a992] text-white rounded-sm shadow-md hover:bg-[#bf927f] active:bg-[#a8826c]"
-								>
-									Add To Cart
-								</button>
-							</SignedIn>
-							<SignedOut>
-								<SignInButton>
-									<button className="px-6 py-2 text-lg w-full h-16 bg-[#c9a992] text-white rounded-sm shadow-md hover:bg-[#bf927f] active:bg-[#a8826c]">
-										Add To Cart
-									</button>
-								</SignInButton>
-							</SignedOut>
+							<button
+								onClick={handleClick}
+								className="px-6 py-2 text-lg w-full h-16 bg-[#c9a992] text-white rounded-sm shadow-md hover:bg-[#bf927f] active:bg-[#a8826c]"
+							>
+								Add To Cart
+							</button>
 						</div>
 					</div>
 

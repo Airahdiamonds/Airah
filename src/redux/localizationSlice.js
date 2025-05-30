@@ -8,6 +8,8 @@ const initialState = {
 	USD_rate: 0,
 	loading: false,
 	error: null,
+	currentUser: null,
+	guestUser: null,
 }
 
 export const fetchCurrencyRates = createAsyncThunk(
@@ -51,6 +53,18 @@ const localizationSlice = createSlice({
 					state.currency = '₹'
 			}
 		},
+		setUser: (state, action) => {
+			state.currentUser = action.payload.user_id
+		},
+		clearUser: (state) => {
+			state.currentUser = null
+		},
+		setGuest: (state, action) => {
+			state.guestUser = action.payload
+		},
+		clearGuest: (state) => {
+			state.guestUser = null
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -74,5 +88,6 @@ const localizationSlice = createSlice({
 	},
 })
 
-export const { setCountry } = localizationSlice.actions
+export const { setCountry, setUser, clearUser, setGuest, clearGuest } =
+	localizationSlice.actions
 export default localizationSlice.reducer

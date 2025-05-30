@@ -5,7 +5,11 @@ import { diamondsTable } from '../schema/diamonds.js'
 import { productsTable } from '../schema/products.js'
 import { ringStylesTable } from '../schema/ringStyles.js'
 
-export async function getUserCart({ clerk_user_id }) {
+export async function getUserCart({ user_id, guest_id }) {
+	const whereClause = user_id
+		? eq(cartTable.user_id, user_id)
+		: eq(cartTable.guest_id, guest_id)
+
 	const data = await db
 		.select({
 			cart_id: cartTable.cart_id,
@@ -35,7 +39,7 @@ export async function getUserCart({ clerk_user_id }) {
 			ringStylesTable,
 			eq(cartTable.ring_style_id, ringStylesTable.ring_style_id)
 		)
-		.where(eq(cartTable.user_id, clerk_user_id))
+		.where(whereClause)
 
 	if (!data) throw new Error('Failed to get User Cart')
 
@@ -44,17 +48,22 @@ export async function getUserCart({ clerk_user_id }) {
 
 export async function addToCart({
 	user_id,
+	guest_id,
 	product_id,
 	quantity,
 	diamond_id,
 	ring_style_id,
 }) {
+	console.log(
+		`Adding to cart: user_id=${user_id}, guest_id=${guest_id}, product_id=${product_id}, diamond_id=${diamond_id}, ring_style_id=${ring_style_id}, quantity=${quantity}`
+	)
 	const result = await db.insert(cartTable).values({
-		user_id: user_id,
-		product_id: product_id,
-		diamond_id: diamond_id,
-		ring_style_id: ring_style_id,
-		quantity: quantity,
+		user_id,
+		guest_id,
+		product_id,
+		diamond_id,
+		ring_style_id,
+		quantity,
 	})
 
 	if (!result) throw new Error('Failed to add to cart')
@@ -62,15 +71,12 @@ export async function addToCart({
 	return { success: true }
 }
 
-export async function removeFromCart({ clerk_user_id, product_id }) {
-	await db
-		.delete(cartTable)
-		.where(
-			and(
-				eq(cartTable.user_id, clerk_user_id),
-				eq(cartTable.cart_id, product_id)
-			)
-		)
+export async function removeFromCart({ user_id, guest_id, cart_id }) {
+	const whereClause = user_id
+		? and(eq(cartTable.user_id, user_id), eq(cartTable.cart_id, cart_id))
+		: and(eq(cartTable.guest_id, guest_id), eq(cartTable.cart_id, cart_id))
+
+	await db.delete(cartTable).where(whereClause)
 
 	return { success: true }
 }
