@@ -221,10 +221,10 @@ app.delete('/api/users/deleteFavorites', async (req, res) => {
 	}
 })
 
-app.get('/api/users/getCart/:clerk_user_id', async (req, res) => {
+app.get('/api/users/getCart', async (req, res) => {
 	try {
-		const { clerk_user_id } = req.params
-		const data = await getUserCart({ clerk_user_id })
+		const { user_id, guest_id } = req.query
+		const data = await getUserCart({ user_id, guest_id })
 		res.json(data)
 	} catch (err) {
 		console.error('getCart User Error: ', err)
@@ -234,10 +234,17 @@ app.get('/api/users/getCart/:clerk_user_id', async (req, res) => {
 
 app.post('/api/users/addToCart', async (req, res) => {
 	try {
-		const { user_id, product_id, diamond_id, ring_style_id, quantity } =
-			req.body
+		const {
+			user_id,
+			guest_id,
+			product_id,
+			diamond_id,
+			ring_style_id,
+			quantity,
+		} = req.body
 		await addToCart({
 			user_id,
+			guest_id,
 			product_id,
 			quantity,
 			diamond_id,

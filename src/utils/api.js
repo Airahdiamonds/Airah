@@ -13,11 +13,11 @@ export const fetchFavorites = async (userId) => {
 	}
 }
 
-export const fetchCartItems = async (userId) => {
+export const fetchCartItems = async ({ userId, guestId }) => {
 	try {
-		const response = await axios.get(
-			`${REACT_APP_API_URL}/users/getCart/${userId}`
-		)
+		const response = await axios.get(`${REACT_APP_API_URL}/users/getCart`, {
+			params: { user_id: userId, guest_id: guestId },
+		})
 		return response.data
 	} catch (error) {
 		console.error('Error fetching cart items:', error)
@@ -71,14 +71,17 @@ export const removeFromFavoritesAPI = async (
 
 export const addToCartAPI = async (
 	userId,
+	guestId,
 	productId,
 	diamondId,
 	ringStyleId,
 	quantity
 ) => {
 	try {
+		console.log(guestId)
 		const response = await axios.post(`${REACT_APP_API_URL}/users/addToCart`, {
 			user_id: userId,
+			guest_id: guestId,
 			product_id: productId,
 			diamond_id: diamondId,
 			ring_style_id: ringStyleId,

@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react'
 import { ShoppingCart, Heart, Search, Menu, X, ChevronDown } from 'lucide-react'
 import LOGO from '../assets/logo.webp'
-import {
-	SignedIn,
-	SignedOut,
-	SignInButton,
-	UserButton,
-	useUser,
-} from '@clerk/clerk-react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchCurrencyRates, setCountry } from '../redux/localizationSlice'
+import {
+	clearUser,
+	fetchCurrencyRates,
+	setCountry,
+	setGuest,
+	setUser,
+} from '../redux/localizationSlice'
 import { Link, useNavigate } from 'react-router-dom'
 import {
 	fetchUserCartItems,
@@ -23,6 +22,7 @@ import {
 	signoutUser,
 	signUpUser,
 } from '../utils/api'
+import { v4 as uuidv4 } from 'uuid'
 
 const userNavLinks = [
 	{ to: '/customize', label: 'Customize' },
@@ -42,10 +42,10 @@ export default function Header() {
 	const [query, setQuery] = useState('')
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
-	const { country } = useSelector((state) => state.localization)
+	const { country, currentUser, guestUser } = useSelector(
+		(state) => state.localization
+	)
 	const { favorites, cartItems } = useSelector((state) => state.favoritesCart)
-	const { user, isSignedIn } = useUser()
-	const dbId = user?.publicMetadata?.dbId
 
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [authMode, setAuthMode] = useState('login')
@@ -55,28 +55,31 @@ export default function Header() {
 		password: '',
 		confirmPassword: '',
 	})
-	const [error, setError] = useState('')
-	const [success, setSuccess] = useState('')
-	const [currentUser, setCurrentUser] = useState(null)
 	useEffect(() => {
 		const getUser = async () => {
 			const user = await fetchCurrentUser()
 			if (user) {
-				setCurrentUser(user)
+				dispatch(setUser(user))
 				console.log(user)
+			} else {
+				let guestId = localStorage.getItem('guest_id')
+				if (!guestId) {
+					guestId = uuidv4()
+					localStorage.setItem('guest_id', guestId)
+				}
+				dispatch(setGuest(guestId))
 			}
 		}
 		getUser()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	// Fetch user data and currency rates on component mount
 	useEffect(() => {
-		if (dbId) {
-			dispatch(fetchUserFavorites(dbId))
-			dispatch(fetchUserCartItems(dbId))
-		}
+		dispatch(fetchUserFavorites(currentUser))
+		dispatch(fetchUserCartItems({ userId: currentUser, guestId: guestUser }))
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [user, isSignedIn])
+	}, [currentUser, guestUser])
 
 	useEffect(() => {
 		dispatch(fetchCurrencyRates())
@@ -100,8 +103,6 @@ export default function Header() {
 	const handleInputChange = (e) => {
 		const { name, value } = e.target
 		setFormData((prev) => ({ ...prev, [name]: value }))
-		setError('') // Clear error on input change
-		setSuccess('') // Clear success on input change
 	}
 
 	const handleLogin = async (e) => {
@@ -109,16 +110,15 @@ export default function Header() {
 		const { email, password } = formData
 
 		if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
-			setError('Please enter a valid email address')
+			console.log('Please enter a valid email address')
 			return
 		}
 		const result = await signInUser({ email, password })
 		if (result) {
-			setSuccess('Account created successfully! Please log in.')
 			setFormData({ email: '', password: '' })
 			const user = await fetchCurrentUser()
 			if (user) {
-				setCurrentUser(user)
+				dispatch(setUser(user))
 				console.log(user)
 			}
 			setIsModalOpen(false)
@@ -128,7 +128,7 @@ export default function Header() {
 	}
 	const handleLogout = async () => {
 		await signoutUser()
-		setCurrentUser(null)
+		dispatch(clearUser())
 	}
 	const handleSignUp = async (e) => {
 		e.preventDefault()
@@ -136,19 +136,19 @@ export default function Header() {
 
 		// Basic validation
 		if (!name.trim()) {
-			setError('Full name is required')
+			console.log('Full name is required')
 			return
 		}
 		if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
-			setError('Please enter a valid email address')
+			console.log('Please enter a valid email address')
 			return
 		}
 		if (password.length < 8) {
-			setError('Password must be at least 8 characters long')
+			console.log('Password must be at least 8 characters long')
 			return
 		}
 		if (password !== confirmPassword) {
-			setError('Passwords do not match')
+			console.log('Passwords do not match')
 			return
 		}
 		if (formData.password !== formData.confirmPassword) {
@@ -157,11 +157,10 @@ export default function Header() {
 		}
 		const result = await signUpUser({ name, email, password })
 		if (result) {
-			setSuccess('Account created successfully! Please log in.')
 			setFormData({ name: '', email: '', password: '', confirmPassword: '' })
 			const user = await fetchCurrentUser()
 			if (user) {
-				setCurrentUser(user)
+				dispatch(setUser(user))
 				console.log(user)
 			}
 			setIsModalOpen(false)
@@ -290,13 +289,13 @@ export default function Header() {
 							{currentUser !== null ? (
 								<div className="flex items-center gap-3">
 									<img
-										src={user?.avatar || '/default-avatar.png'}
+										src={currentUser?.avatar || '/default-avatar.png'}
 										alt="User Avatar"
 										className="w-10 h-10 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700 transition-transform duration-300 hover:scale-105"
 									/>
 									<div className="relative group">
 										<button className="text-base font-semibold text-gray-900 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
-											{user?.name || 'Account'}
+											{currentUser?.name || 'Account'}
 										</button>
 										<div className="absolute right-0 z-20 hidden group-hover:block w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
 											<ul className="py-2">
@@ -600,19 +599,10 @@ export default function Header() {
 
 							{/* User Authentication - Mobile */}
 							<div className="p-4 border-b">
-								<SignedIn>
-									<div className="flex items-center space-x-3">
-										<div className="rounded-full bg-gray-200 p-2">
-											<UserButton size={20} />
-										</div>
-										<span className="text-sm font-medium">My Account</span>
-									</div>
-								</SignedIn>
-								<SignedOut>
-									<button className="inline-flex items-center justify-center rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-700 text-white hover:bg-gray-800 h-9 px-4 py-2 w-full">
-										<SignInButton />
-									</button>
-								</SignedOut>
+								<div className="flex items-center space-x-3">
+									<div className="rounded-full bg-gray-200 p-2"></div>
+									<span className="text-sm font-medium">My Account</span>
+								</div>
 							</div>
 
 							{/* Navigation Links */}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { FaGem, FaRing } from 'react-icons/fa'
-import { useUser, SignInButton } from '@clerk/clerk-react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
 	clearCoupon,
@@ -35,12 +34,12 @@ const Cart = () => {
 		OMR_rate,
 		AED_rate,
 		EUR_rate,
+		currentUser,
+		guestUser,
 	} = useSelector((state) => state.localization)
 	const { cartItems, loading, error, discount, coupon } = useSelector(
 		(state) => state.favoritesCart
 	)
-	const { user, isSignedIn } = useUser()
-	const dbId = user?.publicMetadata?.dbId
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 
@@ -63,8 +62,8 @@ const Cart = () => {
 	}, [cartItems, discount, coupon])
 
 	const handleRemove = (productId) => {
-		dispatch(removeFromCart({ userId: dbId, productId }))
-		dispatch(fetchUserCartItems(dbId))
+		dispatch(removeFromCart({ userId: currentUser, productId }))
+		dispatch(fetchUserCartItems(currentUser, guestUser))
 	}
 
 	const handleView = (item) => {
@@ -113,9 +112,13 @@ const Cart = () => {
 		if (cartItems.length === 0) return
 
 		try {
-			await dispatch(createOrder({ dbId, cartItems, totalPrice })).unwrap() // Unwrap ensures proper error handling
+			await dispatch(
+				createOrder({ currentUser, cartItems, totalPrice })
+			).unwrap() // Unwrap ensures proper error handling
 			cartItems.forEach((item) => {
-				dispatch(removeFromCart({ userId: dbId, productId: item.cart_id }))
+				dispatch(
+					removeFromCart({ userId: currentUser, productId: item.cart_id })
+				)
 			})
 			navigate('/orders')
 		} catch (error) {
@@ -123,20 +126,20 @@ const Cart = () => {
 		}
 	}
 
-	if (!isSignedIn) {
-		return (
-			<div className="h-80 flex flex-col items-center justify-center bg-gray-50">
-				<h2 className="text-2xl font-semibold text-gray-700 mb-4">
-					Please log in to view your cart
-				</h2>
-				<SignInButton mode="modal">
-					<button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition border border-solid border-gray-300">
-						Log In
-					</button>
-				</SignInButton>
-			</div>
-		)
-	}
+	// if (!isSignedIn) {
+	// 	return (
+	// 		<div className="h-80 flex flex-col items-center justify-center bg-gray-50">
+	// 			<h2 className="text-2xl font-semibold text-gray-700 mb-4">
+	// 				Please log in to view your cart
+	// 			</h2>
+	// 			<SignInButton mode="modal">
+	// 				<button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition border border-solid border-gray-300">
+	// 					Log In
+	// 				</button>
+	// 			</SignInButton>
+	// 		</div>
+	// 	)
+	// }
 
 	return (
 		<div className="p-8 grid grid-cols-[70%_30%] gap-2">

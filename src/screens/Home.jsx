@@ -1,740 +1,757 @@
-import React, { useState, useEffect } from "react";
-import "../styles/global.css";
-import { motion } from "framer-motion";
-import EngagementRing from "../assets/banner.webp";
-import WeddingRing from "../assets/banner2.webp";
-import ring1 from "../assets/Prong2.png"; // Adjust the path as needed
-import ring2 from "../assets/demo2.jpg";
-import ring3 from "../assets/demoringcarousel.jpg";
-import ring4 from "../assets/pave-engagement-ring.png";
-import ring5 from "../assets/pave-engagement-ring (1).jpg";
-import model from "../assets/model.jpeg";
-import { Loader2 } from "lucide-react";
-import bgImage from "../assets/twy_BG.png"; // Path to your background image
-import leftImage from "../assets/twy.png";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Autoplay } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import { Star } from "lucide-react";
-import { Heart } from "lucide-react"; // Importing Heart Icon
-import customerVideo from "../assets/customerings.mp4";
+import { useState, useEffect } from 'react'
+import '../styles/global.css'
+import { motion } from 'framer-motion'
+import EngagementRing from '../assets/banner.webp'
+import WeddingRing from '../assets/banner2.webp'
+import ring1 from '../assets/Prong2.png' // Adjust the path as needed
+import ring2 from '../assets/demo2.jpg'
+import ring3 from '../assets/demoringcarousel.jpg'
+import ring4 from '../assets/pave-engagement-ring.png'
+import ring5 from '../assets/pave-engagement-ring (1).jpg'
+import model from '../assets/model.jpeg'
+import { Loader2 } from 'lucide-react'
+import bgImage from '../assets/twy_BG.png' // Path to your background image
+import leftImage from '../assets/twy.png'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Autoplay } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import { Star } from 'lucide-react'
+import { Heart } from 'lucide-react' // Importing Heart Icon
+import customerVideo from '../assets/customerings.mp4'
 
 const diamonds = [
-  { id: 1, image: ring5, title: "Brilliant Cut" },
-  { id: 2, image: ring1, title: "Princess Cut" },
-  { id: 3, image: ring2, title: "Emerald Cut" },
-  { id: 4, image: ring3, title: "Oval Cut" },
-  { id: 5, image: ring4, title: "Pear Cut" },
-  { id: 6, image: ring5, title: "Cushion Cut" },
-  { id: 7, image: ring1, title: "Radiant Cut" },
-  { id: 8, image: ring2, title: "Asscher Cut" },
-  { id: 9, image: ring3, title: "Marquise Cut" },
-  { id: 10, image: ring4, title: "Heart Cut" },
-];
+	{ id: 1, image: ring5, title: 'Brilliant Cut' },
+	{ id: 2, image: ring1, title: 'Princess Cut' },
+	{ id: 3, image: ring2, title: 'Emerald Cut' },
+	{ id: 4, image: ring3, title: 'Oval Cut' },
+	{ id: 5, image: ring4, title: 'Pear Cut' },
+	{ id: 6, image: ring5, title: 'Cushion Cut' },
+	{ id: 7, image: ring1, title: 'Radiant Cut' },
+	{ id: 8, image: ring2, title: 'Asscher Cut' },
+	{ id: 9, image: ring3, title: 'Marquise Cut' },
+	{ id: 10, image: ring4, title: 'Heart Cut' },
+]
 function Home() {
-  const brands = [
-    "Tiffany & Co.",
-    "Cartier",
-    "Harry Winston",
-    "Bvlgari",
-    "Van Cleef & Arpels",
+	const brands = [
+		'Tiffany & Co.',
+		'Cartier',
+		'Harry Winston',
+		'Bvlgari',
+		'Van Cleef & Arpels',
+	]
 
-  ];
+	const [currentSlide, setCurrentSlide] = useState(0)
+	const rings = [
+		{
+			image: ring1,
+			title: 'Engagement Rings',
+			description:
+				'Elegant engagement rings to celebrate your love. Crafted with precision, these rings feature ethically sourced diamonds set in 18K gold for a timeless and radiant look.',
+			features: 'Perfect for proposals, anniversaries, and special moments.',
+			material: 'Material: 18K Gold, Ethically Sourced Diamond',
+		},
+		{
+			image: ring2,
+			title: 'Wedding Rings',
+			description:
+				'Timeless wedding bands designed for a lifetime of love. Handcrafted with premium metals, these bands offer comfort, durability, and a symbol of everlasting commitment.',
+			features:
+				'Classic and modern designs available in gold, platinum, and titanium.',
+			material: 'Material: 14K Gold, Platinum, Titanium',
+		},
+		{
+			image: ring3,
+			title: 'Diamond Rings',
+			description:
+				'Brilliant diamond rings that radiate elegance and sophistication. Featuring exceptional craftsmanship and ethically sourced diamonds with stunning clarity for every occasion.',
+			features: 'Certified diamonds with exquisite cuts and brilliance.',
+			material: 'Material: 18K White Gold, Premium Diamond',
+		},
+		{
+			image: ring4,
+			title: 'Gold Rings',
+			description:
+				'Classic gold rings that blend tradition with modern elegance. Designed to suit every style, these rings are available in a variety of finishes and gold tones.',
+			features: 'Available in yellow, white, and rose gold variations.',
+			material: 'Material: 22K Pure Gold with a refined finish',
+		},
+		{
+			image: ring5,
+			title: 'Platinum Rings',
+			description:
+				'Premium platinum rings crafted for a luxurious touch. Durable, elegant, and timeless, these rings offer unmatched brilliance and sophistication, perfect for any occasion.',
+			features:
+				'Scratch-resistant, hypoallergenic, and designed for long-lasting shine.',
+			material:
+				'Material: 950 Platinum with a high-polish finish for an exquisite look.',
+		},
+	]
 
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const rings = [
-    {
-      image: ring1,
-      title: "Engagement Rings",
-      description:
-        "Elegant engagement rings to celebrate your love. Crafted with precision, these rings feature ethically sourced diamonds set in 18K gold for a timeless and radiant look.",
-      features: "Perfect for proposals, anniversaries, and special moments.",
-      material: "Material: 18K Gold, Ethically Sourced Diamond",
-    },
-    {
-      image: ring2,
-      title: "Wedding Rings",
-      description:
-        "Timeless wedding bands designed for a lifetime of love. Handcrafted with premium metals, these bands offer comfort, durability, and a symbol of everlasting commitment.",
-      features:
-        "Classic and modern designs available in gold, platinum, and titanium.",
-      material: "Material: 14K Gold, Platinum, Titanium",
-    },
-    {
-      image: ring3,
-      title: "Diamond Rings",
-      description:
-        "Brilliant diamond rings that radiate elegance and sophistication. Featuring exceptional craftsmanship and ethically sourced diamonds with stunning clarity for every occasion.",
-      features: "Certified diamonds with exquisite cuts and brilliance.",
-      material: "Material: 18K White Gold, Premium Diamond",
-    },
-    {
-      image: ring4,
-      title: "Gold Rings",
-      description:
-        "Classic gold rings that blend tradition with modern elegance. Designed to suit every style, these rings are available in a variety of finishes and gold tones.",
-      features: "Available in yellow, white, and rose gold variations.",
-      material: "Material: 22K Pure Gold with a refined finish",
-    },
-    {
-      image: ring5,
-      title: "Platinum Rings",
-      description:
-        "Premium platinum rings crafted for a luxurious touch. Durable, elegant, and timeless, these rings offer unmatched brilliance and sophistication, perfect for any occasion.",
-      features:
-        "Scratch-resistant, hypoallergenic, and designed for long-lasting shine.",
-      material:
-        "Material: 950 Platinum with a high-polish finish for an exquisite look.",
-    },
-  ];
+	// Define the slides with imported images
+	const slides = [
+		{
+			image: EngagementRing,
+			heading: 'New Modern Collection',
+			subheading:
+				"Elegance isn't solely defined by what you wear. It's how you carry yourself, how you speak, what you read.",
+		},
+		{
+			image: WeddingRing,
+			heading: 'Meet the lines of the millennium',
+			subheading:
+				'Fashion is to please your eye. Shapes and proportions are for your intellect. I have an obsession with details and pattern.',
+		},
+	]
+	const [activeTab, setActiveTab] = useState('features')
+	const [loading, setLoading] = useState(false)
 
-  // Define the slides with imported images
-  const slides = [
-    {
-      image: EngagementRing,
-      heading: "New Modern Collection",
-      subheading:
-        "Elegance isn't solely defined by what you wear. It's how you carry yourself, how you speak, what you read.",
-    },
-    {
-      image: WeddingRing,
-      heading: "Meet the lines of the millennium",
-      subheading:
-        "Fashion is to please your eye. Shapes and proportions are for your intellect. I have an obsession with details and pattern.",
-    },
-  ];
-  const [activeTab, setActiveTab] = useState("features");
-  const [loading, setLoading] = useState(false);
+	const tabContent = {
+		features:
+			'Crafted with precision, each diamond is cut to perfection to maximize brilliance and fire.',
+		care: 'To maintain its sparkle, clean with a soft brush and mild soapy water. Store separately to prevent scratches.',
+		shipping:
+			'Enjoy free worldwide shipping with a 30-day return policy. Secure, insured packaging included.',
+	}
 
-  const tabContent = {
-    features: "Crafted with precision, each diamond is cut to perfection to maximize brilliance and fire.",
-    care: "To maintain its sparkle, clean with a soft brush and mild soapy water. Store separately to prevent scratches.",
-    shipping: "Enjoy free worldwide shipping with a 30-day return policy. Secure, insured packaging included."
-  };
+	const handleCustomize = () => {
+		setLoading(true)
+		setTimeout(() => {
+			window.location.href = '/customize'
+		}, 2000)
+	}
 
+	// Function to go to the next slide
+	const goToNextSlide = () => {
+		setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length)
+	}
 
+	// Function to go to the previous slide
+	const goToPrevSlide = () => {
+		setCurrentSlide(
+			(prevSlide) => (prevSlide - 1 + slides.length) % slides.length
+		)
+	}
+	// All slides will show the model image
 
-  const handleCustomize = () => {
-    setLoading(true);
-    setTimeout(() => {
-      window.location.href = "/customize";
-    }, 2000);
-  };
+	// Set up auto-slide interval when the component mounts
+	useEffect(() => {
+		const intervalId = setInterval(goToNextSlide, 5000) // Change slide every 5 seconds
 
-  // Function to go to the next slide
-  const goToNextSlide = () => {
-    setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
-  };
+		// Clear interval on component unmount
+		return () => clearInterval(intervalId)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
-  // Function to go to the previous slide
-  const goToPrevSlide = () => {
-    setCurrentSlide(
-      (prevSlide) => (prevSlide - 1 + slides.length) % slides.length
-    );
-  };
-  // All slides will show the model image
+	return (
+		<div>
+			{/* Hero Section with Carousel */}
+			<section className="relative special w-full h-[100vh] overflow-hidden">
+				<div
+					className="absolute inset-0 w-full h-full flex transition-transform duration-700 ease-in-out"
+					style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+				>
+					{slides.map((slide, index) => (
+						<div
+							key={index}
+							className="relative w-full h-full flex-shrink-0"
+							style={{
+								backgroundImage: `url(${slide.image})`,
+								backgroundSize: 'cover',
+								backgroundPosition: 'center',
+							}}
+						>
+							{/* Blurred Background Overlay */}
+							<div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
 
-  // Set up auto-slide interval when the component mounts
-  useEffect(() => {
-    const intervalId = setInterval(goToNextSlide, 5000); // Change slide every 5 seconds
+							{/* Content Container */}
+							<div className="absolute inset-0 flex flex-col items-start justify-center px-6 md:px-20 lg:px-32">
+								<div className="text-white max-w-2xl animate-fadeInUp">
+									<h1 className="text-4xl md:text-6xl font-extrabold tracking-wide leading-tight">
+										{slide.heading}
+									</h1>
+									<p className="text-lg md:text-xl mt-4 font-light">
+										{slide.subheading}
+									</p>
+									<div className="mt-8">
+										{/* CTA Button */}
+										<a
+											href="/product/Stackable%20Rings"
+											className="px-8 py-3 bg-white text-gray-800 text-lg rounded-md font-semibold  hover:bg-gray-100 transition duration-300 shadow-lg animate-fadeInUp delay-200"
+										>
+											Shop Rings
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					))}
+				</div>
 
-    // Clear interval on component unmount
-    return () => clearInterval(intervalId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+				{/* Carousel Controls */}
+				<button
+					onClick={goToPrevSlide}
+					className="absolute left-6 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-lg"
+				>
+					&#10094;
+				</button>
+				<button
+					onClick={goToNextSlide}
+					className="absolute right-6 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-lg"
+				>
+					&#10095;
+				</button>
+			</section>
 
-  return (
-    <div>
-      {/* Hero Section with Carousel */}
-      <section className="relative special w-full h-[100vh] overflow-hidden">
-        <div className="absolute inset-0 w-full h-full flex transition-transform duration-700 ease-in-out"
-          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-        >
-          {slides.map((slide, index) => (
-            <div
-              key={index}
-              className="relative w-full h-full flex-shrink-0"
-              style={{
-                backgroundImage: `url(${slide.image})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              {/* Blurred Background Overlay */}
-              <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
+			<section className="px-4 sm:px-8 py-6">
+				{/* Heading */}
+				<div className="text-center mb-6 sm:mb-8">
+					<h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+						Explore Our Exclusive Ring Collection
+					</h2>
+					<p className="text-sm sm:text-lg text-gray-600 mt-2 max-w-4xl mx-auto">
+						Discover a wide range of elegant rings crafted to perfection. Choose
+						from our exquisite collection and find the perfect piece that
+						complements your style.
+					</p>
+				</div>
 
-              {/* Content Container */}
-              <div className="absolute inset-0 flex flex-col items-start justify-center px-6 md:px-20 lg:px-32">
-                <div className="text-white max-w-2xl animate-fadeInUp">
-                  <h1 className="text-4xl md:text-6xl font-extrabold tracking-wide leading-tight">
-                    {slide.heading}
-                  </h1>
-                  <p className="text-lg md:text-xl mt-4 font-light">
-                    {slide.subheading}
-                  </p>
-                  <div className="mt-8">
-                    {/* CTA Button */}
-                    <a
-                      href="/product/Stackable%20Rings"
-                      className="px-8 py-3 bg-white text-gray-800 text-lg rounded-md font-semibold  hover:bg-gray-100 transition duration-300 shadow-lg animate-fadeInUp delay-200"
-                    >
-                      Shop  Rings
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+				{/* Category List */}
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 sm:gap-8 px-2 sm:px-4">
+					{rings.map((ring, index) => (
+						<div
+							key={index}
+							className="border border-gray-300 rounded-lg overflow-hidden bg-white transition-transform duration-300 hover:scale-105 h-full flex flex-col"
+						>
+							{/* Image */}
+							<img
+								src={ring.image}
+								alt={ring.title}
+								className="w-full h-56 sm:h-64 object-cover"
+							/>
 
-        {/* Carousel Controls */}
-        <button
-          onClick={goToPrevSlide}
-          className="absolute left-6 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-lg"
-        >
-          &#10094;
-        </button>
-        <button
-          onClick={goToNextSlide}
-          className="absolute right-6 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-lg"
-        >
-          &#10095;
-        </button>
-      </section>
+							{/* Content */}
+							<div className="p-3 sm:p-3 text-left bg-gray-100 flex flex-col flex-grow">
+								<h3 className="text-base sm:text-lg font-semibold text-gray-900">
+									{ring.title}
+								</h3>
+								<p className="text-xs sm:text-sm text-gray-500 mt-1 flex-grow">
+									{ring.features}
+									{ring.material}
+								</p>
+								<button className="mt-3 py-3 px-6 bg-gray-800 text-white text-sm sm:text-base font-semibold rounded-md transition-opacity duration-300 hover:bg-gray-900">
+									Shop Now
+								</button>
+							</div>
+						</div>
+					))}
+				</div>
+			</section>
 
-      <section className="px-4 sm:px-8 py-6">
-        {/* Heading */}
-        <div className="text-center mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Explore Our Exclusive Ring Collection
-          </h2>
-          <p className="text-sm sm:text-lg text-gray-600 mt-2 max-w-4xl mx-auto">
-            Discover a wide range of elegant rings crafted to perfection. Choose
-            from our exquisite collection and find the perfect piece that
-            complements your style.
-          </p>
-        </div>
+			<section className="bg-black text-white py-12 px-6">
+				<div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+					{/* Left Side - Product Details */}
+					<div>
+						<div className="flex justify-between items-center">
+							<h3 className="text-sm uppercase tracking-widest text-gray-400">
+								Diamond Customization
+							</h3>
+							<button className="text-white hover:text-red-500 transition">
+								<Heart size={24} />
+							</button>
+						</div>
 
-        {/* Category List */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 sm:gap-8 px-2 sm:px-4">
-          {rings.map((ring, index) => (
-            <div
-              key={index}
-              className="border border-gray-300 rounded-lg overflow-hidden bg-white transition-transform duration-300 hover:scale-105 h-full flex flex-col"
-            >
-              {/* Image */}
-              <img
-                src={ring.image}
-                alt={ring.title}
-                className="w-full h-56 sm:h-64 object-cover"
-              />
+						<h2 className="text-4xl md:text-5xl font-bold mt-2">
+							Create Your Perfect Diamond
+						</h2>
+						<p className="mt-4 text-gray-300 text-lg">
+							Select your ideal diamond, personalize the setting, and craft a
+							unique piece that reflects your style.
+						</p>
 
-              {/* Content */}
-              <div className="p-3 sm:p-3 text-left bg-gray-100 flex flex-col flex-grow">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-                  {ring.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1 flex-grow">
-                  {ring.features}
-                  {ring.material}
+						<h3 className="text-2xl md:text-3xl font-semibold mt-6">
+							Round Cut Diamond
+						</h3>
+						<p className="text-3xl md:text-4xl font-bold mt-1">$2,999.00</p>
+						<p className="mt-2 text-gray-400 text-lg">
+							A timeless round-cut diamond, designed to radiate brilliance and
+							elegance.
+						</p>
 
-                </p>
-                <button className="mt-3 py-3 px-6 bg-gray-800 text-white text-sm sm:text-base font-semibold rounded-md transition-opacity duration-300 hover:bg-gray-900">
-                  Shop Now
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+						{/* Buttons */}
+						<div className="mt-6 flex flex-col sm:flex-row gap-4">
+							<button
+								onClick={handleCustomize}
+								className="relative flex items-center justify-center bg-transparent text-white border border-white px-6 py-3 text-lg font-semibold rounded-md hover:bg-gray-800 transition"
+							>
+								{loading ? (
+									<Loader2 className="animate-spin mr-2" size={20} />
+								) : null}
+								START WITH A SETTING
+							</button>
+						</div>
 
-      <section className="bg-black text-white py-12 px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          {/* Left Side - Product Details */}
-          <div>
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm uppercase tracking-widest text-gray-400">Diamond Customization</h3>
-              <button className="text-white hover:text-red-500 transition">
-                <Heart size={24} />
-              </button>
-            </div>
+						{/* Tabbed Content */}
+						<div className="mt-8 border-t border-gray-700 pt-4">
+							<div className="flex gap-6 text-gray-400 text-lg overflow-x-auto">
+								{['features', 'care', 'shipping'].map((tab) => (
+									<span
+										key={tab}
+										className={`cursor-pointer pb-1 ${
+											activeTab === tab
+												? 'text-white font-semibold border-b-2 border-white'
+												: ''
+										}`}
+										onClick={() => setActiveTab(tab)}
+									>
+										{tab === 'features'
+											? 'Features'
+											: tab === 'care'
+											? 'Product Care'
+											: 'Shipping & Returns'}
+									</span>
+								))}
+							</div>
+							<p className="mt-4 bg-white text-black text-lg p-4 rounded-md">
+								{tabContent[activeTab]}
+							</p>
+						</div>
+					</div>
 
-            <h2 className="text-4xl md:text-5xl font-bold mt-2">Create Your Perfect Diamond</h2>
-            <p className="mt-4 text-gray-300 text-lg">
-              Select your ideal diamond, personalize the setting, and craft a unique piece that reflects your style.
-            </p>
+					{/* Right Side - Image Slider */}
+					<div className="w-full">
+						<video
+							src={customerVideo}
+							autoPlay
+							loop
+							muted
+							playsInline
+							className="w-full h-full rounded-lg object-cover"
+						/>
+					</div>
+				</div>
+			</section>
 
-            <h3 className="text-2xl md:text-3xl font-semibold mt-6">Round Cut Diamond</h3>
-            <p className="text-3xl md:text-4xl font-bold mt-1">$2,999.00</p>
-            <p className="mt-2 text-gray-400 text-lg">
-              A timeless round-cut diamond, designed to radiate brilliance and elegance.
-            </p>
+			<section className="relative py-8 bg-black">
+				{/* Gradient Fades for Smooth Effect */}
+				<div className="absolute inset-0  pointer-events-none" />
 
-            {/* Buttons */}
-            <div className="mt-6 flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={handleCustomize}
-                className="relative flex items-center justify-center bg-transparent text-white border border-white px-6 py-3 text-lg font-semibold rounded-md hover:bg-gray-800 transition"
-              >
-                {loading ? <Loader2 className="animate-spin mr-2" size={20} /> : null}
-                START WITH A SETTING
-              </button>
-            </div>
+				{/* Scrolling Text */}
+				<div className="overflow-hidden whitespace-nowrap">
+					<motion.div
+						className="flex gap-12 text-3xl md:text-4xl font-bold uppercase text-gray-300 tracking-widest"
+						animate={{ x: ['0%', '-100%'] }}
+						transition={{ repeat: Infinity, duration: 30, ease: 'linear' }} // Reduced duration for faster movement
+						whileHover={{ animationPlayState: 'paused' }} // Pause on hover
+					>
+						{brands.concat(brands).map((brand, index) => (
+							<div
+								key={index}
+								className="flex-none px-8 py-2 transition-transform hover:scale-110 hover:text-white"
+							>
+								{brand}
+							</div>
+						))}
+					</motion.div>
+				</div>
+			</section>
+			<section className="grid grid-cols-1 md:grid-cols-3 w-full ">
+				{/* Box 1 */}
+				<div className="relative group">
+					<img
+						src={model}
+						alt="Box 1"
+						className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+					/>
+					<div className="absolute inset-0 flex items-center justify-center ">
+						<h2 className="text-white text-3xl font-bold">Wedding Rings</h2>
+					</div>
+				</div>
 
-            {/* Tabbed Content */}
-            <div className="mt-8 border-t border-gray-700 pt-4">
-              <div className="flex gap-6 text-gray-400 text-lg overflow-x-auto">
-                {["features", "care", "shipping"].map((tab) => (
-                  <span
-                    key={tab}
-                    className={`cursor-pointer pb-1 ${activeTab === tab ? "text-white font-semibold border-b-2 border-white" : ""}`}
-                    onClick={() => setActiveTab(tab)}
-                  >
-                    {tab === "features" ? "Features" : tab === "care" ? "Product Care" : "Shipping & Returns"}
-                  </span>
-                ))}
-              </div>
-              <p className="mt-4 bg-white text-black text-lg p-4 rounded-md">{tabContent[activeTab]}</p>
-            </div>
-          </div>
+				{/* Box 2 */}
+				<div className="relative group">
+					<img
+						src={model}
+						alt="Box 2"
+						className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+					/>
+					<div className="absolute inset-0 flex items-center justify-center ">
+						<h2 className="text-white text-3xl font-bold">Fine Jewelry</h2>
+					</div>
+				</div>
 
-          {/* Right Side - Image Slider */}
-          <div className="w-full">
-            <video
-              src={customerVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full rounded-lg object-cover"
-            />
-          </div>
+				{/* Box 3 */}
+				<div className="relative group">
+					<img
+						src={model}
+						alt="Box 3"
+						className="w-full  object-cover transition-transform duration-300 group-hover:scale-105"
+					/>
+					<div className="absolute inset-0 flex items-center justify-center ">
+						<h2 className="text-white text-3xl font-bold">Engagement Rings</h2>
+					</div>
+				</div>
+			</section>
+			<section className="w-full bg-black  py-10">
+				<div className="relative w-full px-4">
+					<h2 className="text-4xl font-extrabold text-white mb-4 text-center">
+						EXPERIENCE THE <br /> DIAMOND REVOLUTION
+					</h2>
+					<p className="text-lg text-gray-400 mb-8 text-center max-w-3xl mx-auto">
+						Spin actual diamonds in 360° HD and zoom in up to 40x. One of the
+						world's biggest collections of loose diamonds, at your fingertips.
+					</p>
 
+					{/* Swiper Component */}
+					<div className="relative">
+						{/* Left Arrow */}
+						<div className="relative w-full">
+							<button
+								onClick={goToPrevSlide}
+								className="absolute left-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-gray-800 bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-md transition-all"
+							>
+								&#10094;
+							</button>
 
-        </div>
-      </section>
+							{/* Swiper */}
+							<Swiper
+								modules={[Navigation, Autoplay]}
+								spaceBetween={20}
+								breakpoints={{
+									320: { slidesPerView: 1 },
+									480: { slidesPerView: 2 },
+									768: { slidesPerView: 3 },
+									1024: { slidesPerView: 4 },
+									1280: { slidesPerView: 5 },
+								}}
+								navigation={{
+									nextEl: '.swiper-button-next',
+									prevEl: '.swiper-button-prev',
+								}}
+								autoplay={{ delay: 2500, disableOnInteraction: false }}
+								loop={true}
+								className="relative"
+							>
+								{diamonds.map((diamond) => (
+									<SwiperSlide key={diamond.id} className="text-center">
+										<div className="overflow-hidden  transition-all hover:scale-105 flex flex-col items-center bg-gray-900 rounded-lg shadow-lg">
+											{/* Image */}
+											<div className="w-full">
+												<img
+													src={diamond.image}
+													alt={diamond.title}
+													className="w-full h-48 object-cover rounded-lg"
+												/>
+											</div>
 
-      <section className="relative py-8 bg-black">
-        {/* Gradient Fades for Smooth Effect */}
-        <div className="absolute inset-0  pointer-events-none" />
+											{/* Title, Rating, and Description */}
+											<div className="w-full py-3 px-4 bg-gray-900 text-center">
+												<p className="text-lg font-semibold text-white">
+													{diamond.title}
+												</p>
 
-        {/* Scrolling Text */}
-        <div className="overflow-hidden whitespace-nowrap">
-          <motion.div
-            className="flex gap-12 text-3xl md:text-4xl font-bold uppercase text-gray-300 tracking-widest"
-            animate={{ x: ["0%", "-100%"] }}
-            transition={{ repeat: Infinity, duration: 30, ease: "linear" }} // Reduced duration for faster movement
-            whileHover={{ animationPlayState: "paused" }} // Pause on hover
-          >
-            {brands.concat(brands).map((brand, index) => (
-              <div
-                key={index}
-                className="flex-none px-8 py-2 transition-transform hover:scale-110 hover:text-white"
-              >
-                {brand}
-              </div>
-            ))}
-          </motion.div>
+												<p className="flex justify-center gap-1 text-yellow-500 mt-1">
+													{[...Array(5)].map((_, i) => (
+														<Star
+															key={i}
+															size={16}
+															fill="currentColor"
+															stroke="none"
+														/>
+													))}
+												</p>
 
-        </div>
-      </section>
-      <section className="grid grid-cols-1 md:grid-cols-3 w-full ">
-        {/* Box 1 */}
-        <div className="relative group">
-          <img
-            src={model}
-            alt="Box 1"
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 flex items-center justify-center ">
-            <h2 className="text-white text-3xl font-bold">Wedding Rings</h2>
-          </div>
-        </div>
+												<p className="text-sm text-gray-400 mt-2">
+													A premium, high-quality diamond with exceptional
+													clarity and brilliance.
+												</p>
 
-        {/* Box 2 */}
-        <div className="relative group">
-          <img
-            src={model}
-            alt="Box 2"
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 flex items-center justify-center ">
-            <h2 className="text-white text-3xl font-bold">Fine Jewelry</h2>
-          </div>
-        </div>
+												{/* "Shop Now" Link */}
+												<a
+													href="/shop"
+													className="mt-3 inline-block text-white font-semibold text-xs hover:text-yellow-400 transition-all"
+												>
+													Buy Now
+												</a>
+											</div>
+										</div>
+									</SwiperSlide>
+								))}
+							</Swiper>
 
-        {/* Box 3 */}
-        <div className="relative group">
-          <img
-            src={model}
-            alt="Box 3"
-            className="w-full  object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 flex items-center justify-center ">
-            <h2 className="text-white text-3xl font-bold">Engagement Rings</h2>
-          </div>
-        </div>
-      </section>
-      <section className="w-full bg-black  py-10">
-        <div className="relative w-full px-4">
-          <h2 className="text-4xl font-extrabold text-white mb-4 text-center">
-            EXPERIENCE THE <br /> DIAMOND REVOLUTION
-          </h2>
-          <p className="text-lg text-gray-400 mb-8 text-center max-w-3xl mx-auto">
-            Spin actual diamonds in 360° HD and zoom in up to 40x. One of the
-            world's biggest collections of loose diamonds, at your fingertips.
-          </p>
+							{/* Right Arrow */}
+							<button
+								onClick={goToNextSlide}
+								className="absolute right-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-gray-800 bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-md transition-all"
+							>
+								&#10095;
+							</button>
+						</div>
+					</div>
+				</div>
+			</section>
 
-          {/* Swiper Component */}
-          <div className="relative">
-            {/* Left Arrow */}
-            <div className="relative w-full">
-              <button
-                onClick={goToPrevSlide}
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-gray-800 bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-md transition-all"
-              >
-                &#10094;
-              </button>
+			<section
+				className="relative bg-cover bg-center bg-no-repeat bg-fixed flex flex-col md:flex-row items-center justify-center "
+				style={{
+					backgroundImage: `url(${bgImage})`,
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					backgroundAttachment: 'fixed',
+					minHeight: '800px',
+				}}
+			>
+				{/* Left Container - Image with Animation */}
+				<div className="md:w-1/2">
+					<img
+						src={leftImage}
+						alt="Hero"
+						className="w-full h-auto  transform transition-transform duration-500 hover:scale-105"
+					/>
+				</div>
 
-              {/* Swiper */}
-              <Swiper
-                modules={[Navigation, Autoplay]}
-                spaceBetween={20}
-                breakpoints={{
-                  320: { slidesPerView: 1 },
-                  480: { slidesPerView: 2 },
-                  768: { slidesPerView: 3 },
-                  1024: { slidesPerView: 4 },
-                  1280: { slidesPerView: 5 },
-                }}
-                navigation={{
-                  nextEl: ".swiper-button-next",
-                  prevEl: ".swiper-button-prev",
-                }}
-                autoplay={{ delay: 2500, disableOnInteraction: false }}
-                loop={true}
-                className="relative"
-              >
-                {diamonds.map((diamond) => (
-                  <SwiperSlide key={diamond.id} className="text-center">
-                    <div className="overflow-hidden  transition-all hover:scale-105 flex flex-col items-center bg-gray-900 rounded-lg shadow-lg">
-                      {/* Image */}
-                      <div className="w-full">
-                        <img
-                          src={diamond.image}
-                          alt={diamond.title}
-                          className="w-full h-48 object-cover rounded-lg"
-                        />
-                      </div>
+				{/* Right Container - Text with Glassmorphism Effect */}
+				<div className="md:w-1/2 w-full flex flex-col justify-center text-center md:text-left p-6 md:p-10 ">
+					<h2 className="text-4xl md:text-6xl font-extrabold text-black animate-fadeIn">
+						The Brilliance of Diamonds
+					</h2>
+					<p className="mt-4 text-gray-500 text-lg md:text-xl leading-relaxed animate-fadeIn delay-200">
+						Diamonds are formed under extreme heat and pressure, creating a
+						timeless symbol of luxury and beauty.
+					</p>
+					<p className="mt-2 text-gray-500 text-lg animate-fadeIn delay-400">
+						Did you know? The largest diamond ever found, the Cullinan Diamond,
+						weighed an astonishing 3,106 carats!
+					</p>
 
-                      {/* Title, Rating, and Description */}
-                      <div className="w-full py-3 px-4 bg-gray-900 text-center">
-                        <p className="text-lg font-semibold text-white">
-                          {diamond.title}
-                        </p>
+					{/* Interactive Buttons */}
+					<div className="mt-8 flex flex-col sm:flex-row justify-center md:justify-start gap-4">
+						<button className="px-8 py-2 text-white bg-gradient-to-r from-gray-900 to-black border border-gray-700 rounded-md shadow-lg hover:scale-105 transition-all duration-300">
+							Learn More
+						</button>
+						<button className="px-8 py-2 text-black bg-gradient-to-r from-white to-gray-200 border border-gray-400 rounded-md shadow-lg hover:scale-105 transition-all duration-300">
+							Shop Now
+						</button>
+					</div>
+				</div>
+			</section>
 
-                        <p className="flex justify-center gap-1 text-yellow-500 mt-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              size={16}
-                              fill="currentColor"
-                              stroke="none"
-                            />
-                          ))}
-                        </p>
+			<section className="w-full bg-white mt-2  ">
+				<div className="relative w-full  px-4">
+					<h2 className="text-4xl font-extrabold text-gray-900 mb-4 text-center">
+						EXPERIENCE THE <br /> DIAMOND REVOLUTION
+					</h2>
+					<p className="text-lg text-gray-600 mb-8 text-center max-w-3xl mx-auto">
+						Spin actual diamonds in 360° HD and zoom in up to 40x. One of the
+						world's biggest collections of loose diamonds, at your fingertips.
+					</p>
 
-                        <p className="text-sm text-gray-400 mt-2">
-                          A premium, high-quality diamond with exceptional
-                          clarity and brilliance.
-                        </p>
+					{/* Swiper Component */}
+					<div className="relative ">
+						{/* Left Arrow */}
 
-                        {/* "Shop Now" Link */}
-                        <a
-                          href="/shop"
-                          className="mt-3 inline-block text-white font-semibold text-xs hover:text-yellow-400 transition-all"
-                        >
-                          Buy Now
-                        </a>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+						<div className="relative w-full">
+							<button
+								onClick={goToPrevSlide}
+								className="absolute left-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-black bg-white m-2 hover:bg-opacity-75 rounded-full shadow-md transition-all"
+							>
+								&#10094; {/* HTML entity for ‹ */}
+							</button>
 
-              {/* Right Arrow */}
-              <button
-                onClick={goToNextSlide}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-white bg-gray-800 bg-opacity-50 hover:bg-opacity-75 rounded-full shadow-md transition-all"
-              >
-                &#10095;
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+							{/* Swiper Component */}
+							<Swiper
+								modules={[Navigation, Autoplay]}
+								spaceBetween={20}
+								breakpoints={{
+									320: { slidesPerView: 1 },
+									480: { slidesPerView: 2 },
+									768: { slidesPerView: 3 },
+									1024: { slidesPerView: 4 },
+									1280: { slidesPerView: 5 },
+								}}
+								navigation={{
+									nextEl: '.swiper-button-next',
+									prevEl: '.swiper-button-prev',
+								}}
+								autoplay={{ delay: 2500, disableOnInteraction: false }}
+								loop={true}
+								className="relative"
+							>
+								{diamonds.map((diamond) => (
+									<SwiperSlide key={diamond.id} className="text-center">
+										<div className="overflow-hidden pt-2 transition-all hover:scale-105 flex flex-col items-center bg-white ">
+											{/* Image Container (Full display) */}
+											<div className="w-full">
+												<img
+													src={diamond.image}
+													alt={diamond.title}
+													className="w-full h-48 object-contain rounded-t-lg"
+												/>
+											</div>
 
-      <section
-        className="relative bg-cover bg-center bg-no-repeat bg-fixed flex flex-col md:flex-row items-center justify-center "
-        style={{
-          backgroundImage: `url(${bgImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-          minHeight: "800px",
-        }}
-      >
-        {/* Left Container - Image with Animation */}
-        <div className="md:w-1/2">
-          <img
-            src={leftImage}
-            alt="Hero"
-            className="w-full h-auto  transform transition-transform duration-500 hover:scale-105"
-          />
-        </div>
+											{/* Title, Rating, and Description */}
+											{/* Title, Rating, and Description */}
+											<div className="w-full py-3 px-4 bg-white text-center">
+												<p className="text-lg font-semibold text-gray-900">
+													{diamond.title}
+												</p>
 
-        {/* Right Container - Text with Glassmorphism Effect */}
-        <div className="md:w-1/2 w-full flex flex-col justify-center text-center md:text-left p-6 md:p-10 ">
-          <h2 className="text-4xl md:text-6xl font-extrabold text-black animate-fadeIn">
-            The Brilliance of Diamonds
-          </h2>
-          <p className="mt-4 text-gray-500 text-lg md:text-xl leading-relaxed animate-fadeIn delay-200">
-            Diamonds are formed under extreme heat and pressure, creating a
-            timeless symbol of luxury and beauty.
-          </p>
-          <p className="mt-2 text-gray-500 text-lg animate-fadeIn delay-400">
-            Did you know? The largest diamond ever found, the Cullinan Diamond,
-            weighed an astonishing 3,106 carats!
-          </p>
+												<p className="flex justify-center gap-1 text-yellow-500 mt-1">
+													{[...Array(5)].map((_, i) => (
+														<Star
+															key={i}
+															size={16}
+															fill="currentColor"
+															stroke="none"
+														/>
+													))}
+												</p>
 
-          {/* Interactive Buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row justify-center md:justify-start gap-4">
-            <button className="px-8 py-2 text-white bg-gradient-to-r from-gray-900 to-black border border-gray-700 rounded-md shadow-lg hover:scale-105 transition-all duration-300">
-              Learn More
-            </button>
-            <button className="px-8 py-2 text-black bg-gradient-to-r from-white to-gray-200 border border-gray-400 rounded-md shadow-lg hover:scale-105 transition-all duration-300">
-              Shop Now
-            </button>
-          </div>
-        </div>
-      </section>
+												<p className="text-sm text-gray-600 mt-2">
+													A premium, high-quality diamond with exceptional
+													clarity and brilliance.
+												</p>
 
-      <section className="w-full bg-white mt-2  ">
-        <div className="relative w-full  px-4">
-          <h2 className="text-4xl font-extrabold text-gray-900 mb-4 text-center">
-            EXPERIENCE THE <br /> DIAMOND REVOLUTION
-          </h2>
-          <p className="text-lg text-gray-600 mb-8 text-center max-w-3xl mx-auto">
-            Spin actual diamonds in 360° HD and zoom in up to 40x. One of the
-            world's biggest collections of loose diamonds, at your fingertips.
-          </p>
+												{/* "Shop Now" Link */}
+												<a
+													href="/shop"
+													className="mt-3 inline-block text-black-600 font-semibold text-xs hover:underline transition-all"
+												>
+													Buy Now
+												</a>
+											</div>
+										</div>
+									</SwiperSlide>
+								))}
+							</Swiper>
 
-          {/* Swiper Component */}
-          <div className="relative ">
-            {/* Left Arrow */}
+							<button
+								onClick={goToNextSlide}
+								className="absolute right-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-black bg-white m-2 hover:bg-opacity-75 rounded-full shadow-md transition-all"
+							>
+								&#10095; {/* HTML entity for › */}
+							</button>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section className="relative w-full bg-[#FFF5E1] py-16 overflow-hidden">
+				{/* Animated Background Circles */}
+				<div className="absolute inset-0 overflow-hidden">
+					{[...Array(20)].map((_, index) => (
+						<div
+							key={index}
+							className="absolute bg-[#f8d49f] opacity-40 animate-move-circle"
+							style={{
+								width: `${Math.random() * 150 + 50}px`, // Square size
+								height: `${Math.random() * 150 + 50}px`,
+								top: `${Math.random() * 100}%`,
+								left: `${Math.random() * 100}%`,
+								transform: 'rotate(45deg)', // Make it a diamond
+								animationDuration: `${Math.random() * 4 + 3}s`,
+								animationDelay: `${Math.random() * 2}s`,
+							}}
+						></div>
+					))}
+				</div>
 
-            <div className="relative w-full">
-              <button
-                onClick={goToPrevSlide}
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-black bg-white m-2 hover:bg-opacity-75 rounded-full shadow-md transition-all"
-              >
-                &#10094; {/* HTML entity for ‹ */}
-              </button>
+				<div className="relative w-full px-4">
+					{/* Heading & Description */}
+					<div className="text-center mb-12">
+						<h2 className="text-5xl font-extrabold text-black">
+							THE CROWNING JEWELS
+						</h2>
+						<p className="text-lg text-black mt-4 max-w-2xl mx-auto">
+							Our diamond and gemstone fine jewelry collection offers
+							hand-crafted pieces of unforgettable luxury that are perfect for
+							any occasion.
+						</p>
+					</div>
 
-              {/* Swiper Component */}
-              <Swiper
-                modules={[Navigation, Autoplay]}
-                spaceBetween={20}
-                breakpoints={{
-                  320: { slidesPerView: 1 },
-                  480: { slidesPerView: 2 },
-                  768: { slidesPerView: 3 },
-                  1024: { slidesPerView: 4 },
-                  1280: { slidesPerView: 5 },
-                }}
-                navigation={{
-                  nextEl: ".swiper-button-next",
-                  prevEl: ".swiper-button-prev",
-                }}
-                autoplay={{ delay: 2500, disableOnInteraction: false }}
-                loop={true}
-                className="relative"
-              >
-                {diamonds.map((diamond) => (
-                  <SwiperSlide key={diamond.id} className="text-center">
-                    <div className="overflow-hidden pt-2 transition-all hover:scale-105 flex flex-col items-center bg-white ">
-                      {/* Image Container (Full display) */}
-                      <div className="w-full">
-                        <img
-                          src={diamond.image}
-                          alt={diamond.title}
-                          className="w-full h-48 object-contain rounded-t-lg"
-                        />
-                      </div>
+					{/* Content Sections */}
+					<div className="container mx-auto px-4 py-8 space-y-8">
+						{[...Array(4)].map((_, index) => (
+							<div
+								key={index}
+								className={`grid grid-cols-1 md:grid-cols-2 gap-6 items-center ${
+									index % 2 === 0 ? '' : 'md:flex-row-reverse'
+								}`}
+							>
+								{index % 2 === 0 ? (
+									<>
+										<div className="relative w-full mt-24">
+											<img
+												src={model}
+												alt="Luxury Diamond Jewelry"
+												className="w-full h-auto md:h-full object-cover rounded-lg shadow-lg"
+											/>
+											<div className="absolute left-1/2 bottom-4 transform -translate-x-1/2 md:translate-x-[-20%] translate-y-[50%] bg-white bg-opacity-90 p-6 md:p-8 rounded-md shadow-xl w-[85%] md:w-[75%] text-center">
+												<h3 className="text-lg md:text-xl font-bold text-gray-900">
+													ETERNITY RINGS
+												</h3>
+												<p className="text-sm md:text-md text-gray-700 mt-2">
+													The ultimate symbol of lifelong commitment, eternity
+													rings make for an ideal wedding or anniversary ring,
+													or can be worn alongside your engagement ring.
+												</p>
+												<button className="mt-3 font-semibold text-sm text-black underline hover:text-gray-700 transition-all">
+													EXPLORE
+												</button>
+											</div>
+										</div>
+										<div></div>
+									</>
+								) : (
+									<>
+										<div></div>
+										<div className="relative w-full mt-24">
+											<img
+												src={model}
+												alt="Luxury Diamond Jewelry"
+												className="w-full h-auto md:h-full object-cover rounded-lg shadow-lg"
+											/>
+											<div className="absolute left-1/2 bottom-4 transform -translate-x-1/2 md:translate-x-[-100%] translate-y-[50%] bg-white bg-opacity-90 p-6 md:p-8 rounded-md shadow-xl w-[85%] md:w-[75%] text-center">
+												<h3 className="text-lg md:text-xl font-bold text-gray-900">
+													ETERNITY RINGS
+												</h3>
+												<p className="text-sm md:text-md text-gray-700 mt-2">
+													The ultimate symbol of lifelong commitment, eternity
+													rings make for an ideal wedding or anniversary ring,
+													or can be worn alongside your engagement ring.
+												</p>
+												<button className="mt-3 font-semibold text-sm text-black underline hover:text-gray-700 transition-all">
+													EXPLORE
+												</button>
+											</div>
+										</div>
+									</>
+								)}
+							</div>
+						))}
+					</div>
+				</div>
 
-                      {/* Title, Rating, and Description */}
-                      {/* Title, Rating, and Description */}
-                      <div className="w-full py-3 px-4 bg-white text-center">
-                        <p className="text-lg font-semibold text-gray-900">
-                          {diamond.title}
-                        </p>
+				<style jsx>{`
+					@keyframes move-circle {
+						0% {
+							transform: translateY(0) translateX(0);
+						}
+						50% {
+							transform: translateY(50px) translateX(-50px);
+						}
+						100% {
+							transform: translateY(0) translateX(0);
+						}
+					}
 
-                        <p className="flex justify-center gap-1 text-yellow-500 mt-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              size={16}
-                              fill="currentColor"
-                              stroke="none"
-                            />
-                          ))}
-                        </p>
-
-                        <p className="text-sm text-gray-600 mt-2">
-                          A premium, high-quality diamond with exceptional
-                          clarity and brilliance.
-                        </p>
-
-                        {/* "Shop Now" Link */}
-                        <a
-                          href="/shop"
-                          className="mt-3 inline-block text-black-600 font-semibold text-xs hover:underline transition-all"
-                        >
-                          Buy Now
-                        </a>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-
-              <button
-                onClick={goToNextSlide}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-4 w-14 text-black bg-white m-2 hover:bg-opacity-75 rounded-full shadow-md transition-all"
-              >
-                &#10095; {/* HTML entity for › */}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section className="relative w-full bg-[#FFF5E1] py-16 overflow-hidden">
-        {/* Animated Background Circles */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, index) => (
-            <div
-              key={index}
-              className="absolute bg-[#f8d49f] opacity-40 animate-move-circle"
-              style={{
-                width: `${Math.random() * 150 + 50}px`, // Square size
-                height: `${Math.random() * 150 + 50}px`,
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                transform: "rotate(45deg)", // Make it a diamond
-                animationDuration: `${Math.random() * 4 + 3}s`,
-                animationDelay: `${Math.random() * 2}s`,
-              }}
-            ></div>
-          ))}
-        </div>
-
-        <div className="relative w-full px-4">
-          {/* Heading & Description */}
-          <div className="text-center mb-12">
-            <h2 className="text-5xl font-extrabold text-black">
-              THE CROWNING JEWELS
-            </h2>
-            <p className="text-lg text-black mt-4 max-w-2xl mx-auto">
-              Our diamond and gemstone fine jewelry collection offers
-              hand-crafted pieces of unforgettable luxury that are perfect for
-              any occasion.
-            </p>
-          </div>
-
-          {/* Content Sections */}
-          <div className="container mx-auto px-4 py-8 space-y-8">
-            {[...Array(4)].map((_, index) => (
-              <div
-                key={index}
-                className={`grid grid-cols-1 md:grid-cols-2 gap-6 items-center ${index % 2 === 0 ? "" : "md:flex-row-reverse"
-                  }`}
-              >
-                {index % 2 === 0 ? (
-                  <>
-                    <div className="relative w-full mt-24">
-                      <img
-                        src={model}
-                        alt="Luxury Diamond Jewelry"
-                        className="w-full h-auto md:h-full object-cover rounded-lg shadow-lg"
-                      />
-                      <div className="absolute left-1/2 bottom-4 transform -translate-x-1/2 md:translate-x-[-20%] translate-y-[50%] bg-white bg-opacity-90 p-6 md:p-8 rounded-md shadow-xl w-[85%] md:w-[75%] text-center">
-                        <h3 className="text-lg md:text-xl font-bold text-gray-900">
-                          ETERNITY RINGS
-                        </h3>
-                        <p className="text-sm md:text-md text-gray-700 mt-2">
-                          The ultimate symbol of lifelong commitment, eternity
-                          rings make for an ideal wedding or anniversary ring,
-                          or can be worn alongside your engagement ring.
-                        </p>
-                        <button className="mt-3 font-semibold text-sm text-black underline hover:text-gray-700 transition-all">
-                          EXPLORE
-                        </button>
-                      </div>
-                    </div>
-                    <div></div>
-                  </>
-                ) : (
-                  <>
-                    <div></div>
-                    <div className="relative w-full mt-24">
-                      <img
-                        src={model}
-                        alt="Luxury Diamond Jewelry"
-                        className="w-full h-auto md:h-full object-cover rounded-lg shadow-lg"
-                      />
-                      <div className="absolute left-1/2 bottom-4 transform -translate-x-1/2 md:translate-x-[-100%] translate-y-[50%] bg-white bg-opacity-90 p-6 md:p-8 rounded-md shadow-xl w-[85%] md:w-[75%] text-center">
-                        <h3 className="text-lg md:text-xl font-bold text-gray-900">
-                          ETERNITY RINGS
-                        </h3>
-                        <p className="text-sm md:text-md text-gray-700 mt-2">
-                          The ultimate symbol of lifelong commitment, eternity
-                          rings make for an ideal wedding or anniversary ring,
-                          or can be worn alongside your engagement ring.
-                        </p>
-                        <button className="mt-3 font-semibold text-sm text-black underline hover:text-gray-700 transition-all">
-                          EXPLORE
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <style jsx>{`
-          @keyframes move-circle {
-            0% {
-              transform: translateY(0) translateX(0);
-            }
-            50% {
-              transform: translateY(50px) translateX(-50px);
-            }
-            100% {
-              transform: translateY(0) translateX(0);
-            }
-          }
-
-          .animate-move-circle {
-            position: absolute;
-            animation: move-circle infinite alternate ease-in-out;
-          }
-        `}</style>
-      </section>
-    </div>
-  );
+					.animate-move-circle {
+						position: absolute;
+						animation: move-circle infinite alternate ease-in-out;
+					}
+				`}</style>
+			</section>
+		</div>
+	)
 }
 
-export default Home;
+export default Home
