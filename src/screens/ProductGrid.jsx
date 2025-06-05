@@ -5,7 +5,6 @@ import { fetchProducts } from '../redux/userProductsSlice'
 import { convertPrice } from '../utils/helpers'
 import { StarRating } from '../components/StarRating'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
-import { useUser } from '@clerk/clerk-react'
 import {
 	addToFavorites,
 	addToFavoritesLocal,
@@ -30,10 +29,10 @@ export default function ProductGrid() {
 		OMR_rate,
 		AED_rate,
 		EUR_rate,
+		currentUser,
+		guestUser,
 	} = useSelector((state) => state.localization)
-	const { user } = useUser()
 	const { subCategory } = useParams()
-	const dbId = user?.publicMetadata?.dbId
 	const { favorites } = useSelector((state) => state.favoritesCart)
 	const [filters, setFilters] = useState({
 		diamondSize: [],
@@ -44,17 +43,17 @@ export default function ProductGrid() {
 	})
 
 	useEffect(() => {
-		if (!dbId) {
+		if (!currentUser) {
 			const guestFavorites = JSON.parse(localStorage.getItem('favorites')) || []
 			guestFavorites.forEach((fav) => {
 				dispatch(addToFavoritesLocal(fav))
 			})
-		} else if (dbId) {
+		} else if (currentUser) {
 			const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
 			localFavorites.forEach((fav) => {
 				dispatch(
 					addToFavorites({
-						dbId,
+						currentUser,
 						product_id: fav.product_id,
 						diamond_id: fav.diamond_id,
 						ring_style_id: fav.ring_style_id,
@@ -62,10 +61,10 @@ export default function ProductGrid() {
 				)
 			})
 			dispatch(clearLocalFavorites())
-			dispatch(fetchUserFavorites(dbId))
+			dispatch(fetchUserFavorites(currentUser))
 		}
-		dispatch(fetchProducts({ dbId, subCategory }))
-	}, [dbId, dispatch, subCategory])
+		dispatch(fetchProducts({ currentUser, subCategory }))
+	}, [currentUser, dispatch, subCategory])
 
 	const isProductFavorited = (product_id) => {
 		return favorites.some((fav) => fav.product_id === product_id)
@@ -77,16 +76,18 @@ export default function ProductGrid() {
 
 	const handleFavorite = (e, product_id) => {
 		e.stopPropagation()
-		if (dbId) {
+		if (currentUser) {
 			if (isProductFavorited(product_id)) {
-				dispatch(removeFromFavorites({ userId: dbId, product_id })).then(() => {
-					dispatch(fetchProducts(dbId))
-					dispatch(fetchUserFavorites(dbId))
-				})
+				dispatch(removeFromFavorites({ userId: currentUser, product_id })).then(
+					() => {
+						dispatch(fetchProducts(currentUser))
+						dispatch(fetchUserFavorites(currentUser))
+					}
+				)
 			} else {
-				dispatch(addToFavorites({ dbId, product_id })).then(() => {
-					dispatch(fetchProducts(dbId))
-					dispatch(fetchUserFavorites(dbId))
+				dispatch(addToFavorites({ currentUser, product_id })).then(() => {
+					dispatch(fetchProducts(currentUser))
+					dispatch(fetchUserFavorites(currentUser))
 				})
 			}
 		} else {
@@ -106,14 +107,14 @@ export default function ProductGrid() {
 			<p className="text-lg text-black mb-6 text-center px-4">
 				Browse our collection of ready to ship diamond engagement rings.
 			</p>
-	
+
 			{/* NEW FLEX LAYOUT */}
 			<div className="flex w-full px-4 md:px-8 gap-6">
 				{/* Filters Section - 20% */}
 				<div className="w-[25%] hidden md:block">
 					<Filters filters={filters} setFilters={setFilters} />
 				</div>
-	
+
 				{/* Product Grid Section - 80% */}
 				<main className="w-[75%]">
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -166,7 +167,7 @@ export default function ProductGrid() {
 					</div>
 				</main>
 			</div>
-	
+
 			<footer className="w-full bg-white text-[#be9080] text-center py-6 mt-8 px-4">
 				<p className="text-black">
 					Diamond Engagement Rings - Viewable In 360° HD
@@ -174,13 +175,12 @@ export default function ProductGrid() {
 				<p className="text-black">
 					Looking for engagement ring inspiration? Let our customers’ custom
 					creations spur your imagination. Browse a huge selection of diamond
-					engagement rings for women in every shape, style, and metal imaginable.
-					And to top it all off, set the ring of your dreams with a sparkling
-					natural or lab grown diamond.
+					engagement rings for women in every shape, style, and metal
+					imaginable. And to top it all off, set the ring of your dreams with a
+					sparkling natural or lab grown diamond.
 				</p>
 				<p className="text-black">Start designing your own engagement ring.</p>
 			</footer>
 		</div>
 	)
-	
 }

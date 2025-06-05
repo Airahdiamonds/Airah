@@ -94,9 +94,9 @@ export const addToCart = createAsyncThunk(
 
 export const removeFromCart = createAsyncThunk(
 	'favoritesCart/removeFromCart',
-	async ({ userId, productId }, { rejectWithValue }) => {
+	async ({ userId, guestId, productId }, { rejectWithValue }) => {
 		try {
-			await removeFromCartAPI(userId, productId)
+			await removeFromCartAPI({ userId, guestId, productId })
 			return { cart_id: productId }
 		} catch (error) {
 			return rejectWithValue(error.message)

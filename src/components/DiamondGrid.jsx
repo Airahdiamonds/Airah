@@ -14,7 +14,6 @@ import {
 	removeFromFavoritesLocal,
 } from '../redux/favoritesCartSlice'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
-import { useUser } from '@clerk/clerk-react'
 import { fetchDiamonds } from '../redux/userProductsSlice'
 import ImageCarousel from './ImageCarousel'
 import Filters from './Filters'
@@ -32,9 +31,8 @@ function DiamondGrid() {
 		OMR_rate,
 		AED_rate,
 		EUR_rate,
+		currentUser,
 	} = useSelector((state) => state.localization)
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
 	const [filters, setFilters] = useState({
 		diamondSize: [],
 		diamondClarity: [],
@@ -44,17 +42,17 @@ function DiamondGrid() {
 	})
 
 	useEffect(() => {
-		if (!dbId) {
+		if (!currentUser) {
 			const guestFavorites = JSON.parse(localStorage.getItem('favorites')) || []
 			guestFavorites.forEach((fav) => {
 				dispatch(addToFavoritesLocal(fav))
 			})
-		} else if (dbId) {
+		} else if (currentUser) {
 			const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
 			localFavorites.forEach((fav) => {
 				dispatch(
 					addToFavorites({
-						dbId,
+						currentUser,
 						product_id: fav.product_id,
 						diamond_id: fav.diamond_id,
 						ring_style_id: fav.ring_style_id,
@@ -62,10 +60,10 @@ function DiamondGrid() {
 				)
 			})
 			dispatch(clearLocalFavorites())
-			dispatch(fetchUserFavorites(dbId))
+			dispatch(fetchUserFavorites(currentUser))
 		}
-		dispatch(fetchDiamonds({ dbId, filters }))
-	}, [dbId, dispatch, filters])
+		dispatch(fetchDiamonds({ currentUser, filters }))
+	}, [currentUser, dispatch, filters])
 
 	// const StarRating = ({ rating }) => {
 	// 	const stars = [];
@@ -105,16 +103,18 @@ function DiamondGrid() {
 
 	const handleFavorite = (e, diamond_id) => {
 		e.stopPropagation()
-		if (dbId) {
+		if (currentUser) {
 			if (isProductFavorited(diamond_id)) {
-				dispatch(removeFromFavorites({ userId: dbId, diamond_id })).then(() => {
-					dispatch(fetchDiamonds(dbId))
-					dispatch(fetchUserFavorites(dbId))
-				})
+				dispatch(removeFromFavorites({ userId: currentUser, diamond_id })).then(
+					() => {
+						dispatch(fetchDiamonds(currentUser))
+						dispatch(fetchUserFavorites(currentUser))
+					}
+				)
 			} else {
-				dispatch(addToFavorites({ dbId, diamond_id })).then(() => {
-					dispatch(fetchDiamonds(dbId))
-					dispatch(fetchUserFavorites(dbId))
+				dispatch(addToFavorites({ currentUser, diamond_id })).then(() => {
+					dispatch(fetchDiamonds(currentUser))
+					dispatch(fetchUserFavorites(currentUser))
 				})
 			}
 		} else {
@@ -128,14 +128,14 @@ function DiamondGrid() {
 
 	return (
 		<div className="w-full">
-	{/* Filters at the top */}
-	<div className="w-full ">
-		<Filters filters={filters} setFilters={setFilters} />
-	</div>
+			{/* Filters at the top */}
+			<div className="w-full ">
+				<Filters filters={filters} setFilters={setFilters} />
+			</div>
 
-	{/* Diamond Grid below */}
-	<main className="w-full p-2 lg:p-4">
-		<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
+			{/* Diamond Grid below */}
+			<main className="w-full p-2 lg:p-4">
+				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
 					{filteredDiamonds?.map((product) => (
 						<button
 							onClick={() => handleClick(product.diamond_id)}

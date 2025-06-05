@@ -54,9 +54,6 @@ export async function addToCart({
 	diamond_id,
 	ring_style_id,
 }) {
-	console.log(
-		`Adding to cart: user_id=${user_id}, guest_id=${guest_id}, product_id=${product_id}, diamond_id=${diamond_id}, ring_style_id=${ring_style_id}, quantity=${quantity}`
-	)
 	const result = await db.insert(cartTable).values({
 		user_id,
 		guest_id,
@@ -71,12 +68,19 @@ export async function addToCart({
 	return { success: true }
 }
 
-export async function removeFromCart({ user_id, guest_id, cart_id }) {
-	const whereClause = user_id
-		? and(eq(cartTable.user_id, user_id), eq(cartTable.cart_id, cart_id))
-		: and(eq(cartTable.guest_id, guest_id), eq(cartTable.cart_id, cart_id))
+export async function removeFromCart({ user_id, guest_id, product_id }) {
+	const conditions = [eq(cartTable.cart_id, Number(product_id))]
 
-	await db.delete(cartTable).where(whereClause)
+	if (user_id) {
+		conditions.push(eq(cartTable.user_id, user_id))
+	} else {
+		conditions.push(eq(cartTable.guest_id, guest_id))
+	}
+
+	await db
+		.delete(cartTable)
+		.where(and(...conditions))
+		.returning()
 
 	return { success: true }
 }

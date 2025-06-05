@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react'
 import { addStyle, updateStyle } from '../../utils/api'
 import { convertFormData, stylesJson } from '../../utils/helpers'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { fetchStyles } from '../../redux/userProductsSlice'
-import { useUser } from '@clerk/clerk-react'
 import ImageURLInput from '../../components/ImageURLInput'
 
 const AddStyle = ({ initialData = null, onSuccess }) => {
 	const dispatch = useDispatch()
 	const [formData, setFormData] = useState(stylesJson)
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
+	const { currentUser } = useSelector((state) => state.localization)
 
 	// Pre-fill the form if initialData is provided
 	useEffect(() => {
@@ -32,13 +30,13 @@ const AddStyle = ({ initialData = null, onSuccess }) => {
 			if (initialData) {
 				// Update existing product
 				await updateStyle(initialData.ring_style_id, cleanedData)
-				dispatch(fetchStyles(dbId))
+				dispatch(fetchStyles(currentUser))
 				alert('Style updated successfully!')
 			} else {
 				// Add new product
 				await addStyle(cleanedData)
 				alert('Style added successfully!')
-				dispatch(fetchStyles(dbId))
+				dispatch(fetchStyles(currentUser))
 			}
 			setFormData(stylesJson)
 			onSuccess?.() // Call callback function to refresh list

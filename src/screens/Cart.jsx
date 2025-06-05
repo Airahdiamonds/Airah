@@ -62,7 +62,13 @@ const Cart = () => {
 	}, [cartItems, discount, coupon])
 
 	const handleRemove = (productId) => {
-		dispatch(removeFromCart({ userId: currentUser, productId }))
+		dispatch(
+			removeFromCart({
+				userId: currentUser || null,
+				guestId: currentUser ? null : guestUser,
+				productId: productId,
+			})
+		)
 		dispatch(fetchUserCartItems(currentUser, guestUser))
 	}
 
@@ -113,11 +119,20 @@ const Cart = () => {
 
 		try {
 			await dispatch(
-				createOrder({ currentUser, cartItems, totalPrice })
+				createOrder({
+					userId: currentUser || null,
+					guestId: currentUser ? null : guestUser,
+					cartItems,
+					totalPrice,
+				})
 			).unwrap() // Unwrap ensures proper error handling
 			cartItems.forEach((item) => {
 				dispatch(
-					removeFromCart({ userId: currentUser, productId: item.cart_id })
+					removeFromCart({
+						userId: currentUser || -1, // assuming -1 is your guest fallback in DB
+						guestId: currentUser ? null : guestUser,
+						productId: item.cart_id,
+					})
 				)
 			})
 			navigate('/orders')

@@ -66,7 +66,7 @@ import {
 	getOrdersByUser,
 	updateStatus,
 } from './drizzle/features/orders.js'
-import { sendEmail } from './emailService.js'
+// import { sendEmail } from './emailService.js'
 import {
 	comparePasswords,
 	generateSalt,
@@ -257,19 +257,20 @@ app.post('/api/users/addToCart', async (req, res) => {
 	}
 })
 
-app.delete(
-	'/api/users/deleteCart/:clerk_user_id/:product_id',
-	async (req, res) => {
-		try {
-			const { clerk_user_id, product_id } = req.params
-			await removeFromCart({ clerk_user_id, product_id })
-			res.json({ success: true })
-		} catch (err) {
-			console.error('removeFromCart Error:', err)
-			res.status(500).json({ error: 'Failed to remove from Cart' })
-		}
+app.delete('/api/users/deleteCart', async (req, res) => {
+	try {
+		const { userId, guestId, productId } = req.query
+		await removeFromCart({
+			user_id: userId,
+			guest_id: guestId,
+			product_id: productId,
+		})
+		res.json({ success: true })
+	} catch (err) {
+		console.error('removeFromCart Error:', err)
+		res.status(500).json({ error: 'Failed to remove from Cart' })
 	}
-)
+})
 
 app.post('/api/admin/addProduct', async (req, res) => {
 	try {
@@ -639,9 +640,8 @@ app.post('/api/validateCoupon', async (req, res) => {
 
 app.get('/api/orders', async (req, res) => {
 	try {
-		const { userId } = req.query
-		const data = await getOrdersByUser(userId)
-
+		const { userId, guestId } = req.query
+		const data = await getOrdersByUser({ userId, guestId })
 		// await sendEmail(
 		// 	customerEmail,
 		// 	'Order Confirmation',
@@ -690,8 +690,13 @@ app.post('/api/cancelOrder', async (req, res) => {
 
 app.post('/api/createOrder', async (req, res) => {
 	try {
-		const { dbId, cartItems, totalPrice } = req.body
-		const newOrder = await createOrder({ dbId, cartItems, totalPrice })
+		const { userId, guestId, cartItems, totalPrice } = req.body
+		const newOrder = await createOrder({
+			userId,
+			guestId,
+			cartItems,
+			totalPrice,
+		})
 		res.json(newOrder)
 	} catch (err) {
 		console.log('createOrder Error:', err)

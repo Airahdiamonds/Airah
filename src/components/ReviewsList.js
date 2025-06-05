@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { fetchReviews, submitReviews } from '../utils/api'
 import { StarRating } from './StarRating'
 import ImageURLInput from './ImageURLInput'
-import { useUser } from '@clerk/clerk-react'
+import { useSelector } from 'react-redux'
 
 const ReviewsList = ({ product_id }) => {
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
 	const [reviews, setReviews] = useState([])
 	const [page, setPage] = useState(1)
 	const [limit] = useState(5)
@@ -20,6 +18,7 @@ const ReviewsList = ({ product_id }) => {
 	const [newImageUrls, setNewImageUrls] = useState([])
 	const [showForm, setShowForm] = useState(false)
 	const [refreshKey, setRefreshKey] = useState(0)
+	const { currentUser } = useSelector((state) => state.localization)
 
 	useEffect(() => {
 		const getReviews = async () => {
@@ -47,7 +46,7 @@ const ReviewsList = ({ product_id }) => {
 
 		const newReview = {
 			product_id,
-			user_id: dbId,
+			user_id: currentUser,
 			rating: newRating,
 			comment: newComment,
 			image_URL: newImageUrls.filter((url) => url.trim() !== ''),

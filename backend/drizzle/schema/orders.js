@@ -1,4 +1,4 @@
-import { integer, pgEnum, pgTable, serial } from 'drizzle-orm/pg-core'
+import { integer, pgEnum, pgTable, serial, varchar } from 'drizzle-orm/pg-core'
 import { created_at, updated_at } from '../schemaHelpers.js'
 import { userTable } from './users.js'
 import { relations } from 'drizzle-orm'
@@ -17,9 +17,12 @@ export const statusEnum = pgEnum('status', status)
 
 export const ordersTable = pgTable('orders', {
 	order_id: serial('order_id').primaryKey(),
-	user_id: serial('user_id').references(() => userTable.user_id, {
-		onDelete: 'cascade',
-	}),
+	user_id: integer('user_id')
+		.references(() => userTable.user_id, {
+			onDelete: 'set null',
+		})
+		.default(null),
+	guest_id: varchar('guest_id', { length: 36 }).default(null),
 	total_amount: integer().notNull(),
 	status: statusEnum().default('pending'),
 	created_at,

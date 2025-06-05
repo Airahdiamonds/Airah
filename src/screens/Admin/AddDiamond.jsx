@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react'
 import { addDiamond, updateDiamond } from '../../utils/api'
 import { convertFormData, diamondJson } from '../../utils/helpers'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { fetchDiamonds } from '../../redux/userProductsSlice'
 import ImageURLInput from '../../components/ImageURLInput'
-import { useUser } from '@clerk/clerk-react'
 
 const AddDiamond = ({ initialData = null, onSuccess }) => {
 	const dispatch = useDispatch()
 	const [formData, setFormData] = useState(diamondJson)
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
+	const { currentUser } = useSelector((state) => state.localization)
 
 	// Pre-fill the form if initialData is provided
 	useEffect(() => {
@@ -32,13 +30,13 @@ const AddDiamond = ({ initialData = null, onSuccess }) => {
 			if (initialData) {
 				// Update existing product
 				await updateDiamond(initialData.diamond_id, cleanedData)
-				dispatch(fetchDiamonds(dbId))
+				dispatch(fetchDiamonds(currentUser))
 				alert('Diamond updated successfully!')
 			} else {
 				// Add new product
 				await addDiamond(cleanedData)
 				alert('Diamond added successfully!')
-				dispatch(fetchDiamonds(dbId))
+				dispatch(fetchDiamonds(currentUser))
 			}
 			setFormData(diamondJson)
 			onSuccess?.() // Call callback function to refresh list
