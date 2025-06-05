@@ -3,22 +3,31 @@ import { db } from '../db.js'
 import { ordersTable } from '../schema/orders.js'
 import { orderItemsTable } from '../schema/orderItems.js'
 
-export async function getOrdersByUser(userId) {
-	return await db
-		.select()
-		.from(ordersTable)
-		.where(eq(ordersTable.user_id, userId))
+export async function getOrdersByUser({ userId, guestId }) {
+	if (userId) {
+		return await db
+			.select()
+			.from(ordersTable)
+			.where(eq(ordersTable.user_id, userId))
+	} else if (guestId) {
+		return await db
+			.select()
+			.from(ordersTable)
+			.where(eq(ordersTable.guest_id, guestId))
+	}
+	return [] // fallback
 }
 
 export async function getOrdersAdmin() {
 	return await db.select().from(ordersTable)
 }
 
-export async function createOrder({ dbId, cartItems, totalPrice }) {
+export async function createOrder({ userId, guestId, cartItems, totalPrice }) {
 	const [newOrder] = await db
 		.insert(ordersTable)
 		.values({
-			user_id: dbId,
+			user_id: userId || null,
+			guest_id: guestId || null,
 			total_amount: totalPrice,
 			status: 'pending',
 		})
@@ -26,7 +35,7 @@ export async function createOrder({ dbId, cartItems, totalPrice }) {
 
 	await db.insert(orderItemsTable).values(
 		cartItems.map((item) => ({
-			order_id: newOrder.id,
+			order_id: newOrder.order_id, // Make sure you're using correct key
 			product_id: item.product_id,
 			diamond_id: item.diamond_id,
 			ring_style_id: item.ring_style_id,

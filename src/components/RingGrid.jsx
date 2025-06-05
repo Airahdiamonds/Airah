@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setShowRing, updateRingDetails } from '../redux/ringCustomizationSlice'
 import { convertPrice } from '../utils/helpers'
-import { useUser } from '@clerk/clerk-react'
 import { fetchStyles } from '../redux/userProductsSlice'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import {
@@ -28,22 +27,21 @@ function RingGrid() {
 		OMR_rate,
 		AED_rate,
 		EUR_rate,
+		currentUser,
 	} = useSelector((state) => state.localization)
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
 
 	useEffect(() => {
-		if (!dbId) {
+		if (!currentUser) {
 			const guestFavorites = JSON.parse(localStorage.getItem('favorites')) || []
 			guestFavorites.forEach((fav) => {
 				dispatch(addToFavoritesLocal(fav))
 			})
-		} else if (dbId) {
+		} else if (currentUser) {
 			const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
 			localFavorites.forEach((fav) => {
 				dispatch(
 					addToFavorites({
-						dbId,
+						currentUser,
 						product_id: fav.product_id,
 						diamond_id: fav.diamond_id,
 						ring_style_id: fav.ring_style_id,
@@ -51,10 +49,10 @@ function RingGrid() {
 				)
 			})
 			dispatch(clearLocalFavorites())
-			dispatch(fetchUserFavorites(dbId))
+			dispatch(fetchUserFavorites(currentUser))
 		}
-		dispatch(fetchStyles(dbId))
-	}, [dbId, dispatch])
+		dispatch(fetchStyles(currentUser))
+	}, [currentUser, dispatch])
 
 	const isProductFavorited = (ring_style_id) => {
 		return favorites.some((fav) => fav.ring_style_id === ring_style_id)
@@ -67,18 +65,18 @@ function RingGrid() {
 
 	const handleFavorite = (e, ring_style_id) => {
 		e.stopPropagation()
-		if (dbId) {
+		if (currentUser) {
 			if (isProductFavorited(ring_style_id)) {
-				dispatch(removeFromFavorites({ userId: dbId, ring_style_id })).then(
-					() => {
-						dispatch(fetchStyles(dbId))
-						dispatch(fetchUserFavorites(dbId))
-					}
-				)
+				dispatch(
+					removeFromFavorites({ userId: currentUser, ring_style_id })
+				).then(() => {
+					dispatch(fetchStyles(currentUser))
+					dispatch(fetchUserFavorites(currentUser))
+				})
 			} else {
-				dispatch(addToFavorites({ dbId, ring_style_id })).then(() => {
-					dispatch(fetchStyles(dbId))
-					dispatch(fetchUserFavorites(dbId))
+				dispatch(addToFavorites({ currentUser, ring_style_id })).then(() => {
+					dispatch(fetchStyles(currentUser))
+					dispatch(fetchUserFavorites(currentUser))
 				})
 			}
 		} else {

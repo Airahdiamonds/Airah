@@ -3,6 +3,7 @@ import { ShoppingCart, Heart, Search, Menu, X, ChevronDown } from 'lucide-react'
 import LOGO from '../assets/logo.webp'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+	clearGuest,
 	clearUser,
 	fetchCurrencyRates,
 	setCountry,
@@ -60,7 +61,7 @@ export default function Header() {
 			const user = await fetchCurrentUser()
 			if (user) {
 				dispatch(setUser(user))
-				console.log(user)
+				dispatch(clearGuest())
 			} else {
 				let guestId = localStorage.getItem('guest_id')
 				if (!guestId) {
@@ -72,11 +73,13 @@ export default function Header() {
 		}
 		getUser()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [currentUser])
 
 	// Fetch user data and currency rates on component mount
 	useEffect(() => {
-		dispatch(fetchUserFavorites(currentUser))
+		if (currentUser) {
+			dispatch(fetchUserFavorites(currentUser))
+		}
 		dispatch(fetchUserCartItems({ userId: currentUser, guestId: guestUser }))
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [currentUser, guestUser])

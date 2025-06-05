@@ -94,11 +94,15 @@ export const addToCartAPI = async (
 	}
 }
 
-export const removeFromCartAPI = async (userId, productId) => {
+export const removeFromCartAPI = async ({ userId, guestId, productId }) => {
 	try {
-		await axios.delete(
-			`${REACT_APP_API_URL}/users/deleteCart/${userId}/${productId}`
-		)
+		await axios.delete(`${REACT_APP_API_URL}/users/deleteCart/`, {
+			params: {
+				userId,
+				guestId,
+				productId,
+			},
+		})
 	} catch (error) {
 		console.error('Error removing from cart:', error)
 		throw error
@@ -429,11 +433,11 @@ export const getAllFilteredDiamonds = async (query) => {
 	}
 }
 
-export const fetchUserOrders = async (userId) => {
+export const fetchUserOrders = async ({ userId, guestId }) => {
 	try {
-		const response = await axios.get(
-			`${REACT_APP_API_URL}/orders?userId=${userId}`
-		)
+		const response = await axios.get(`${REACT_APP_API_URL}/orders`, {
+			params: { userId, guestId },
+		})
 		return response.data
 	} catch (error) {
 		console.error('Error fetching orders:', error)
@@ -453,10 +457,16 @@ export const cancelUserOrder = async (orderId) => {
 	}
 }
 
-export const createUserOrder = async ({ dbId, cartItems, totalPrice }) => {
+export const createUserOrder = async ({
+	userId,
+	guestId,
+	cartItems,
+	totalPrice,
+}) => {
 	try {
 		const response = await axios.post(`${REACT_APP_API_URL}/createOrder`, {
-			dbId,
+			userId,
+			guestId,
 			cartItems,
 			totalPrice,
 		})

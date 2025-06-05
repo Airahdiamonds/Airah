@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react'
 import { addProduct, updateProduct } from '../../utils/api'
 import { convertFormData, productJson } from '../../utils/helpers'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts } from '../../redux/userProductsSlice'
-import { useUser } from '@clerk/clerk-react'
 import ImageURLInput from '../../components/ImageURLInput'
 
 const AddProduct = ({ initialData = null, onSuccess }) => {
 	const dispatch = useDispatch()
 	const [formData, setFormData] = useState(productJson)
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
+	const { currentUser } = useSelector((state) => state.localization)
 
 	// Pre-fill the form if initialData is provided
 	useEffect(() => {
@@ -37,7 +35,7 @@ const AddProduct = ({ initialData = null, onSuccess }) => {
 				// Add new product
 				await addProduct(cleanedData)
 				alert('Product added successfully!')
-				dispatch(fetchProducts(dbId))
+				dispatch(fetchProducts(currentUser))
 			}
 			setFormData(productJson)
 			onSuccess?.() // Call callback function to refresh list

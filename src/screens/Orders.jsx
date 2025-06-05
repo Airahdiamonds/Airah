@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchOrders, cancelOrder } from '../redux/ordersSlice'
-import { useUser } from '@clerk/clerk-react'
 import { convertPrice, formatDate } from '../utils/helpers'
 
 // Order Status Mapping for Tracking
@@ -17,8 +16,6 @@ export default function OrdersPage() {
 	const dispatch = useDispatch()
 	const { orders, status, error } = useSelector((state) => state.orders)
 	const [filter, setFilter] = useState('All')
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
 	const {
 		currency,
 		country,
@@ -28,14 +25,14 @@ export default function OrdersPage() {
 		OMR_rate,
 		AED_rate,
 		EUR_rate,
+		currentUser,
+		guestUser,
 	} = useSelector((state) => state.localization)
 
 	useEffect(() => {
-		if (dbId) {
-			dispatch(fetchOrders(dbId))
-		}
+		dispatch(fetchOrders({ userId: currentUser, guestId: guestUser }))
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dbId])
+	}, [])
 
 	const filteredOrders = orders.filter(
 		(order) => filter === 'All' || order.status === filter
@@ -43,7 +40,7 @@ export default function OrdersPage() {
 
 	const handleCancelOrder = (orderId) => {
 		dispatch(cancelOrder(orderId))
-		dispatch(fetchOrders(dbId))
+		dispatch(fetchOrders({ userId: currentUser, guestId: guestUser }))
 	}
 
 	return (

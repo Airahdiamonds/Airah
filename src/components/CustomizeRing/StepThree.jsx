@@ -4,7 +4,6 @@ import {
 	updateTotalCost,
 } from '../../redux/ringCustomizationSlice'
 import { useEffect, useState } from 'react'
-import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/clerk-react'
 import { addToCart, fetchUserCartItems } from '../../redux/favoritesCartSlice'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,8 +11,7 @@ const StepThree = () => {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { productDetails } = useSelector((state) => state.ringCustomization)
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
+	const { currentUser } = useSelector((state) => state.localization)
 
 	useEffect(() => {
 		dispatch(
@@ -31,7 +29,7 @@ const StepThree = () => {
 	const handleClick = async () => {
 		await dispatch(
 			addToCart({
-				userId: dbId,
+				userId: currentUser,
 				productId: null,
 				diamondId: productDetails[0].diamond?.product_id,
 				ringStyleId: productDetails[0].ring?.product_id,
@@ -39,7 +37,7 @@ const StepThree = () => {
 			})
 		)
 		await dispatch(resetCustomization())
-		await dispatch(fetchUserCartItems(dbId))
+		await dispatch(fetchUserCartItems(currentUser))
 		navigate('/cart')
 	}
 
@@ -105,21 +103,12 @@ const StepThree = () => {
 					</div>
 
 					<div>
-						<SignedIn>
-							<button
-								onClick={handleClick}
-								className="px-6 py-2 text-lg w-full h-16 bg-[#c9a992] text-white rounded-sm shadow-md hover:bg-[#bf927f] active:bg-[#a8826c]"
-							>
-								Add To Cart
-							</button>
-						</SignedIn>
-						<SignedOut>
-							<SignInButton>
-								<button className="px-6 py-2 text-lg w-full h-16 bg-[#c9a992] text-white rounded-sm shadow-md hover:bg-[#bf927f] active:bg-[#a8826c]">
-									Add To Cart
-								</button>
-							</SignInButton>
-						</SignedOut>
+						<button
+							onClick={handleClick}
+							className="px-6 py-2 text-lg w-full h-16 bg-[#c9a992] text-white rounded-sm shadow-md hover:bg-[#bf927f] active:bg-[#a8826c]"
+						>
+							Add To Cart
+						</button>
 					</div>
 				</div>
 

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useUser, SignInButton } from '@clerk/clerk-react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
 	addToFavorites,
@@ -18,8 +17,6 @@ import {
 import { getStyle } from '../utils/api'
 
 const Favorites = () => {
-	const { user, isSignedIn } = useUser()
-	const dbId = user?.publicMetadata?.dbId
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { favorites, loading } = useSelector((state) => state.favoritesCart)
@@ -32,13 +29,14 @@ const Favorites = () => {
 		OMR_rate,
 		AED_rate,
 		EUR_rate,
+		currentUser,
 	} = useSelector((state) => state.localization)
 
 	const [favoritesSynced, setFavoritesSynced] = useState(false)
 
 	useEffect(() => {
 		const syncFavoritesAndFetch = async () => {
-			if (!dbId) return
+			if (!currentUser) return
 
 			const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
 
@@ -48,7 +46,7 @@ const Favorites = () => {
 					localFavorites.map((fav) =>
 						dispatch(
 							addToFavorites({
-								dbId,
+								currentUser,
 								product_id: fav.product_id,
 								diamond_id: fav.diamond_id,
 								ring_style_id: fav.ring_style_id,
@@ -57,7 +55,7 @@ const Favorites = () => {
 					)
 				)
 				setTimeout(() => {
-					dispatch(fetchUserFavorites(dbId))
+					dispatch(fetchUserFavorites(currentUser))
 				}, 500)
 
 				dispatch(clearLocalFavorites()) // Clear local after syncing
@@ -69,10 +67,10 @@ const Favorites = () => {
 			setFavoritesSynced(true)
 		}
 
-		if (dbId && isSignedIn) {
+		if (currentUser) {
 			syncFavoritesAndFetch()
 		}
-	}, [dbId, isSignedIn, dispatch])
+	}, [currentUser, dispatch])
 
 	const handleRemove = (product_id, diamond_id, ring_style_id, type) => {
 		const idMap = {
@@ -83,8 +81,8 @@ const Favorites = () => {
 
 		const idObj = idMap[type]
 		if (idObj) {
-			dispatch(removeFromFavorites({ userId: dbId, ...idObj }))
-			dispatch(fetchUserFavorites(dbId))
+			dispatch(removeFromFavorites({ userId: currentUser, ...idObj }))
+			dispatch(fetchUserFavorites(currentUser))
 		}
 	}
 
@@ -138,20 +136,20 @@ const Favorites = () => {
 		}
 	}
 
-	if (!isSignedIn) {
-		return (
-			<div className="h-80 flex flex-col items-center justify-center bg-gray-50">
-				<h2 className="text-2xl font-semibold text-gray-700 mb-4">
-					Please log in to view your Favorites
-				</h2>
-				<SignInButton mode="modal">
-					<button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-						Log In
-					</button>
-				</SignInButton>
-			</div>
-		)
-	}
+	// if (!isSignedIn) {
+	// 	return (
+	// 		<div className="h-80 flex flex-col items-center justify-center bg-gray-50">
+	// 			<h2 className="text-2xl font-semibold text-gray-700 mb-4">
+	// 				Please log in to view your Favorites
+	// 			</h2>
+	// 			<SignInButton mode="modal">
+	// 				<button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+	// 					Log In
+	// 				</button>
+	// 			</SignInButton>
+	// 		</div>
+	// 	)
+	// }
 
 	if (!favoritesSynced) {
 		return (

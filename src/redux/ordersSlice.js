@@ -4,9 +4,9 @@ import { cancelUserOrder, createUserOrder, fetchUserOrders } from '../utils/api'
 // Fetch orders from backend
 export const fetchOrders = createAsyncThunk(
 	'orders/fetchOrders',
-	async (userId, { rejectWithValue }) => {
+	async ({ userId, guestId }, { rejectWithValue }) => {
 		try {
-			return await fetchUserOrders(userId)
+			return await fetchUserOrders({ userId, guestId })
 		} catch (error) {
 			return rejectWithValue(error.message)
 		}
@@ -27,9 +27,9 @@ export const cancelOrder = createAsyncThunk(
 
 export const createOrder = createAsyncThunk(
 	'orders/createOrder',
-	async ({ dbId, cartItems, totalPrice }, { rejectWithValue }) => {
+	async ({ userId, guestId, cartItems, totalPrice }, { rejectWithValue }) => {
 		try {
-			return await createUserOrder({ dbId, cartItems, totalPrice })
+			return await createUserOrder({ userId, guestId, cartItems, totalPrice })
 		} catch (error) {
 			return rejectWithValue(error.message)
 		}
