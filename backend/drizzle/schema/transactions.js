@@ -18,17 +18,21 @@ export const paymentStatusEnum = pgEnum('payment_status', paymentStatus)
 
 export const transactionsTable = pgTable('transactions', {
 	transaction_id: serial('transaction_id').primaryKey(),
-	order_id: serial().references(() => ordersTable.order_id, {
-		onDelete: 'restrict',
-	}),
-	user_id: serial('user_id').references(() => userTable.user_id, {
-		onDelete: 'restrict',
-	}),
+	order_id: integer('order_id')
+		.references(() => ordersTable.order_id, {
+			onDelete: 'restrict',
+		})
+		.default(null),
+	user_id: integer('user_id')
+		.references(() => userTable.user_id, {
+			onDelete: 'restrict',
+		})
+		.default(null),
 	payment_method: paymentMethodEnum().notNull(),
 	payment_status: paymentStatusEnum().default('pending'),
 	payment_date: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	transaction_amount: integer().notNull(),
-	transaction_reference: text(),
+	transaction_reference: text().unique(),
 	refunded_at: timestamp({ withTimezone: true }),
 	created_at,
 	updated_at,

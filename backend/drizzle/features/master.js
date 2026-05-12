@@ -1,4 +1,4 @@
-import { eq, ilike } from 'drizzle-orm'
+import { eq, ilike, sql } from 'drizzle-orm'
 import { db } from '../db.js'
 import { diamondsTable } from '../schema/diamonds.js'
 import { masterTable } from '../schema/master.js'
@@ -88,6 +88,14 @@ export async function validateCoupon(couponCode) {
 
 	return {
 		success: true,
+		coupon_id: coupon.coupon_id,
 		discount: coupon.discount_percentage,
 	}
+}
+
+export async function incrementCouponUsage(couponCode) {
+	await db
+		.update(couponsTable)
+		.set({ used_count: sql`${couponsTable.used_count} + 1` })
+		.where(eq(couponsTable.code, couponCode))
 }

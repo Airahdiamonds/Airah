@@ -4,8 +4,8 @@ import { getProduct } from '../utils/api'
 import { convertPrice } from '../utils/helpers'
 import { useNavigate, useParams } from 'react-router-dom'
 import { addToCart, fetchUserCartItems } from '../redux/favoritesCartSlice'
-import ReviewsList from '../components/ReviewsList'
 import ProductImages from '../components/ProductImages'
+import ReviewsList from '../components/ReviewsList'
 
 function Product() {
 	const dispatch = useDispatch()
@@ -36,7 +36,6 @@ function Product() {
 	// const [activeTab, setActiveTab] = useState('earring')
 
 	const handleClick = async () => {
-		console.log(guestUser)
 		await dispatch(
 			addToCart({
 				userId: currentUser,
@@ -44,6 +43,7 @@ function Product() {
 				productId: product.product_id,
 				diamondId: null,
 				ringStyleId: null,
+				ringSize: selectedSize,
 				quantity: 1,
 			})
 		)

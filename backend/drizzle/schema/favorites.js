@@ -8,9 +8,11 @@ import { diamondsTable } from './diamonds.js'
 
 export const favoritesTable = pgTable('favorites', {
 	favourite_id: serial('favourite_id').primaryKey(),
-	user_id: serial('user_id').references(() => userTable.user_id, {
-		onDelete: 'cascade',
-	}),
+	user_id: integer('user_id')
+		.references(() => userTable.user_id, {
+			onDelete: 'cascade',
+		})
+		.notNull(),
 	product_id: integer('product_id')
 		.references(() => productsTable.product_id, {
 			onDelete: 'set null',

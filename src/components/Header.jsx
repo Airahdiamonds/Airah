@@ -19,6 +19,8 @@ import { menuItems } from '../utils/helpers'
 import { FaGoogle } from 'react-icons/fa'
 import {
 	fetchCurrentUser,
+	mergeCartAPI,
+	mergeFavoritesAPI,
 	signInUser,
 	signoutUser,
 	signUpUser,
@@ -56,8 +58,11 @@ export default function Header() {
 		password: '',
 		confirmPassword: '',
 	})
+	// Run once on mount: determine if the visitor is an authenticated user or guest.
+	// Do NOT include currentUser in deps — this effect bootstraps auth state and should
+	// not re-run when currentUser changes (that would cause an infinite loop on login).
 	useEffect(() => {
-		const getUser = async () => {
+		const bootstrap = async () => {
 			const user = await fetchCurrentUser()
 			if (user) {
 				dispatch(setUser(user))
@@ -71,9 +76,18 @@ export default function Header() {
 				dispatch(setGuest(guestId))
 			}
 		}
-		getUser()
+		bootstrap()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [currentUser])
+	}, [])
+
+	// React to unauthorized responses from the API — sign the user out.
+	useEffect(() => {
+		const handleUnauthorized = () => {
+			dispatch(clearUser())
+		}
+		window.addEventListener('auth:unauthorized', handleUnauthorized)
+		return () => window.removeEventListener('auth:unauthorized', handleUnauthorized)
+	}, [dispatch])
 
 	// Fetch user data and currency rates on component mount
 	useEffect(() => {
@@ -121,12 +135,25 @@ export default function Header() {
 			setFormData({ email: '', password: '' })
 			const user = await fetchCurrentUser()
 			if (user) {
+				// Merge any guest cart/favorites before switching identity
+				const guestId = localStorage.getItem('guest_id')
+				if (guestId) {
+					const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
+					await Promise.all([
+						mergeCartAPI(guestId).catch(console.error),
+						localFavorites.length > 0
+							? mergeFavoritesAPI(localFavorites).catch(console.error)
+							: Promise.resolve(),
+					])
+					localStorage.removeItem('guest_id')
+					localStorage.removeItem('favorites')
+				}
 				dispatch(setUser(user))
-				console.log(user)
+				dispatch(clearGuest())
 			}
 			setIsModalOpen(false)
 		} else {
-			alert('Sign up failed')
+			alert('Sign in failed')
 		}
 	}
 	const handleLogout = async () => {
@@ -163,8 +190,21 @@ export default function Header() {
 			setFormData({ name: '', email: '', password: '', confirmPassword: '' })
 			const user = await fetchCurrentUser()
 			if (user) {
+				// Merge any guest cart/favorites before switching identity
+				const guestId = localStorage.getItem('guest_id')
+				if (guestId) {
+					const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
+					await Promise.all([
+						mergeCartAPI(guestId).catch(console.error),
+						localFavorites.length > 0
+							? mergeFavoritesAPI(localFavorites).catch(console.error)
+							: Promise.resolve(),
+					])
+					localStorage.removeItem('guest_id')
+					localStorage.removeItem('favorites')
+				}
 				dispatch(setUser(user))
-				console.log(user)
+				dispatch(clearGuest())
 			}
 			setIsModalOpen(false)
 		} else {
@@ -172,8 +212,8 @@ export default function Header() {
 		}
 	}
 	const handleGoogleAuth = () => {
-		const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID
-		const redirectUri = 'http://localhost:4000/api/auth/google/callback' // Update this for production
+		const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+		const redirectUri = `${import.meta.env.VITE_API_URL}/auth/google/callback`
 		const scope = encodeURIComponent('profile email')
 		const state = crypto.randomUUID() // Optional, useful for CSRF protection
 		const responseType = 'code'

@@ -6,4 +6,5 @@ export const couponsTable = pgTable('coupons', {
 	discount_percentage: integer().notNull(),
 	expiry_date: date().notNull(),
 	max_uses: integer().default(1),
+	used_count: integer().default(0).notNull(),
 })

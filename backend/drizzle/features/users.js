@@ -1,3 +1,4 @@
+import { comparePasswords, generateSalt, hashPassword } from '../../passwordHasher.js'
 import { db } from '../db.js'
 import { adminTable } from '../schema/admin.js'
 import { userTable } from '../schema/users.js'
@@ -63,13 +64,16 @@ export async function getAllAdmin() {
 }
 
 export async function addAdmin(data) {
+	const salt = generateSalt()
+	const hashedPassword = await hashPassword(data.password, salt)
+
 	const [newAdmin] = await db
 		.insert(adminTable)
-		.values(data)
+		.values({ ...data, password: hashedPassword, salt })
 		.returning()
 		.onConflictDoUpdate({
 			target: [adminTable.email],
-			set: data,
+			set: { ...data, password: hashedPassword, salt },
 		})
 
 	if (newAdmin == null) throw new Error('Failed to insert admin')
@@ -78,9 +82,17 @@ export async function addAdmin(data) {
 }
 
 export async function updateAdmin({ id }, data) {
+	const updateData = { ...data }
+
+	if (data.password) {
+		const salt = generateSalt()
+		updateData.password = await hashPassword(data.password, salt)
+		updateData.salt = salt
+	}
+
 	const [updatedAdmin] = await db
 		.update(adminTable)
-		.set(data)
+		.set(updateData)
 		.where(eq(adminTable.user_id, id))
 		.returning()
 
@@ -103,16 +115,30 @@ export async function deleteAdmin({ id }) {
 }
 
 export async function getAdmin(email, password) {
-	const admin = await db
+	const admins = await db
 		.select()
 		.from(adminTable)
-		.where(and(eq(adminTable.email, email), eq(adminTable.password, password)))
+		.where(eq(adminTable.email, email))
 
-	if (!admin || admin.length === 0) {
+	if (!admins || admins.length === 0) {
 		throw new Error('Invalid email or password')
 	}
 
-	return admin[0]
+	const admin = admins[0]
+
+	if (admin.salt) {
+		const isValid = await comparePasswords({
+			password,
+			salt: admin.salt,
+			hashedPassword: admin.password,
+		})
+		if (!isValid) throw new Error('Invalid email or password')
+	} else {
+		// Legacy: plaintext comparison for existing admins before migration
+		if (admin.password !== password) throw new Error('Invalid email or password')
+	}
+
+	return admin
 }
 
 export async function getUser(email) {

@@ -1,14 +1,15 @@
 services:
   db:
     image: postgres:17.0
-    hostname: localhost
+    container_name: airah-postgres
     ports:
-      - '5432:5432'
+      - "5433:5432"
     environment:
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=airnah
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_fresh:/var/lib/postgresql/data   # Renamed volume
+
 volumes:
-  pgdata:
+  pgdata_fresh:                                 # Renamed volume

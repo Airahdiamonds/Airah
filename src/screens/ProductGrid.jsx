@@ -63,8 +63,8 @@ export default function ProductGrid() {
 			dispatch(clearLocalFavorites())
 			dispatch(fetchUserFavorites(currentUser))
 		}
-		dispatch(fetchProducts({ currentUser, subCategory }))
-	}, [currentUser, dispatch, subCategory])
+		dispatch(fetchProducts({ dbId: currentUser || guestUser, subCategory }))
+	}, [currentUser, dispatch, subCategory, guestUser])
 
 	const isProductFavorited = (product_id) => {
 		return favorites.some((fav) => fav.product_id === product_id)
@@ -80,13 +80,13 @@ export default function ProductGrid() {
 			if (isProductFavorited(product_id)) {
 				dispatch(removeFromFavorites({ userId: currentUser, product_id })).then(
 					() => {
-						dispatch(fetchProducts(currentUser))
+						dispatch(fetchProducts({ dbId: currentUser, subCategory }))
 						dispatch(fetchUserFavorites(currentUser))
 					}
 				)
 			} else {
 				dispatch(addToFavorites({ currentUser, product_id })).then(() => {
-					dispatch(fetchProducts(currentUser))
+					dispatch(fetchProducts({ dbId: currentUser, subCategory }))
 					dispatch(fetchUserFavorites(currentUser))
 				})
 			}
