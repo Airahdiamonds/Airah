@@ -33,6 +33,7 @@ const StepThree = () => {
 				productId: null,
 				diamondId: productDetails[0].diamond?.product_id,
 				ringStyleId: productDetails[0].ring?.product_id,
+				ringSize: selectedSize,
 				quantity: 1,
 			})
 		)

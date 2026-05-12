@@ -15,8 +15,8 @@ import {
 	setShowRing,
 } from '../redux/ringCustomizationSlice'
 import { useNavigate } from 'react-router-dom'
-import { getStyle } from '../utils/api'
-import { createOrder } from '../redux/ordersSlice'
+import { createRazorpayOrder, getStyle, verifyRazorpayPayment } from '../utils/api'
+import AddressForm, { isAddressComplete } from '../components/AddressForm'
 
 const Cart = () => {
 	const [selectedSize, setSelectedSize] = useState('6')
@@ -24,6 +24,9 @@ const Cart = () => {
 	const [maintotalPrice, setMainTotalPrice] = useState(0)
 	const [promo, setPromo] = useState('')
 	const [disabled, setDisabled] = useState(false)
+	const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
+	const [isCheckingOut, setIsCheckingOut] = useState(false)
+	const [shippingAddress, setShippingAddress] = useState(null)
 
 	const {
 		currency,
@@ -61,15 +64,14 @@ const Cart = () => {
 		}
 	}, [cartItems, discount, coupon])
 
-	const handleRemove = (productId) => {
+	const handleRemove = (cartId) => {
 		dispatch(
 			removeFromCart({
 				userId: currentUser || null,
 				guestId: currentUser ? null : guestUser,
-				productId: productId,
+				productId: cartId,
 			})
 		)
-		dispatch(fetchUserCartItems(currentUser, guestUser))
 	}
 
 	const handleView = (item) => {
@@ -102,42 +104,86 @@ const Cart = () => {
 	}
 
 	const handlePromo = async () => {
-		if (promo.trim() === '') return
+		if (promo.trim() === '' || disabled || isApplyingCoupon) return
 
+		setIsApplyingCoupon(true)
 		try {
-			const result = await dispatch(validateCoupon(promo)).unwrap() // Wait for validation to complete
+			const result = await dispatch(validateCoupon(promo)).unwrap()
 			dispatch(setAppliedCoupon({ coupon: promo, discount: result.discount }))
-			setTotalPrice((prevTotal) => Math.max(prevTotal - result.discount, 0)) // Use the correct discount
-			setDisabled(true) // Disable only if coupon is valid
+			setTotalPrice((prevTotal) => Math.max(prevTotal - result.discount, 0))
+			setDisabled(true)
 		} catch (error) {
-			console.error(error) // Handle error properly
+			console.error(error)
+		} finally {
+			setIsApplyingCoupon(false)
 		}
 	}
 
 	const handleCheckout = async () => {
-		if (cartItems.length === 0) return
+		if (cartItems.length === 0 || isCheckingOut) return
+		if (!isAddressComplete(shippingAddress)) {
+			alert('Please fill in your shipping address before checkout.')
+			return
+		}
 
+		setIsCheckingOut(true)
 		try {
-			await dispatch(
-				createOrder({
-					userId: currentUser || null,
-					guestId: currentUser ? null : guestUser,
-					cartItems,
-					totalPrice,
-				})
-			).unwrap() // Unwrap ensures proper error handling
-			cartItems.forEach((item) => {
-				dispatch(
-					removeFromCart({
-						userId: currentUser || -1, // assuming -1 is your guest fallback in DB
-						guestId: currentUser ? null : guestUser,
-						productId: item.cart_id,
-					})
-				)
+			const { razorpayOrder, dbOrderId } = await createRazorpayOrder({
+				guestId: currentUser ? null : guestUser,
+				couponCode: coupon || null,
+				shippingAddress,
 			})
-			navigate('/orders')
+
+			const options = {
+				key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+				amount: razorpayOrder.amount,
+				currency: razorpayOrder.currency,
+				name: 'Airah Diamonds',
+				description: 'Order Payment',
+				order_id: razorpayOrder.id,
+				handler: async (response) => {
+					try {
+						const result = await verifyRazorpayPayment({
+							razorpay_order_id: response.razorpay_order_id,
+							razorpay_payment_id: response.razorpay_payment_id,
+							razorpay_signature: response.razorpay_signature,
+							dbOrderId,
+							guestId: currentUser ? null : guestUser,
+							couponCode: coupon || null,
+						})
+
+						if (result.success) {
+							cartItems.forEach((item) => {
+								dispatch(
+									removeFromCart({
+										userId: currentUser || null,
+										guestId: currentUser ? null : guestUser,
+										productId: item.cart_id,
+									})
+								)
+							})
+							dispatch(clearCoupon())
+							navigate('/orders')
+						} else {
+							console.error('Payment verification failed')
+							setIsCheckingOut(false)
+						}
+					} catch (err) {
+						console.error('Payment verification error:', err)
+						setIsCheckingOut(false)
+					}
+				},
+				modal: {
+					ondismiss: () => setIsCheckingOut(false),
+				},
+				theme: { color: '#1a1a1a' },
+			}
+
+			const rzp = new window.Razorpay(options)
+			rzp.open()
 		} catch (error) {
-			console.error('Order creation failed:', error)
+			console.error('Checkout failed:', error)
+			setIsCheckingOut(false)
 		}
 	}
 
@@ -425,10 +471,10 @@ const Cart = () => {
 						</div>
 						<button
 							onClick={handlePromo}
-							disabled={disabled}
+							disabled={disabled || isApplyingCoupon}
 							className="px-4 bg-black text-white font-semibold rounded-md transition hover:bg-gray-800 active:scale-95"
 						>
-							{disabled ? 'Applied !!!' : 'Apply'}
+							{disabled ? 'Applied !!!' : isApplyingCoupon ? 'Applying...' : 'Apply'}
 						</button>
 					</div>
 					{error && <p className="text-red-500 mt-2">{error}</p>}
@@ -487,12 +533,22 @@ const Cart = () => {
 					</p>
 				</div>
 
+				{/* Shipping Address */}
+				<div className="mt-4 mb-4">
+					<AddressForm value={shippingAddress} onChange={setShippingAddress} />
+				</div>
+
 				{/* Checkout Button (Black & White with Effects) */}
 				<button
 					onClick={handleCheckout}
-					className="w-full py-3 bg-black text-white font-semibold rounded-md transition hover:bg-gray-800 active:scale-95"
+					disabled={
+						isCheckingOut ||
+						cartItems.length === 0 ||
+						!isAddressComplete(shippingAddress)
+					}
+					className="w-full py-3 bg-black text-white font-semibold rounded-md transition hover:bg-gray-800 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
 				>
-					Checkout
+					{isCheckingOut ? 'Processing...' : 'Checkout'}
 				</button>
 
 				{/* Accepted Payment Methods */}

@@ -6,6 +6,7 @@ export const adminTable = pgTable('admin', {
 	name: text().notNull(),
 	email: text().notNull().unique(),
 	password: text().notNull(),
+	salt: text().notNull().default(''),
 	created_at,
 	updated_at,
 })

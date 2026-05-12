@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { decimal, pgEnum, pgTable, serial, text } from 'drizzle-orm/pg-core'
+import { decimal, integer, pgEnum, pgTable, serial, text } from 'drizzle-orm/pg-core'
 import {
 	created_at,
 	description,
@@ -69,6 +69,7 @@ export const ringStylesTable = pgTable('ringStyles', {
 	shank_style_price: decimal(10, 2),
 	shank_metal: metalEnum().default('14K White Gold'),
 	shank_metal_price: decimal(10, 2),
+	stock_qty: integer('stock_qty').default(0).notNull(),
 	created_at,
 	updated_at,
 })

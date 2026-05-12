@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import Home from './screens/Home'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -27,6 +27,7 @@ import Orders from './screens/Orders'
 
 function App() {
 	return (
+		<BrowserRouter>
 		<Provider store={store}>
 			<PersistGate loading={null} persistor={persistor}>
 				<Header />
@@ -55,6 +56,7 @@ function App() {
 				<Footer />
 			</PersistGate>
 		</Provider>
+		</BrowserRouter>
 	)
 }
 

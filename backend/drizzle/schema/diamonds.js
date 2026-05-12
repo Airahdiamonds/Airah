@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { pgEnum, pgTable, serial, text } from 'drizzle-orm/pg-core'
+import { integer, pgEnum, pgTable, serial, text } from 'drizzle-orm/pg-core'
 import { created_at, image_URL, SKU, updated_at } from '../schemaHelpers.js'
 import { orderItemsTable } from './orderItems.js'
 import { cartTable } from './cart.js'
@@ -40,6 +40,7 @@ export const diamondsTable = pgTable('diamonds', {
 	color: diamondColorEnum().default('D'),
 	clarity: diamondClarityEnum().default('IF'),
 	price,
+	stock_qty: integer('stock_qty').default(0).notNull(),
 	created_at,
 	updated_at,
 })

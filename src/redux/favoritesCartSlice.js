@@ -73,19 +73,19 @@ export const removeFromFavorites = createAsyncThunk(
 export const addToCart = createAsyncThunk(
 	'favoritesCart/addToCart',
 	async (
-		{ userId, guestId, productId, diamondId, ringStyleId, quantity },
+		{ userId, guestId, productId, diamondId, ringStyleId, ringSize, quantity },
 		{ rejectWithValue }
 	) => {
-		console.log(guestId)
 		try {
-			return await addToCartAPI(
+			return await addToCartAPI({
 				userId,
 				guestId,
 				productId,
 				diamondId,
 				ringStyleId,
-				quantity
-			)
+				ringSize,
+				quantity,
+			})
 		} catch (error) {
 			return rejectWithValue(error.message)
 		}
@@ -96,7 +96,8 @@ export const removeFromCart = createAsyncThunk(
 	'favoritesCart/removeFromCart',
 	async ({ userId, guestId, productId }, { rejectWithValue }) => {
 		try {
-			await removeFromCartAPI({ userId, guestId, productId })
+			// productId is actually a cart_id — legacy name kept to avoid changing all call sites
+			await removeFromCartAPI({ userId, guestId, cartId: productId })
 			return { cart_id: productId }
 		} catch (error) {
 			return rejectWithValue(error.message)

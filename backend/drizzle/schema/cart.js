@@ -29,6 +29,7 @@ export const cartTable = pgTable('cart', {
 			onDelete: 'set null',
 		})
 		.default(null),
+	ring_size: varchar('ring_size', { length: 4 }).default(null),
 	quantity,
 	created_at,
 	updated_at,

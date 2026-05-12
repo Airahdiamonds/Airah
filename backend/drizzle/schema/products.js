@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm'
 import {
 	decimal,
+	integer,
 	jsonb,
 	pgEnum,
 	pgTable,
@@ -90,6 +91,7 @@ export const productsTable = pgTable('products', {
 	labour_cost: decimal(10, 2),
 	other_cost: decimal(10, 2),
 	total_cost: decimal(10, 2),
+	stock_qty: integer('stock_qty').default(0).notNull(),
 })
 
 export const productsRelations = relations(productsTable, ({ many }) => ({

@@ -1,4 +1,4 @@
-import { decimal, integer, pgTable, serial } from 'drizzle-orm/pg-core'
+import { decimal, integer, pgTable, serial, varchar } from 'drizzle-orm/pg-core'
 import { created_at, quantity, updated_at } from '../schemaHelpers.js'
 import { productsTable } from './products.js'
 import { ordersTable } from './orders.js'
@@ -29,6 +29,7 @@ export const orderItemsTable = pgTable('order_items', {
 	product_cost: decimal(10, 2),
 	diamond_cost: decimal(10, 2),
 	ring_cost: decimal(10, 2),
+	ring_size: varchar('ring_size', { length: 4 }).default(null),
 	quantity,
 	created_at,
 	updated_at,

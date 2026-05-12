@@ -31,8 +31,7 @@ export default function OrdersPage() {
 
 	useEffect(() => {
 		dispatch(fetchOrders({ userId: currentUser, guestId: guestUser }))
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [dispatch, currentUser, guestUser])
 
 	const filteredOrders = orders.filter(
 		(order) => filter === 'All' || order.status === filter
