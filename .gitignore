@@ -6,7 +6,6 @@
 .pnp.js
 /backend/node_modules
 /backend/.env
-/backend/drizzle/migrations
 /backend/uploads
 
 # testing

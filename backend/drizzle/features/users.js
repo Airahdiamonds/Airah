@@ -2,7 +2,10 @@ import { comparePasswords, generateSalt, hashPassword } from '../../passwordHash
 import { db } from '../db.js'
 import { adminTable } from '../schema/admin.js'
 import { userTable } from '../schema/users.js'
-import { and, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
+
+// Helpers for the `users` and `admin` tables. Note that the `users`
+// table uses `email` as its conflict target on upsert.
 
 export async function insertUser(data) {
 	const [newUser] = await db
@@ -15,51 +18,28 @@ export async function insertUser(data) {
 		})
 
 	if (newUser == null) throw new Error('Failed to insert user')
-
 	return newUser
-}
-
-export async function updateUser({ clerk_user_id }, data) {
-	const [updatedUser] = await db
-		.update(userTable)
-		.set(data)
-		.where(eq(userTable.clerk_user_id, clerk_user_id))
-		.returning()
-
-	if (updatedUser == null) throw new Error('Failed to update user')
-
-	return updatedUser
-}
-
-export async function deleteUser({ clerk_user_id }) {
-	const [deletedUser] = await db
-		.update(userTable)
-		.set({
-			email: 'redacted@deleted.com',
-			name: 'Deleted User',
-			clerk_user_id: 'deleted',
-		})
-		.where(eq(userTable.clerk_user_id, clerk_user_id))
-		.returning()
-
-	if (deletedUser == null) throw new Error('Failed to delete user')
-
-	return deletedUser
 }
 
 export async function getAllUsers() {
 	const users = await db.select().from(userTable)
-
-	if (users == null) throw new Error('Failed to get products')
-
+	if (users == null) throw new Error('Failed to get users')
 	return users
 }
 
+export async function getUser(email) {
+	const user = await db
+		.select()
+		.from(userTable)
+		.where(eq(userTable.email, email))
+	return user[0]
+}
+
+// ── admin ────────────────────────────────────────────────────────────────────
+
 export async function getAllAdmin() {
 	const users = await db.select().from(adminTable)
-
 	if (users == null) throw new Error('Failed to get admins')
-
 	return users
 }
 
@@ -77,13 +57,14 @@ export async function addAdmin(data) {
 		})
 
 	if (newAdmin == null) throw new Error('Failed to insert admin')
-
 	return newAdmin
 }
 
 export async function updateAdmin({ id }, data) {
 	const updateData = { ...data }
 
+	// Only re-hash if a new password was supplied. Otherwise leave the
+	// stored hash/salt untouched.
 	if (data.password) {
 		const salt = generateSalt()
 		updateData.password = await hashPassword(data.password, salt)
@@ -97,7 +78,6 @@ export async function updateAdmin({ id }, data) {
 		.returning()
 
 	if (updatedAdmin == null) throw new Error('Failed to update admin')
-
 	return updatedAdmin
 }
 
@@ -107,10 +87,7 @@ export async function deleteAdmin({ id }) {
 		.where(eq(adminTable.user_id, id))
 		.returning()
 
-	if (deletedAdmins.length === 0) {
-		throw new Error('Failed to delete admin')
-	}
-
+	if (deletedAdmins.length === 0) throw new Error('Failed to delete admin')
 	return deletedAdmins[0]
 }
 
@@ -134,18 +111,11 @@ export async function getAdmin(email, password) {
 		})
 		if (!isValid) throw new Error('Invalid email or password')
 	} else {
-		// Legacy: plaintext comparison for existing admins before migration
+		// Legacy: plaintext comparison for admins created before the
+		// salt+hash migration. New admins always go through `addAdmin`
+		// which hashes them.
 		if (admin.password !== password) throw new Error('Invalid email or password')
 	}
 
 	return admin
-}
-
-export async function getUser(email) {
-	const user = await db
-		.select()
-		.from(userTable)
-		.where(eq(userTable.email, email))
-
-	return user[0]
 }

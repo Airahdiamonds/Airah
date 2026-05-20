@@ -4,11 +4,19 @@ import crypto from 'crypto'
 const SESSION_EXPIRATION_SECONDS = 60 * 60 * 24 * 7
 const COOKIE_SESSION_KEY = 'session-id'
 
+// Shared cookie attributes used by both `setCookie` and `clearCookie`.
+// Browsers require the cookie attributes (httpOnly / secure / sameSite)
+// to match those used at the time the cookie was set, otherwise the
+// `clearCookie` call silently does nothing — keep this in one place.
+const BASE_COOKIE_OPTIONS = {
+	httpOnly: true,
+	secure: process.env.NODE_ENV === 'production',
+	sameSite: 'lax',
+}
+
 export function getSessionCookieOptions() {
 	return {
-		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production',
-		sameSite: 'lax',
+		...BASE_COOKIE_OPTIONS,
 		expires: new Date(Date.now() + SESSION_EXPIRATION_SECONDS * 1000),
 	}
 }
@@ -31,11 +39,7 @@ export async function getSession(sessionId) {
 }
 
 export function clearSessionCookie(res) {
-	res.clearCookie(COOKIE_SESSION_KEY, {
-		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production',
-		sameSite: 'lax',
-	})
+	res.clearCookie(COOKIE_SESSION_KEY, BASE_COOKIE_OPTIONS)
 }
 
 export async function createUserSession(user, res) {

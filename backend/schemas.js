@@ -32,26 +32,26 @@ const ringSizeOrNull = z
 
 export const addToCartSchema = z
 	.object({
-		guest_id: guestIdOrNull,
-		product_id: idOrNull,
-		diamond_id: idOrNull,
-		ring_style_id: idOrNull,
-		ring_size: ringSizeOrNull,
+		guestId: guestIdOrNull,
+		productId: idOrNull,
+		diamondId: idOrNull,
+		ringStyleId: idOrNull,
+		ringSize: ringSizeOrNull,
 		quantity: z.coerce.number().int().min(1).max(99),
 	})
 	.refine(
-		(v) => v.product_id != null || v.diamond_id != null || v.ring_style_id != null,
+		(v) => v.productId != null || v.diamondId != null || v.ringStyleId != null,
 		{ message: 'Must reference a product, diamond, or ring style' }
 	)
 
 export const addToFavoritesSchema = z
 	.object({
-		product_id: idOrNull,
-		diamond_id: idOrNull,
-		ring_style_id: idOrNull,
+		productId: idOrNull,
+		diamondId: idOrNull,
+		ringStyleId: idOrNull,
 	})
 	.refine(
-		(v) => v.product_id != null || v.diamond_id != null || v.ring_style_id != null,
+		(v) => v.productId != null || v.diamondId != null || v.ringStyleId != null,
 		{ message: 'Must reference a product, diamond, or ring style' }
 	)
 
@@ -63,9 +63,9 @@ export const mergeFavoritesSchema = z.object({
 	items: z
 		.array(
 			z.object({
-				product_id: idOrNull,
-				diamond_id: idOrNull,
-				ring_style_id: idOrNull,
+				productId: idOrNull,
+				diamondId: idOrNull,
+				ringStyleId: idOrNull,
 			})
 		)
 		.max(200),
@@ -111,4 +111,71 @@ export const reviewSchema = z.object({
 	rating: z.coerce.number().int().min(1).max(5),
 	title: z.string().trim().max(200).optional(),
 	comment: z.string().trim().max(5000).optional(),
+})
+
+// ── search ───────────────────────────────────────────────────────────────────
+
+export const searchQuerySchema = z
+	.object({
+		query: z.string().trim().min(1).max(200).optional(),
+		search: z.string().trim().min(1).max(200).optional(),
+	})
+	.transform((value) => ({ query: value.query ?? value.search }))
+	.refine((value) => Boolean(value.query), { message: 'Search query is required' })
+
+// ── admin auth / management ──────────────────────────────────────────────────
+
+export const adminLoginSchema = z.object({
+	email: z.string().trim().toLowerCase().email().max(254),
+	password: z.string().min(1).max(200),
+})
+
+export const adminCreateSchema = z.object({
+	name: z.string().trim().min(1).max(120),
+	email: z.string().trim().toLowerCase().email().max(254),
+	password: z.string().min(8).max(200),
+	role: z.string().trim().min(1).max(40).optional(),
+})
+
+export const adminUpdateSchema = adminCreateSchema.partial()
+
+// Admin catalog forms have many shape-specific price columns. Use
+// `passthrough()` so we don't have to enumerate every column — we
+// validate the shape exists rather than the content of every field.
+export const productSchema = z
+	.object({
+		name: z.string().trim().min(1).max(200),
+		SKU: z.string().trim().min(1).max(80).optional(),
+		category: z.string().trim().min(1).max(80).optional(),
+		status: z.string().trim().max(40).optional(),
+	})
+	.passthrough()
+
+export const diamondSchema = z
+	.object({
+		name: z.string().trim().min(1).max(200),
+		SKU: z.string().trim().min(1).max(80).optional(),
+		size: z.union([z.string(), z.number()]).optional(),
+	})
+	.passthrough()
+
+export const styleSchema = z
+	.object({
+		name: z.string().trim().min(1).max(200),
+		SKU: z.string().trim().min(1).max(80).optional(),
+	})
+	.passthrough()
+
+export const couponEntrySchema = z.object({
+	code: z.string().trim().min(1).max(64),
+	discount_percentage: z.coerce.number().min(0).max(100),
+	expiry_date: z.string().min(1),
+	max_uses: z.coerce.number().int().min(1),
+})
+
+export const masterEntrySchema = z.object({}).passthrough()
+
+export const updateStatusSchema = z.object({
+	orderId: z.coerce.number().int().positive(),
+	status: z.string().trim().min(1).max(40),
 })

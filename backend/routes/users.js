@@ -13,6 +13,8 @@ import {
 } from '../drizzle/features/cart.js'
 import { optionalSession, requireSession } from '../middleware/auth.js'
 import { validate } from '../middleware/validate.js'
+import { asyncHandler } from '../middleware/asyncHandler.js'
+import { resolveIdentity } from '../utils/identity.js'
 import {
 	addToCartSchema,
 	addToFavoritesSchema,
@@ -24,109 +26,119 @@ const router = express.Router()
 
 // ── Favorites ─────────────────────────────────────────────────────────────────
 
-router.get('/api/users/getFavorites/:user_id', requireSession, async (req, res) => {
-	try {
+router.get(
+	'/api/users/getFavorites/:user_id',
+	requireSession,
+	asyncHandler(async (req, res) => {
 		// Always use the authenticated session's user_id, not the URL param
 		const data = await getUserFavorites({ user_id: req.user.user_id })
 		res.json(data)
-	} catch (err) {
-		console.error('getFavorites Error: ', err)
-		res.status(500).json({ error: 'Failed to get User Favorites' })
-	}
-})
+	})
+)
 
-router.post('/api/users/addToFavorites', requireSession, validate(addToFavoritesSchema), async (req, res) => {
-	try {
-		const { product_id, diamond_id, ring_style_id } = req.body
-		await addToFavorites({ user_id: req.user.user_id, product_id, diamond_id, ring_style_id })
+router.post(
+	'/api/users/addToFavorites',
+	requireSession,
+	validate(addToFavoritesSchema),
+	asyncHandler(async (req, res) => {
+		const { productId, diamondId, ringStyleId } = req.body
+		await addToFavorites({
+			user_id: req.user.user_id,
+			product_id: productId,
+			diamond_id: diamondId,
+			ring_style_id: ringStyleId,
+		})
 		res.json({ success: true })
-	} catch (err) {
-		console.error('addToFavorites Error:', err)
-		res.status(500).json({ error: 'Failed to add to Favorites' })
-	}
-})
+	})
+)
 
-router.delete('/api/users/deleteFavorites', requireSession, async (req, res) => {
-	try {
-		const { product_id, diamond_id, ring_style_id } = req.body
-		await removeFromFavorites({ user_id: req.user.user_id, product_id, diamond_id, ring_style_id })
+router.delete(
+	'/api/users/deleteFavorites',
+	requireSession,
+	asyncHandler(async (req, res) => {
+		const { productId, diamondId, ringStyleId } = req.body
+		await removeFromFavorites({
+			user_id: req.user.user_id,
+			product_id: productId,
+			diamond_id: diamondId,
+			ring_style_id: ringStyleId,
+		})
 		res.json({ success: true })
-	} catch (err) {
-		console.error('removeFromFavorites Error:', err)
-		res.status(500).json({ error: 'Failed to remove from Favorites' })
-	}
-})
+	})
+)
 
 // Merges guest favorites (sent as an array from the client) into the user's favorites on login
-router.post('/api/users/mergeFavorites', requireSession, validate(mergeFavoritesSchema), async (req, res) => {
-	try {
+router.post(
+	'/api/users/mergeFavorites',
+	requireSession,
+	validate(mergeFavoritesSchema),
+	asyncHandler(async (req, res) => {
 		const { items } = req.body
 		if (!Array.isArray(items) || items.length === 0) return res.json({ success: true })
-		await mergeGuestFavorites({ items, user_id: req.user.user_id })
+		const mapped = items.map((it) => ({
+			product_id: it.productId,
+			diamond_id: it.diamondId,
+			ring_style_id: it.ringStyleId,
+		}))
+		await mergeGuestFavorites({ items: mapped, user_id: req.user.user_id })
 		res.json({ success: true })
-	} catch (err) {
-		console.error('mergeFavorites Error:', err)
-		res.status(500).json({ error: 'Failed to merge favorites' })
-	}
-})
+	})
+)
 
 // ── Cart ──────────────────────────────────────────────────────────────────────
 
-router.get('/api/users/getCart', optionalSession, async (req, res) => {
-	try {
-		const user_id = req.user?.user_id ?? null
-		const guest_id = user_id ? null : req.query.guest_id
-		const data = await getUserCart({ user_id, guest_id })
+router.get(
+	'/api/users/getCart',
+	optionalSession,
+	asyncHandler(async (req, res) => {
+		const { userId, guestId } = resolveIdentity(req, 'query')
+		const data = await getUserCart({ user_id: userId, guest_id: guestId })
 		res.json(data)
-	} catch (err) {
-		console.error('getCart Error: ', err)
-		res.status(500).json({ error: 'Failed to get User Cart' })
-	}
-})
+	})
+)
 
-router.post('/api/users/addToCart', optionalSession, validate(addToCartSchema), async (req, res) => {
-	try {
-		const user_id = req.user?.user_id ?? null
-		const { guest_id, product_id, diamond_id, ring_style_id, ring_size, quantity } = req.body
+router.post(
+	'/api/users/addToCart',
+	optionalSession,
+	validate(addToCartSchema),
+	asyncHandler(async (req, res) => {
+		const { userId, guestId } = resolveIdentity(req, 'body')
+		const { productId, diamondId, ringStyleId, ringSize, quantity } = req.body
 		await addToCart({
-			user_id,
-			guest_id: user_id ? null : guest_id,
-			product_id,
+			user_id: userId,
+			guest_id: guestId,
+			product_id: productId,
 			quantity,
-			diamond_id,
-			ring_style_id,
-			ring_size,
+			diamond_id: diamondId,
+			ring_style_id: ringStyleId,
+			ring_size: ringSize,
 		})
 		res.json({ success: true })
-	} catch (err) {
-		console.error('addToCart Error:', err)
-		res.status(400).json({ error: err.message || 'Failed to add to Cart' })
-	}
-})
+	})
+)
 
-router.delete('/api/users/deleteCart', optionalSession, async (req, res) => {
-	try {
-		const user_id = req.user?.user_id ?? null
-		const { guestId, cartId } = req.query
-		await removeFromCart({ user_id, guest_id: user_id ? null : guestId, cart_id: cartId })
+router.delete(
+	'/api/users/deleteCart',
+	optionalSession,
+	asyncHandler(async (req, res) => {
+		const { userId, guestId } = resolveIdentity(req, 'query')
+		const { cartId } = req.query
+		await removeFromCart({ user_id: userId, guest_id: guestId, cart_id: cartId })
 		res.json({ success: true })
-	} catch (err) {
-		console.error('removeFromCart Error:', err)
-		res.status(500).json({ error: 'Failed to remove from Cart' })
-	}
-})
+	})
+)
 
 // Merges guest cart into user cart on login
-router.post('/api/users/mergeCart', requireSession, validate(mergeCartSchema), async (req, res) => {
-	try {
+router.post(
+	'/api/users/mergeCart',
+	requireSession,
+	validate(mergeCartSchema),
+	asyncHandler(async (req, res) => {
 		const { guestId } = req.body
 		if (!guestId) return res.json({ success: true })
 		await mergeGuestCart({ guest_id: guestId, user_id: req.user.user_id })
 		res.json({ success: true })
-	} catch (err) {
-		console.error('mergeCart Error:', err)
-		res.status(500).json({ error: 'Failed to merge cart' })
-	}
-})
+	})
+)
 
 export default router

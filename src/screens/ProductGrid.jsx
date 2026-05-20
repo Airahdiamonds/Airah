@@ -2,36 +2,25 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { fetchProducts } from '../redux/userProductsSlice'
-import { convertPrice } from '../utils/helpers'
 import { StarRating } from '../components/StarRating'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import {
 	addToFavorites,
 	addToFavoritesLocal,
-	clearLocalFavorites,
-	fetchUserFavorites,
 	removeFromFavorites,
 	removeFromFavoritesLocal,
 } from '../redux/favoritesCartSlice'
 import ImageCarousel from '../components/ImageCarousel'
-import Filters from '../components/Filters2'
+import Filters from '../components/Filters'
+import PriceDisplay from '../components/PriceDisplay'
+import useFavoritesSync from '../hooks/useFavoritesSync'
 
 export default function ProductGrid() {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { products } = useSelector((state) => state.userProducts)
-	const {
-		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
-		currentUser,
-		guestUser,
-	} = useSelector((state) => state.localization)
+	const { loading, error } = useSelector((state) => state.userProducts)
+	const { currentUser } = useFavoritesSync()
 	const { subCategory } = useParams()
 	const { favorites } = useSelector((state) => state.favoritesCart)
 	const [filters, setFilters] = useState({
@@ -43,28 +32,8 @@ export default function ProductGrid() {
 	})
 
 	useEffect(() => {
-		if (!currentUser) {
-			const guestFavorites = JSON.parse(localStorage.getItem('favorites')) || []
-			guestFavorites.forEach((fav) => {
-				dispatch(addToFavoritesLocal(fav))
-			})
-		} else if (currentUser) {
-			const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
-			localFavorites.forEach((fav) => {
-				dispatch(
-					addToFavorites({
-						currentUser,
-						product_id: fav.product_id,
-						diamond_id: fav.diamond_id,
-						ring_style_id: fav.ring_style_id,
-					})
-				)
-			})
-			dispatch(clearLocalFavorites())
-			dispatch(fetchUserFavorites(currentUser))
-		}
-		dispatch(fetchProducts({ dbId: currentUser || guestUser, subCategory }))
-	}, [currentUser, dispatch, subCategory, guestUser])
+		dispatch(fetchProducts({ subCategory }))
+	}, [dispatch, subCategory])
 
 	const isProductFavorited = (product_id) => {
 		return favorites.some((fav) => fav.product_id === product_id)
@@ -78,17 +47,9 @@ export default function ProductGrid() {
 		e.stopPropagation()
 		if (currentUser) {
 			if (isProductFavorited(product_id)) {
-				dispatch(removeFromFavorites({ userId: currentUser, product_id })).then(
-					() => {
-						dispatch(fetchProducts({ dbId: currentUser, subCategory }))
-						dispatch(fetchUserFavorites(currentUser))
-					}
-				)
+				dispatch(removeFromFavorites({ userId: currentUser, product_id }))
 			} else {
-				dispatch(addToFavorites({ currentUser, product_id })).then(() => {
-					dispatch(fetchProducts({ dbId: currentUser, subCategory }))
-					dispatch(fetchUserFavorites(currentUser))
-				})
+				dispatch(addToFavorites({ dbId: currentUser, product_id }))
 			}
 		} else {
 			if (isProductFavorited(product_id)) {
@@ -112,13 +73,26 @@ export default function ProductGrid() {
 			<div className="flex w-full px-4 md:px-8 gap-6">
 				{/* Filters Section - 20% */}
 				<div className="w-[25%] hidden md:block">
-					<Filters filters={filters} setFilters={setFilters} />
+					<Filters filters={filters} setFilters={setFilters} variant="card" />
 				</div>
 
 				{/* Product Grid Section - 80% */}
 				<main className="w-[75%]">
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-						{products.map((product) => (
+						{loading && products.length === 0
+							? Array.from({ length: 8 }).map((_, i) => (
+									<div
+										key={`skeleton-${i}`}
+										className="bg-white shadow-md border border-gray-200 rounded-lg animate-pulse"
+									>
+										<div className="w-full h-72 bg-gray-200 rounded-t-lg" />
+										<div className="px-4 py-3 space-y-2">
+											<div className="h-4 bg-gray-200 rounded w-2/3" />
+											<div className="h-4 bg-gray-200 rounded w-1/3" />
+										</div>
+									</div>
+							  ))
+							: products.map((product) => (
 							<button
 								onClick={() => handleClick(product.product_id)}
 								key={product.product_id}
@@ -145,17 +119,7 @@ export default function ProductGrid() {
 								</div>
 								<div className="px-4 py-2">
 									<p className="text-gray-600 text-lg font-light">
-										{currency}
-										{convertPrice(
-											Number(product.total_cost),
-											country,
-											USD_rate,
-											GBP_rate,
-											AUD_rate,
-											OMR_rate,
-											AED_rate,
-											EUR_rate
-										).toFixed(2)}
+										<PriceDisplay value={product.total_cost} />
 									</p>
 									<p className="text-gray-600 text-sm font-light">
 										<StarRating rating={product.average_rating || 0} /> (
@@ -165,6 +129,16 @@ export default function ProductGrid() {
 							</button>
 						))}
 					</div>
+					{!loading && !error && products.length === 0 && (
+						<p className="text-center text-gray-500 mt-8">
+							No products found.
+						</p>
+					)}
+					{error && (
+						<p className="text-center text-red-500 mt-8">
+							Failed to load products. Please try again.
+						</p>
+					)}
 				</main>
 			</div>
 

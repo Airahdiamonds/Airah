@@ -10,42 +10,18 @@ import {
 	setShowRing,
 	setStep,
 } from '../redux/ringCustomizationSlice'
-import { convertPrice } from '../utils/helpers'
+import PriceDisplay from '../components/PriceDisplay'
 
 const CustomizeRing = () => {
 	const dispatch = useDispatch()
 	const { step, productDetails } = useSelector(
 		(state) => state.ringCustomization
 	)
-	const {
-		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
-	} = useSelector((state) => state.localization)
-
 	const steps = [
 		{
 			id: 1,
 			title: 'Choose a Diamond',
-			price:
-				currency +
-				(productDetails[0].diamond?.diamond_price === null
-					? 0
-					: convertPrice(
-							Number(productDetails[0].diamond?.diamond_price),
-							country,
-							USD_rate,
-							GBP_rate,
-							AUD_rate,
-							OMR_rate,
-							AED_rate,
-							EUR_rate
-					  ).toFixed(2)),
+			price: <PriceDisplay value={productDetails[0].diamond?.diamond_price ?? 0} />,
 			remove: () => {
 				dispatch(resetDiamond())
 				dispatch(setShowDiamond(false))
@@ -55,20 +31,7 @@ const CustomizeRing = () => {
 		{
 			id: 2,
 			title: 'Choose a Setting',
-			price:
-				currency +
-				(productDetails[0].ring?.ring_price === null
-					? 0
-					: convertPrice(
-							Number(productDetails[0].ring?.ring_price),
-							country,
-							USD_rate,
-							GBP_rate,
-							AUD_rate,
-							OMR_rate,
-							AED_rate,
-							EUR_rate
-					  ).toFixed(2)),
+			price: <PriceDisplay value={productDetails[0].ring?.ring_price ?? 0} />,
 			remove: () => {
 				dispatch(resetRing())
 				dispatch(setShowRing(false))
@@ -78,20 +41,7 @@ const CustomizeRing = () => {
 		{
 			id: 3,
 			title: 'Complete a Ring',
-			price:
-				currency +
-				(productDetails[0].total_cost === null
-					? 0
-					: convertPrice(
-							Number(productDetails[0].total_cost),
-							country,
-							USD_rate,
-							GBP_rate,
-							AUD_rate,
-							OMR_rate,
-							AED_rate,
-							EUR_rate
-					  ).toFixed(2)),
+			price: <PriceDisplay value={productDetails[0].total_cost ?? 0} />,
 		},
 	]
 

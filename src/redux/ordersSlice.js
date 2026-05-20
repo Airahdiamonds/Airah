@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { cancelUserOrder, createUserOrder, fetchUserOrders } from '../utils/api'
 
+// Caches the current user's (or guest's) order history. Server is the
+// source of truth — slice only mirrors what fetch/create/cancel return.
+
 // Fetch orders from backend
 export const fetchOrders = createAsyncThunk(
 	'orders/fetchOrders',

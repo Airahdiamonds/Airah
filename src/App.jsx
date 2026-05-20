@@ -24,6 +24,8 @@ import SearchGrid from './screens/SearchGrid'
 import AdvertisementStrip from './components/addstrip' // Importing Ad Strip
 import AddCoupon from './screens/Admin/AddCoupon'
 import Orders from './screens/Orders'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
 	return (
@@ -54,6 +56,7 @@ function App() {
 					<Route path="/orders" element={<Orders />} />
 				</Routes>
 				<Footer />
+				<ToastContainer position="top-right" autoClose={4000} />
 			</PersistGate>
 		</Provider>
 		</BrowserRouter>

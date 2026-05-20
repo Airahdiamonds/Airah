@@ -3,12 +3,10 @@ import { FaGem, FaRing } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import {
 	clearCoupon,
-	fetchUserCartItems,
 	removeFromCart,
 	setAppliedCoupon,
 	validateCoupon,
 } from '../redux/favoritesCartSlice'
-import { convertPrice } from '../utils/helpers'
 import {
 	setCustomization,
 	setShowDiamond,
@@ -17,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { createRazorpayOrder, getStyle, verifyRazorpayPayment } from '../utils/api'
 import AddressForm, { isAddressComplete } from '../components/AddressForm'
+import PriceDisplay from '../components/PriceDisplay'
 
 const Cart = () => {
 	const [selectedSize, setSelectedSize] = useState('6')
@@ -30,13 +29,6 @@ const Cart = () => {
 
 	const {
 		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
 		currentUser,
 		guestUser,
 	} = useSelector((state) => state.localization)
@@ -109,8 +101,9 @@ const Cart = () => {
 		setIsApplyingCoupon(true)
 		try {
 			const result = await dispatch(validateCoupon(promo)).unwrap()
-			dispatch(setAppliedCoupon({ coupon: promo, discount: result.discount }))
-			setTotalPrice((prevTotal) => Math.max(prevTotal - result.discount, 0))
+			const discountAmount = Math.round((maintotalPrice * result.discount) / 100)
+			dispatch(setAppliedCoupon({ coupon: promo, discount: discountAmount }))
+			setTotalPrice((prevTotal) => Math.max(prevTotal - discountAmount, 0))
 			setDisabled(true)
 		} catch (error) {
 			console.error(error)
@@ -187,21 +180,6 @@ const Cart = () => {
 		}
 	}
 
-	// if (!isSignedIn) {
-	// 	return (
-	// 		<div className="h-80 flex flex-col items-center justify-center bg-gray-50">
-	// 			<h2 className="text-2xl font-semibold text-gray-700 mb-4">
-	// 				Please log in to view your cart
-	// 			</h2>
-	// 			<SignInButton mode="modal">
-	// 				<button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition border border-solid border-gray-300">
-	// 					Log In
-	// 				</button>
-	// 			</SignInButton>
-	// 		</div>
-	// 	)
-	// }
-
 	return (
 		<div className="p-8 grid grid-cols-[70%_30%] gap-2">
 			<div className="bg-white rounded-lg overflow-hidden px-8">
@@ -240,17 +218,7 @@ const Cart = () => {
 														{item.product_name}
 													</h2>
 													<p className="text-xl font-bold text-gray-500">
-														{currency}
-														{convertPrice(
-															Number(item.product_price),
-															country,
-															USD_rate,
-															GBP_rate,
-															AUD_rate,
-															OMR_rate,
-															AED_rate,
-															EUR_rate
-														).toFixed(2)}
+														<PriceDisplay value={item.product_price} />
 													</p>
 													<div className="flex flex-wrap gap-2 mt-2">
 														{[
@@ -316,17 +284,7 @@ const Cart = () => {
 														{item.diamond_name}
 													</h2>
 													<p className="text-xl font-bold text-gray-500">
-														{currency}
-														{convertPrice(
-															Number(item.diamond_price),
-															country,
-															USD_rate,
-															GBP_rate,
-															AUD_rate,
-															OMR_rate,
-															AED_rate,
-															EUR_rate
-														).toFixed(2)}
+														<PriceDisplay value={item.diamond_price} />
 													</p>
 												</div>
 												<div>
@@ -335,17 +293,7 @@ const Cart = () => {
 														{item.ring_style_name}
 													</h2>
 													<p className="text-xl font-bold text-gray-500">
-														{currency}
-														{convertPrice(
-															Number(item.ring_style_price),
-															country,
-															USD_rate,
-															GBP_rate,
-															AUD_rate,
-															OMR_rate,
-															AED_rate,
-															EUR_rate
-														).toFixed(2)}
+														<PriceDisplay value={item.ring_style_price} />
 													</p>
 
 													<div className="flex flex-wrap gap-2 mt-2">
@@ -405,17 +353,7 @@ const Cart = () => {
 				<div className="flex justify-between items-center mb-3">
 					<p className="text-lg font-medium text-gray-700">Subtotal</p>
 					<p className="text-xl font-semibold text-gray-900">
-						{currency}
-						{convertPrice(
-							Number(maintotalPrice),
-							country,
-							USD_rate,
-							GBP_rate,
-							AUD_rate,
-							OMR_rate,
-							AED_rate,
-							EUR_rate
-						).toFixed(2)}
+						<PriceDisplay value={maintotalPrice} />
 					</p>
 				</div>
 
@@ -438,8 +376,7 @@ const Cart = () => {
 					<div className="flex justify-between items-center mb-3">
 						<p className="text-lg font-medium text-gray-700">Discount</p>
 						<p className="text-xl font-semibold text-gray-900">
-							-{currency}
-							{discount}
+							-<PriceDisplay value={discount} />
 						</p>
 					</div>
 				)}
@@ -484,19 +421,7 @@ const Cart = () => {
 				<div className="flex justify-between items-center border-t pt-3 mb-3">
 					<p className="text-lg font-semibold text-gray-900">Total</p>
 					<p className="text-xl font-semibold text-gray-900">
-						{currency}
-						{Number(
-							convertPrice(
-								Number(totalPrice),
-								country,
-								USD_rate,
-								GBP_rate,
-								AUD_rate,
-								OMR_rate,
-								AED_rate,
-								EUR_rate
-							)
-						).toFixed(2)}
+						<PriceDisplay value={totalPrice} />
 					</p>
 				</div>
 
@@ -506,19 +431,7 @@ const Cart = () => {
 						3 Interest-Free Payments of
 					</p>
 					<p className="text-xl font-semibold text-gray-900">
-						{currency}
-						{Number(
-							convertPrice(
-								Number(totalPrice) / 3,
-								country,
-								USD_rate,
-								GBP_rate,
-								AUD_rate,
-								OMR_rate,
-								AED_rate,
-								EUR_rate
-							)
-						).toFixed(2)}
+						<PriceDisplay value={Number(totalPrice) / 3} />
 					</p>
 				</div>
 

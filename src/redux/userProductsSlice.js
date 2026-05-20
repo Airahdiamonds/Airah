@@ -6,6 +6,10 @@ import {
 	getAllUsers,
 } from '../utils/api'
 
+// List caches for products / diamonds / styles / users used by the storefront
+// grids and admin tables. Thunks fetch on demand; reducers replace the cached
+// list wholesale (no optimistic local mutation).
+
 export const fetchUsers = createAsyncThunk(
 	'users/fetchUsers',
 	async (_, { rejectWithValue }) => {
@@ -20,9 +24,10 @@ export const fetchUsers = createAsyncThunk(
 
 export const fetchProducts = createAsyncThunk(
 	'products/fetchProducts',
-	async ({ dbId, subCategory }, { rejectWithValue }) => {
+	async (arg = {}, { rejectWithValue }) => {
 		try {
-			const response = await getAllProducts(dbId, subCategory)
+			const subCategory = typeof arg === 'object' ? arg.subCategory : undefined
+			const response = await getAllProducts(subCategory)
 			return response.data
 		} catch (error) {
 			return rejectWithValue(error.message)
@@ -32,15 +37,15 @@ export const fetchProducts = createAsyncThunk(
 
 export const fetchDiamonds = createAsyncThunk(
 	'products/fetchDiamonds',
-	async ({ dbId, filters }, { rejectWithValue }) => {
+	async (arg = {}, { rejectWithValue }) => {
 		try {
+			const filters = typeof arg === 'object' && arg.filters ? arg.filters : {}
 			const query = {
-				clerk_user_id: dbId,
-				diamondSize: filters.diamondSize.join(','),
-				diamondClarity: filters.diamondClarity.join(','),
-				diamondShape: filters.diamondShape.join(','),
-				diamondColor: filters.diamondColor.join(','),
-				diamondCut: filters.diamondCut.join(','),
+				sizes: (filters.diamondSize ?? []).join(','),
+				clarities: (filters.diamondClarity ?? []).join(','),
+				shapes: (filters.diamondShape ?? []).join(','),
+				colors: (filters.diamondColor ?? []).join(','),
+				cuts: (filters.diamondCut ?? []).join(','),
 			}
 			const response = await getAllFilteredDiamonds(query)
 			return response.data
@@ -52,9 +57,9 @@ export const fetchDiamonds = createAsyncThunk(
 
 export const fetchStyles = createAsyncThunk(
 	'products/fetchStyles',
-	async (dbId, { rejectWithValue }) => {
+	async (_, { rejectWithValue }) => {
 		try {
-			const response = await getAllStyles(dbId)
+			const response = await getAllStyles()
 			return response.data
 		} catch (error) {
 			return rejectWithValue(error.message)

@@ -1,5 +1,4 @@
 import express from 'express'
-import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import ngrok from '@ngrok/ngrok'
 import path, { dirname } from 'path'
@@ -12,6 +11,7 @@ import productRoutes from './routes/products.js'
 import orderRoutes from './routes/orders.js'
 import adminRoutes from './routes/admin.js'
 import addressRoutes from './routes/addresses.js'
+import { errorHandler } from './middleware/asyncHandler.js'
 
 const envFile =
 	process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
@@ -42,7 +42,7 @@ app.use(
 		credentials: true,
 	})
 )
-app.use(bodyParser.json())
+app.use(express.json())
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 app.use(authRoutes)
@@ -51,6 +51,7 @@ app.use(productRoutes)
 app.use(orderRoutes)
 app.use(adminRoutes)
 app.use(addressRoutes)
+app.use(errorHandler)
 
 app.listen(port, '0.0.0.0', () => {
 	console.log(`Server running on port ${port}`)

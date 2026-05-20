@@ -1,4 +1,5 @@
 import {
+	index,
 	integer,
 	pgEnum,
 	pgTable,
@@ -16,27 +17,34 @@ export const paymentStatus = ['pending', 'success', 'failed']
 export const paymentMethodEnum = pgEnum('payment_method', paymentMethod)
 export const paymentStatusEnum = pgEnum('payment_status', paymentStatus)
 
-export const transactionsTable = pgTable('transactions', {
-	transaction_id: serial('transaction_id').primaryKey(),
-	order_id: integer('order_id')
-		.references(() => ordersTable.order_id, {
-			onDelete: 'restrict',
-		})
-		.default(null),
-	user_id: integer('user_id')
-		.references(() => userTable.user_id, {
-			onDelete: 'restrict',
-		})
-		.default(null),
-	payment_method: paymentMethodEnum().notNull(),
-	payment_status: paymentStatusEnum().default('pending'),
-	payment_date: timestamp({ withTimezone: true }).notNull().defaultNow(),
-	transaction_amount: integer().notNull(),
-	transaction_reference: text().unique(),
-	refunded_at: timestamp({ withTimezone: true }),
-	created_at,
-	updated_at,
-})
+export const transactionsTable = pgTable(
+	'transactions',
+	{
+		transaction_id: serial('transaction_id').primaryKey(),
+		order_id: integer('order_id')
+			.references(() => ordersTable.order_id, {
+				onDelete: 'restrict',
+			})
+			.default(null),
+		user_id: integer('user_id')
+			.references(() => userTable.user_id, {
+				onDelete: 'restrict',
+			})
+			.default(null),
+		payment_method: paymentMethodEnum().notNull(),
+		payment_status: paymentStatusEnum().default('pending'),
+		payment_date: timestamp({ withTimezone: true }).notNull().defaultNow(),
+		transaction_amount: integer().notNull(),
+		transaction_reference: text().unique(),
+		refunded_at: timestamp({ withTimezone: true }),
+		created_at,
+		updated_at,
+	},
+	(t) => [
+		index('transactions_order_id_idx').on(t.order_id),
+		index('transactions_user_id_idx').on(t.user_id),
+	]
+)
 
 export const transactionRelations = relations(transactionsTable, ({ one }) => ({
 	user: one(userTable, {

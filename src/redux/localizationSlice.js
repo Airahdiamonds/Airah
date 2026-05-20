@@ -1,6 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { getMasterList } from '../utils/api'
 
+// Owns the current user identity (hydrated from /api/me) and the active
+// currency/country plus FX rates. Default is INR; rendered prices should
+// go through <PriceDisplay>, not raw `convertPrice` calls.
 const initialState = {
 	country: 'INR',
 	currency: '₹',

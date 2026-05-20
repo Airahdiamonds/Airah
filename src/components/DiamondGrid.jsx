@@ -1,15 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
 	setShowDiamond,
 	updateDiamondDetails,
 } from '../redux/ringCustomizationSlice'
-import { convertPrice } from '../utils/helpers'
 import {
 	addToFavorites,
 	addToFavoritesLocal,
-	clearLocalFavorites,
-	fetchUserFavorites,
 	removeFromFavorites,
 	removeFromFavoritesLocal,
 } from '../redux/favoritesCartSlice'
@@ -17,22 +14,14 @@ import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import { fetchDiamonds } from '../redux/userProductsSlice'
 import ImageCarousel from './ImageCarousel'
 import Filters from './Filters'
+import PriceDisplay from './PriceDisplay'
+import useFavoritesSync from '../hooks/useFavoritesSync'
 
 function DiamondGrid() {
 	const dispatch = useDispatch()
 	const { diamonds } = useSelector((state) => state.userProducts)
 	const { favorites } = useSelector((state) => state.favoritesCart)
-	const {
-		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
-		currentUser,
-	} = useSelector((state) => state.localization)
+	const { currentUser } = useFavoritesSync()
 	const [filters, setFilters] = useState({
 		diamondSize: [],
 		diamondClarity: [],
@@ -40,42 +29,11 @@ function DiamondGrid() {
 		diamondColor: [],
 		diamondCut: [],
 	})
+	const requestFilters = useMemo(() => filters, [filters])
 
 	useEffect(() => {
-		if (!currentUser) {
-			const guestFavorites = JSON.parse(localStorage.getItem('favorites')) || []
-			guestFavorites.forEach((fav) => {
-				dispatch(addToFavoritesLocal(fav))
-			})
-		} else if (currentUser) {
-			const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
-			localFavorites.forEach((fav) => {
-				dispatch(
-					addToFavorites({
-						currentUser,
-						product_id: fav.product_id,
-						diamond_id: fav.diamond_id,
-						ring_style_id: fav.ring_style_id,
-					})
-				)
-			})
-			dispatch(clearLocalFavorites())
-			dispatch(fetchUserFavorites(currentUser))
-		}
-		dispatch(fetchDiamonds({ currentUser, filters }))
-	}, [currentUser, dispatch, filters])
-
-	// const StarRating = ({ rating }) => {
-	// 	const stars = [];
-	// 	for (let i = 0; i < 5; i++) {
-	// 	  stars.push(
-	// 		<span key={i} className={i < rating ? 'text-yellow-500' : 'text-gray-300'}>
-	// 		  ★
-	// 		</span>
-	// 	  );
-	// 	}
-	// 	return <div className="flex">{stars}</div>;
-	//   };
+		dispatch(fetchDiamonds({ filters: requestFilters }))
+	}, [dispatch, requestFilters])
 
 	const filteredDiamonds = diamonds?.filter((product) => {
 		return (
@@ -107,14 +65,12 @@ function DiamondGrid() {
 			if (isProductFavorited(diamond_id)) {
 				dispatch(removeFromFavorites({ userId: currentUser, diamond_id })).then(
 					() => {
-						dispatch(fetchDiamonds(currentUser))
-						dispatch(fetchUserFavorites(currentUser))
+						dispatch(fetchDiamonds({ filters: requestFilters }))
 					}
 				)
 			} else {
 				dispatch(addToFavorites({ currentUser, diamond_id })).then(() => {
-					dispatch(fetchDiamonds(currentUser))
-					dispatch(fetchUserFavorites(currentUser))
+					dispatch(fetchDiamonds({ filters: requestFilters }))
 				})
 			}
 		} else {
@@ -165,17 +121,7 @@ function DiamondGrid() {
 
 							<div className=" px-4 py-2">
 								<p className="text-gray-600  text-lg font-light">
-									{currency}
-									{convertPrice(
-										Number(product.price),
-										country,
-										USD_rate,
-										GBP_rate,
-										AUD_rate,
-										OMR_rate,
-										AED_rate,
-										EUR_rate
-									).toFixed(2)}
+									<PriceDisplay value={product.price} />
 								</p>
 							</div>
 						</button>

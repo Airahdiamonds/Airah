@@ -4,6 +4,7 @@ import { cartTable } from '../schema/cart.js'
 import { diamondsTable } from '../schema/diamonds.js'
 import { productsTable } from '../schema/products.js'
 import { ringStylesTable } from '../schema/ringStyles.js'
+import { ringStyleTotalPriceSQL } from '../featureHelpers.js'
 
 export async function getUserCart({ user_id, guest_id }) {
 	const whereClause = user_id
@@ -25,12 +26,7 @@ export async function getUserCart({ user_id, guest_id }) {
 			diamond_price: diamondsTable.price,
 			diamond_image: diamondsTable.image_URL,
 			ring_style_name: ringStylesTable.name,
-			ring_style_price: sql`
-				${ringStylesTable.head_style_price} +
-				${ringStylesTable.shank_style_price} +
-				${ringStylesTable.head_metal_price} +
-				${ringStylesTable.shank_metal_price}
-			`.as('ring_style_price'),
+			ring_style_price: ringStyleTotalPriceSQL(ringStylesTable).as('ring_style_price'),
 			ring_images: ringStylesTable.image_URL,
 		})
 		.from(cartTable)

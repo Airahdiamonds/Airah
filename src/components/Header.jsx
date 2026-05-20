@@ -65,6 +65,22 @@ export default function Header() {
 		const bootstrap = async () => {
 			const user = await fetchCurrentUser()
 			if (user) {
+				// If a guest_id is still in localStorage when we discover an
+				// authenticated session (e.g. after Google OAuth redirect),
+				// merge the guest cart/favorites before clearing it.
+				const guestId = localStorage.getItem('guest_id')
+				if (guestId) {
+					const localFavorites =
+						JSON.parse(localStorage.getItem('favorites')) || []
+					await Promise.all([
+						mergeCartAPI(guestId).catch(console.error),
+						localFavorites.length > 0
+							? mergeFavoritesAPI(localFavorites).catch(console.error)
+							: Promise.resolve(),
+					])
+					localStorage.removeItem('guest_id')
+					localStorage.removeItem('favorites')
+				}
 				dispatch(setUser(user))
 				dispatch(clearGuest())
 			} else {
@@ -130,34 +146,38 @@ export default function Header() {
 			console.log('Please enter a valid email address')
 			return
 		}
-		const result = await signInUser({ email, password })
-		if (result) {
-			setFormData({ email: '', password: '' })
-			const user = await fetchCurrentUser()
-			if (user) {
-				// Merge any guest cart/favorites before switching identity
-				const guestId = localStorage.getItem('guest_id')
-				if (guestId) {
-					const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
-					await Promise.all([
-						mergeCartAPI(guestId).catch(console.error),
-						localFavorites.length > 0
-							? mergeFavoritesAPI(localFavorites).catch(console.error)
-							: Promise.resolve(),
-					])
-					localStorage.removeItem('guest_id')
-					localStorage.removeItem('favorites')
-				}
-				dispatch(setUser(user))
-				dispatch(clearGuest())
-			}
-			setIsModalOpen(false)
-		} else {
-			alert('Sign in failed')
+		try {
+			await signInUser({ email, password })
+		} catch (err) {
+			return
 		}
+		setFormData({ email: '', password: '' })
+		const user = await fetchCurrentUser()
+		if (user) {
+			// Merge any guest cart/favorites before switching identity
+			const guestId = localStorage.getItem('guest_id')
+			if (guestId) {
+				const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
+				await Promise.all([
+					mergeCartAPI(guestId).catch(console.error),
+					localFavorites.length > 0
+						? mergeFavoritesAPI(localFavorites).catch(console.error)
+						: Promise.resolve(),
+				])
+				localStorage.removeItem('guest_id')
+				localStorage.removeItem('favorites')
+			}
+			dispatch(setUser(user))
+			dispatch(clearGuest())
+		}
+		setIsModalOpen(false)
 	}
 	const handleLogout = async () => {
-		await signoutUser()
+		try {
+			await signoutUser()
+		} catch (err) {
+			// signoutUser failures are non-fatal — clear local state regardless
+		}
 		dispatch(clearUser())
 	}
 	const handleSignUp = async (e) => {
@@ -185,7 +205,7 @@ export default function Header() {
 			alert('Passwords do not match')
 			return
 		}
-		const result = await signUpUser({ name, email, password })
+		const result = await signUpUser({ name, email, password }).catch(() => null)
 		if (result) {
 			setFormData({ name: '', email: '', password: '', confirmPassword: '' })
 			const user = await fetchCurrentUser()
@@ -207,8 +227,6 @@ export default function Header() {
 				dispatch(clearGuest())
 			}
 			setIsModalOpen(false)
-		} else {
-			alert('Sign up failed')
 		}
 	}
 	const handleGoogleAuth = () => {

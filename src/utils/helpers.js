@@ -142,6 +142,16 @@ export const convertPrice = (
 	}
 }
 
+export const calculateRingTotal = (ring, diamond = null) => {
+	return (
+		Number(ring?.head_style_price ?? 0) +
+		Number(ring?.shank_style_price ?? 0) +
+		Number(ring?.head_metal_price ?? 0) +
+		Number(ring?.shank_metal_price ?? 0) +
+		Number(diamond?.price ?? diamond?.diamond_price ?? 0)
+	)
+}
+
 export const headStyles = [
 	{ name: 'Four Prong', image: headFourProng },
 	{ name: 'Six Prong', image: headSixProng },

@@ -9,6 +9,10 @@ import {
 	validateCouponAPI,
 } from '../utils/api'
 
+// Owns favorites + cart state for both authenticated users (hydrated from
+// the backend) and guests (kept in localStorage and merged on login via
+// `useFavoritesSync`).
+
 export const fetchUserFavorites = createAsyncThunk(
 	'favoritesCart/fetchFavorites',
 	async (userId, { rejectWithValue }) => {
@@ -34,16 +38,15 @@ export const fetchUserCartItems = createAsyncThunk(
 export const addToFavorites = createAsyncThunk(
 	'favoritesCart/addToFavorites',
 	async (
-		{ dbId, product_id, diamond_id, ring_style_id },
+		{ product_id, diamond_id, ring_style_id },
 		{ rejectWithValue }
 	) => {
 		try {
-			return await addToFavoritesAPI(
-				dbId,
-				product_id,
-				diamond_id,
-				ring_style_id
-			)
+			return await addToFavoritesAPI({
+				productId: product_id ?? null,
+				diamondId: diamond_id ?? null,
+				ringStyleId: ring_style_id ?? null,
+			})
 		} catch (error) {
 			return rejectWithValue(error.message)
 		}
@@ -53,17 +56,16 @@ export const addToFavorites = createAsyncThunk(
 export const removeFromFavorites = createAsyncThunk(
 	'favoritesCart/removeFromFavorites',
 	async (
-		{ userId, product_id, diamond_id, ring_style_id },
+		{ product_id, diamond_id, ring_style_id },
 		{ rejectWithValue }
 	) => {
 		try {
-			await removeFromFavoritesAPI(
-				userId,
-				product_id,
-				diamond_id,
-				ring_style_id
-			)
-			return product_id || diamond_id || ring_style_id
+			await removeFromFavoritesAPI({
+				productId: product_id ?? null,
+				diamondId: diamond_id ?? null,
+				ringStyleId: ring_style_id ?? null,
+			})
+			return { product_id, diamond_id, ring_style_id }
 		} catch (error) {
 			return rejectWithValue(error.message)
 		}
@@ -77,7 +79,7 @@ export const addToCart = createAsyncThunk(
 		{ rejectWithValue }
 	) => {
 		try {
-			return await addToCartAPI({
+			await addToCartAPI({
 				userId,
 				guestId,
 				productId,
@@ -86,6 +88,9 @@ export const addToCart = createAsyncThunk(
 				ringSize,
 				quantity,
 			})
+			// Re-fetch the authoritative cart so the slice has the joined
+			// product/diamond/ring rows (prices, names, images) needed by the UI.
+			return await fetchCartItems({ userId, guestId })
 		} catch (error) {
 			return rejectWithValue(error.message)
 		}
@@ -98,7 +103,7 @@ export const removeFromCart = createAsyncThunk(
 		try {
 			// productId is actually a cart_id — legacy name kept to avoid changing all call sites
 			await removeFromCartAPI({ userId, guestId, cartId: productId })
-			return { cart_id: productId }
+			return await fetchCartItems({ userId, guestId })
 		} catch (error) {
 			return rejectWithValue(error.message)
 		}
@@ -216,34 +221,75 @@ const favoritesCartSlice = createSlice({
 			})
 
 			// Add to Favorites
-			.addCase(addToFavorites.fulfilled, (state, action) => {
-				if (action.payload.success) {
-					return
+			.addCase(addToFavorites.pending, (state, action) => {
+				// Optimistic insert — the API only returns { success: true },
+				// so push a lightweight marker right away. fetchUserFavorites
+				// will hydrate the full row later.
+				const { product_id, diamond_id, ring_style_id } = action.meta.arg || {}
+				const exists = state.favorites.some(
+					(f) =>
+						(product_id != null && f.product_id === product_id) ||
+						(diamond_id != null && f.diamond_id === diamond_id) ||
+						(ring_style_id != null && f.ring_style_id === ring_style_id)
+				)
+				if (!exists) {
+					state.favorites.push({
+						product_id: product_id ?? null,
+						diamond_id: diamond_id ?? null,
+						ring_style_id: ring_style_id ?? null,
+					})
 				}
-				state.favorites.push(action.payload)
+			})
+			.addCase(addToFavorites.rejected, (state, action) => {
+				// Roll back optimistic insert
+				const { product_id, diamond_id, ring_style_id } = action.meta.arg || {}
+				state.favorites = state.favorites.filter(
+					(f) =>
+						!(
+							(product_id != null && f.product_id === product_id) ||
+							(diamond_id != null && f.diamond_id === diamond_id) ||
+							(ring_style_id != null && f.ring_style_id === ring_style_id)
+						)
+				)
 			})
 
 			// Remove from Favorites
-			.addCase(removeFromFavorites.fulfilled, (state, action) => {
+			.addCase(removeFromFavorites.pending, (state, action) => {
+				// Optimistic remove — match by whichever id was supplied.
+				const { product_id, diamond_id, ring_style_id } = action.meta.arg || {}
 				state.favorites = state.favorites.filter(
-					(item) => item.product_id !== action.payload
+					(f) =>
+						!(
+							(product_id != null && f.product_id === product_id) ||
+							(diamond_id != null && f.diamond_id === diamond_id) ||
+							(ring_style_id != null && f.ring_style_id === ring_style_id)
+						)
+				)
+			})
+			.addCase(removeFromFavorites.fulfilled, (state, action) => {
+				const { product_id, diamond_id, ring_style_id } = action.payload || {}
+				state.favorites = state.favorites.filter(
+					(f) =>
+						!(
+							(product_id != null && f.product_id === product_id) ||
+							(diamond_id != null && f.diamond_id === diamond_id) ||
+							(ring_style_id != null && f.ring_style_id === ring_style_id)
+						)
 				)
 			})
 
-			// Add to Cart
+			// Add to Cart — thunk returns the canonical cart list from the server
 			.addCase(addToCart.fulfilled, (state, action) => {
-				if (action.payload.success) {
-					return
+				if (Array.isArray(action.payload)) {
+					state.cartItems = action.payload
 				}
-				state.cartItems.push(action.payload)
 			})
 
-			// Remove from Cart
+			// Remove from Cart — same: thunk returns the canonical cart list
 			.addCase(removeFromCart.fulfilled, (state, action) => {
-				const cartId = action.payload.cart_id
-				state.cartItems = state.cartItems.filter(
-					(item) => item.cart_id !== cartId
-				)
+				if (Array.isArray(action.payload)) {
+					state.cartItems = action.payload
+				}
 			})
 
 			.addCase(validateCoupon.fulfilled, (state, action) => {

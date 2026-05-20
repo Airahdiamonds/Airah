@@ -6,18 +6,15 @@ import {
 	fetchStyles,
 	fetchUsers,
 } from '../../redux/userProductsSlice'
-import { useUser } from '@clerk/clerk-react'
 
 const AdminDashboard = () => {
 	const dispatch = useDispatch()
 	const { products, users, diamonds, styles } = useSelector(
 		(state) => state.userProducts
 	)
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
 
 	useEffect(() => {
-		dispatch(fetchProducts(dbId))
+		dispatch(fetchProducts())
 		dispatch(fetchUsers())
 		dispatch(fetchDiamonds())
 		dispatch(fetchStyles())

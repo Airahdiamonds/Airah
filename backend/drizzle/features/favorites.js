@@ -1,15 +1,15 @@
-import { and, eq, isNotNull, or } from 'drizzle-orm'
+import { and, eq, isNotNull, or, sql } from 'drizzle-orm'
 import { db } from '../db.js'
 import { favoritesTable } from '../schema/favorites.js'
 import { productsTable } from '../schema/products.js'
 import { ringStylesTable } from '../schema/ringStyles.js'
 import { diamondsTable } from '../schema/diamonds.js'
-import { sql } from 'drizzle-orm'
+import { ringStyleTotalPriceSQL } from '../featureHelpers.js'
 
 export async function getUserFavorites({ user_id }) {
 	const data = await db
 		.select({
-			favorite_id: favoritesTable.favourite_id,
+			favorite_id: favoritesTable.favorite_id,
 			product_id: favoritesTable.product_id,
 			ring_style_id: favoritesTable.ring_style_id,
 			diamond_id: favoritesTable.diamond_id,
@@ -17,12 +17,7 @@ export async function getUserFavorites({ user_id }) {
 			product_price: productsTable.total_cost,
 			product_image: productsTable.image_URL,
 			ring_style_name: ringStylesTable.name,
-			ring_style_price: sql`
-                ${ringStylesTable.head_style_price} +
-                ${ringStylesTable.shank_style_price} +
-                ${ringStylesTable.head_metal_price} +
-                ${ringStylesTable.shank_metal_price}
-            `.as('ring_style_price'),
+			ring_style_price: ringStyleTotalPriceSQL(ringStylesTable).as('ring_style_price'),
 			ring_images: ringStylesTable.image_URL,
 			diamond_name: diamondsTable.name,
 			diamond_price: diamondsTable.price,
@@ -76,7 +71,7 @@ export async function addToFavorites({
 	if (ring_style_id != null) conditions.push(eq(favoritesTable.ring_style_id, ring_style_id))
 
 	const existing = await db
-		.select({ favourite_id: favoritesTable.favourite_id })
+		.select({ favorite_id: favoritesTable.favorite_id })
 		.from(favoritesTable)
 		.where(and(...conditions))
 		.limit(1)

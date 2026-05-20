@@ -14,15 +14,10 @@ import {
 import {
 	addProduct,
 	getAdminProducts,
-	getAllProducts,
 	updateProduct,
 } from '../drizzle/features/products.js'
-import {
-	addDiamond,
-	getAllDiamonds,
-	updateDiamond,
-} from '../drizzle/features/diamonds.js'
-import { addStyle, getAllStyles, updateStyle } from '../drizzle/features/styles.js'
+import { addDiamond, updateDiamond } from '../drizzle/features/diamonds.js'
+import { addStyle, updateStyle } from '../drizzle/features/styles.js'
 import {
 	addCouponEntry,
 	addMasterEntry,
@@ -32,6 +27,20 @@ import {
 import { getOrdersAdmin, updateStatus } from '../drizzle/features/orders.js'
 import { createUserSession } from '../session.js'
 import { requireAdmin } from '../middleware/auth.js'
+import { authLimiter } from '../middleware/rateLimit.js'
+import { validate } from '../middleware/validate.js'
+import { asyncHandler } from '../middleware/asyncHandler.js'
+import {
+	adminCreateSchema,
+	adminLoginSchema,
+	adminUpdateSchema,
+	couponEntrySchema,
+	diamondSchema,
+	masterEntrySchema,
+	productSchema,
+	styleSchema,
+	updateStatusSchema,
+} from '../schemas.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -48,215 +57,197 @@ const upload = multer({
 
 const router = express.Router()
 
-// Auth
-router.post('/api/admin/login', async (req, res) => {
-	try {
+router.post(
+	'/api/admin/login',
+	authLimiter,
+	validate(adminLoginSchema),
+	asyncHandler(async (req, res) => {
 		const { email, password } = req.body
-		const admin = await getAdmin(email, password)
-		// Create a session cookie so subsequent admin requests are authenticated
-		await createUserSession({ user_id: admin.user_id, role: 'admin' }, res)
-		res.json({ user_id: admin.user_id, name: admin.name, email: admin.email })
-	} catch (err) {
-		console.error('Login Error:', err.message)
-		res.status(401).json({ message: err.message || 'Failed to login' })
-	}
-})
+		try {
+			const admin = await getAdmin(email, password)
+			await createUserSession({ user_id: admin.user_id, role: 'admin' }, res)
+			res.json({ user_id: admin.user_id, name: admin.name, email: admin.email })
+		} catch (err) {
+			res.status(401).json({ message: err.message || 'Failed to login' })
+		}
+	})
+)
 
-// Admin management
-router.get('/api/admin/getAllAdmin', requireAdmin, async (req, res) => {
-	try {
+router.get(
+	'/api/admin/getAllAdmin',
+	requireAdmin,
+	asyncHandler(async (req, res) => {
 		const data = await getAllAdmin()
 		res.json(data)
-	} catch (err) {
-		console.error('getAllAdmin Error:', err)
-		res.status(500).json({ error: 'Failed to get all admin' })
-	}
-})
+	})
+)
 
-router.post('/api/admin/createAdmin', requireAdmin, async (req, res) => {
-	try {
-		const { email, password, name } = req.body
-		const data = await addAdmin({ name, email, password })
+router.post(
+	'/api/admin/createAdmin',
+	requireAdmin,
+	validate(adminCreateSchema),
+	asyncHandler(async (req, res) => {
+		const data = await addAdmin(req.body)
 		res.json(data)
-	} catch (err) {
-		console.error('createAdmin Error:', err)
-		res.status(500).json({ error: 'Failed to create admin' })
-	}
-})
+	})
+)
 
-router.put('/api/admin/updateAdmin/:id', requireAdmin, async (req, res) => {
-	try {
-		const { id } = req.params
-		const { email, name, password } = req.body
-		const data = await updateAdmin({ id }, { email, name, password })
+router.put(
+	'/api/admin/updateAdmin/:id',
+	requireAdmin,
+	validate(adminUpdateSchema),
+	asyncHandler(async (req, res) => {
+		const data = await updateAdmin({ id: req.params.id }, req.body)
 		res.json(data)
-	} catch (err) {
-		console.error('updateAdmin Error:', err)
-		res.status(500).json({ error: 'Failed to update admin' })
-	}
-})
+	})
+)
 
-router.delete('/api/admin/deleteAdmin/:id', requireAdmin, async (req, res) => {
-	try {
-		const { id } = req.params
-		const data = await deleteAdmin({ id })
+router.delete(
+	'/api/admin/deleteAdmin/:id',
+	requireAdmin,
+	asyncHandler(async (req, res) => {
+		const data = await deleteAdmin({ id: req.params.id })
 		res.json(data)
-	} catch (err) {
-		console.error('deleteAdmin Error:', err)
-		res.status(500).json({ error: 'Failed to delete admin' })
-	}
-})
+	})
+)
 
-// Users
-router.get('/api/admin/getAllUsers', requireAdmin, async (req, res) => {
-	try {
+router.get(
+	'/api/admin/getAllUsers',
+	requireAdmin,
+	asyncHandler(async (req, res) => {
 		const data = await getAllUsers()
 		res.json(data)
-	} catch (err) {
-		console.error('getAllUsers Error:', err)
-		res.status(500).json({ error: 'Failed to get all users' })
-	}
-})
+	})
+)
 
-// Products
-router.post('/api/admin/addProduct', requireAdmin, async (req, res) => {
-	try {
+router.post(
+	'/api/admin/addProduct',
+	requireAdmin,
+	validate(productSchema),
+	asyncHandler(async (req, res) => {
 		await addProduct(req.body)
 		res.json({ success: true })
-	} catch (err) {
-		console.error('addProduct Error:', err)
-		res.status(500).json({ error: 'Failed to add product' })
-	}
-})
+	})
+)
 
-router.get('/api/admin/getAdminProducts', requireAdmin, async (req, res) => {
-	try {
+router.get(
+	'/api/admin/getAdminProducts',
+	requireAdmin,
+	asyncHandler(async (req, res) => {
 		const data = await getAdminProducts()
 		res.json(data)
-	} catch (err) {
-		console.error('getAdminProducts Error:', err)
-		res.status(500).json({ error: 'Failed to get all products' })
-	}
-})
+	})
+)
 
-router.put('/api/admin/updateProduct/:product_id', requireAdmin, async (req, res) => {
-	try {
+router.put(
+	'/api/admin/updateProduct/:product_id',
+	requireAdmin,
+	validate(productSchema),
+	asyncHandler(async (req, res) => {
 		const updatedProduct = await updateProduct(req.params.product_id, req.body)
 		res.json(updatedProduct)
-	} catch (err) {
-		console.error('updateProduct Error:', err)
-		res.status(500).json({ error: 'Failed to update product' })
-	}
-})
+	})
+)
 
-// Diamonds
-router.post('/api/admin/addDiamond', requireAdmin, async (req, res) => {
-	try {
+router.post(
+	'/api/admin/addDiamond',
+	requireAdmin,
+	validate(diamondSchema),
+	asyncHandler(async (req, res) => {
 		await addDiamond(req.body)
 		res.json({ success: true })
-	} catch (err) {
-		console.error('addDiamond Error:', err)
-		res.status(500).json({ error: 'Failed to add diamond' })
-	}
-})
+	})
+)
 
-router.put('/api/admin/updateDiamond/:product_id', requireAdmin, async (req, res) => {
-	try {
+router.put(
+	'/api/admin/updateDiamond/:product_id',
+	requireAdmin,
+	validate(diamondSchema),
+	asyncHandler(async (req, res) => {
 		const updatedProduct = await updateDiamond(req.params.product_id, req.body)
 		res.json(updatedProduct)
-	} catch (err) {
-		console.error('updateDiamond Error:', err)
-		res.status(500).json({ error: 'Failed to update diamond' })
-	}
-})
+	})
+)
 
-// Styles
-router.post('/api/admin/addStyle', requireAdmin, async (req, res) => {
-	try {
+router.post(
+	'/api/admin/addStyle',
+	requireAdmin,
+	validate(styleSchema),
+	asyncHandler(async (req, res) => {
 		await addStyle(req.body)
 		res.json({ success: true })
-	} catch (err) {
-		console.error('addStyle Error:', err)
-		res.status(500).json({ error: 'Failed to add style' })
-	}
-})
+	})
+)
 
-router.put('/api/admin/updateStyle/:product_id', requireAdmin, async (req, res) => {
-	try {
+router.put(
+	'/api/admin/updateStyle/:product_id',
+	requireAdmin,
+	validate(styleSchema),
+	asyncHandler(async (req, res) => {
 		const updatedProduct = await updateStyle(req.params.product_id, req.body)
 		res.json(updatedProduct)
-	} catch (err) {
-		console.error('updateStyle Error:', err)
-		res.status(500).json({ error: 'Failed to update style' })
-	}
-})
+	})
+)
 
-// Master / Coupons
-router.get('/api/admin/getMasterList', async (req, res) => {
-	// Public — used by the storefront for currency rates.
-	try {
+// Public — used by the storefront for currency rates.
+router.get(
+	'/api/admin/getMasterList',
+	asyncHandler(async (req, res) => {
 		const data = await getMasterList()
 		res.json(data)
-	} catch (err) {
-		console.error('getMasterList Error:', err)
-		res.status(500).json({ error: 'Failed to get master list' })
-	}
-})
+	})
+)
 
-router.post('/api/admin/addMasterEntry', requireAdmin, async (req, res) => {
-	try {
+router.post(
+	'/api/admin/addMasterEntry',
+	requireAdmin,
+	validate(masterEntrySchema),
+	asyncHandler(async (req, res) => {
 		await addMasterEntry(req.body)
 		res.json({ success: true })
-	} catch (err) {
-		console.error('addMasterEntry Error:', err)
-		res.status(500).json({ error: 'Failed to add master entry' })
-	}
-})
+	})
+)
 
-router.get('/api/admin/getCouponList', requireAdmin, async (req, res) => {
-	try {
+router.get(
+	'/api/admin/getCouponList',
+	requireAdmin,
+	asyncHandler(async (req, res) => {
 		const data = await getCouponList()
 		res.json(data)
-	} catch (err) {
-		console.error('getCouponList Error:', err)
-		res.status(500).json({ error: 'Failed to get coupon list' })
-	}
-})
+	})
+)
 
-router.post('/api/admin/addCouponEntry', requireAdmin, async (req, res) => {
-	try {
+router.post(
+	'/api/admin/addCouponEntry',
+	requireAdmin,
+	validate(couponEntrySchema),
+	asyncHandler(async (req, res) => {
 		await addCouponEntry(req.body)
 		res.json({ success: true })
-	} catch (err) {
-		console.error('addCouponEntry Error:', err)
-		res.status(500).json({ error: 'Failed to add coupon entry' })
-	}
-})
+	})
+)
 
-// Orders
-router.get('/api/admin/orders', requireAdmin, async (req, res) => {
-	try {
+router.get(
+	'/api/admin/orders',
+	requireAdmin,
+	asyncHandler(async (req, res) => {
 		const data = await getOrdersAdmin()
 		res.json(data)
-	} catch (err) {
-		console.error('getOrdersAdmin Error:', err)
-		res.status(500).json({ error: 'Failed to get order list' })
-	}
-})
+	})
+)
 
-router.post('/api/admin/updateStatus', requireAdmin, async (req, res) => {
-	try {
+router.post(
+	'/api/admin/updateStatus',
+	requireAdmin,
+	validate(updateStatusSchema),
+	asyncHandler(async (req, res) => {
 		const { orderId, status } = req.body
 		await updateStatus(orderId, status)
 		res.json({ success: true })
-	} catch (err) {
-		console.error('updateStatus Error:', err)
-		res.status(500).json({ error: 'Failed to update status' })
-	}
-})
+	})
+)
 
-// Image uploads
-router.post('/admin/upload', requireAdmin, upload.array('images', 10), (req, res) => {
+router.post('/api/admin/upload', requireAdmin, upload.array('images', 10), (req, res) => {
 	if (!req.files || req.files.length === 0) {
 		return res.status(400).json({ error: 'No files uploaded' })
 	}
@@ -266,12 +257,11 @@ router.post('/admin/upload', requireAdmin, upload.array('images', 10), (req, res
 	res.json({ message: 'Files uploaded successfully', fileUrls })
 })
 
-router.get('/images', requireAdmin, (req, res) => {
+router.get('/api/images', requireAdmin, (req, res) => {
 	const uploadsDir = path.join(__dirname, '../uploads')
 	fs.readdir(uploadsDir, (err, files) => {
-		if (err) {
-			return res.status(500).json({ error: 'Unable to fetch images' })
-		}
+		if (err) return res.status(500).json({ error: 'Unable to fetch images' })
+
 		const fileUrls = files.map(
 			(file) => `${req.protocol}://${req.get('host')}/uploads/${file}`
 		)
@@ -279,11 +269,12 @@ router.get('/images', requireAdmin, (req, res) => {
 	})
 })
 
-router.delete('/admin/delete', requireAdmin, (req, res) => {
+router.delete('/api/admin/delete', requireAdmin, (req, res) => {
 	const { url } = req.body
 	if (!url) {
 		return res.status(400).json({ success: false, message: 'Image URL is required' })
 	}
+
 	const filename = path.basename(url)
 	const filePath = path.join(__dirname, '../uploads', filename)
 	try {

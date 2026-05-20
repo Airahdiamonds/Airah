@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import princessPng from '../assets/shapes/princess.png';
 import emeraldPng from '../assets/shapes/emerald.png';
 import asscherPng from '../assets/shapes/asscher.png';
@@ -8,13 +7,7 @@ import marquisePng from '../assets/shapes/marquise.png';
 import radiantPng from '../assets/shapes/radiant.png';
 import cushionPng from '../assets/shapes/cushion.png';
 
-const Filters = ({ filters, setFilters }) => {
-  const [activeFilter, setActiveFilter] = useState(null);
-
-  const toggleFilter = (category) => {
-    setActiveFilter(prev => (prev === category ? null : category));
-  };
-
+const Filters = ({ filters, setFilters, variant = 'default' }) => {
   const handleSliderChange = (category, value) => {
     setFilters(prev => ({
       ...prev,
@@ -32,9 +25,13 @@ const Filters = ({ filters, setFilters }) => {
     type: 'Lab-Grown',
   };
 
+  const panelClassName = variant === 'card'
+    ? 'w-full max-w-6xl space-y-4 border border-gray-300 rounded-lg px-4 py-2 shadow-xl'
+    : 'w-full max-w-full space-y-6';
+
   return (
     <div className="w-full flex justify-center px-4">
-      <div className="w-full max-w-full  space-y-6">
+      <div className={panelClassName}>
         <h1 className="text-2xl font-extrabold special mb-4">Filters</h1>
         
         {/* Filters Grid */}

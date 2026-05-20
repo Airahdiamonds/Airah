@@ -6,12 +6,13 @@ import {
 	createOrderFromCart,
 	getOrdersByUser,
 	recordPaymentIfNew,
-	updateStatus,
 } from '../drizzle/features/orders.js'
 import { validateCoupon, incrementCouponUsage } from '../drizzle/features/master.js'
 import { optionalSession } from '../middleware/auth.js'
 import { validate } from '../middleware/validate.js'
 import { paymentLimiter, writeLimiter } from '../middleware/rateLimit.js'
+import { asyncHandler } from '../middleware/asyncHandler.js'
+import { resolveIdentity } from '../utils/identity.js'
 import {
 	couponSchema,
 	createOrderSchema,
@@ -25,32 +26,27 @@ const razorpay = new Razorpay({
 	key_secret: process.env.RAZORPAY_KEY_SECRET,
 })
 
-// Resolves the effective identity for a request:
-// authenticated users always win over any client-supplied id; guests fall back to the body/query guestId.
-function resolveIdentity(req, source = 'body') {
-	if (req.user?.user_id) {
-		return { userId: req.user.user_id, guestId: null }
-	}
-	const guestId = req[source]?.guestId ?? null
-	return { userId: null, guestId }
-}
-
-router.get('/api/orders', optionalSession, async (req, res) => {
-	try {
+router.get(
+	'/api/orders',
+	optionalSession,
+	asyncHandler(async (req, res) => {
 		const { userId, guestId } = resolveIdentity(req, 'query')
 		if (!userId && !guestId) return res.json([])
+
 		const data = await getOrdersByUser({ userId, guestId })
 		res.json(data)
-	} catch (err) {
-		console.error('getOrdersByUser Error:', err)
-		res.status(500).json({ error: 'Failed to get order list' })
-	}
-})
+	})
+)
 
-router.post('/api/createOrder', paymentLimiter, optionalSession, validate(createOrderSchema), async (req, res) => {
-	try {
+router.post(
+	'/api/createOrder',
+	paymentLimiter,
+	optionalSession,
+	validate(createOrderSchema),
+	asyncHandler(async (req, res) => {
 		const { userId, guestId } = resolveIdentity(req, 'body')
 		if (!userId && !guestId) return res.status(400).json({ error: 'Missing identity' })
+
 		const { couponCode, shippingAddress } = req.body
 		const { order } = await createOrderFromCart({
 			userId,
@@ -59,42 +55,40 @@ router.post('/api/createOrder', paymentLimiter, optionalSession, validate(create
 			shippingAddress,
 		})
 		res.json(order)
-	} catch (err) {
-		console.error('createOrder Error:', err)
-		res.status(400).json({ error: err.message || 'Failed to create order' })
-	}
-})
+	})
+)
 
-router.post('/api/cancelOrder', optionalSession, async (req, res) => {
-	try {
+router.post(
+	'/api/cancelOrder',
+	optionalSession,
+	asyncHandler(async (req, res) => {
 		const { orderId } = req.body
 		await cancelOrder(orderId)
 		res.json({ success: true })
-	} catch (err) {
-		console.error('cancelOrder Error:', err)
-		res.status(500).json({ error: 'Failed to cancel order' })
-	}
-})
+	})
+)
 
-router.post('/api/validateCoupon', writeLimiter, validate(couponSchema), async (req, res) => {
-	try {
+router.post(
+	'/api/validateCoupon',
+	writeLimiter,
+	validate(couponSchema),
+	asyncHandler(async (req, res) => {
 		const { couponCode } = req.body
 		const result = await validateCoupon(couponCode)
 		res.json(result)
-	} catch (err) {
-		console.error('validateCoupon Error:', err.message)
-		res.status(400).json({ error: err.message })
-	}
-})
+	})
+)
 
-// ── Razorpay ─────────────────────────────────────────────────────────────────
-
-router.post('/api/razorpay/create-order', paymentLimiter, optionalSession, validate(createOrderSchema), async (req, res) => {
-	try {
+router.post(
+	'/api/razorpay/create-order',
+	paymentLimiter,
+	optionalSession,
+	validate(createOrderSchema),
+	asyncHandler(async (req, res) => {
 		const { userId, guestId } = resolveIdentity(req, 'body')
 		if (!userId && !guestId) return res.status(400).json({ error: 'Missing identity' })
-		const { couponCode, shippingAddress } = req.body
 
+		const { couponCode, shippingAddress } = req.body
 		const { order, total } = await createOrderFromCart({
 			userId,
 			guestId,
@@ -109,14 +103,15 @@ router.post('/api/razorpay/create-order', paymentLimiter, optionalSession, valid
 		})
 
 		res.json({ razorpayOrder, dbOrderId: order.order_id, totalPrice: total })
-	} catch (err) {
-		console.error('razorpay create-order Error:', err)
-		res.status(400).json({ error: err.message || 'Failed to create Razorpay order' })
-	}
-})
+	})
+)
 
-router.post('/api/razorpay/verify-payment', paymentLimiter, optionalSession, validate(verifyPaymentSchema), async (req, res) => {
-	try {
+router.post(
+	'/api/razorpay/verify-payment',
+	paymentLimiter,
+	optionalSession,
+	validate(verifyPaymentSchema),
+	asyncHandler(async (req, res) => {
 		const {
 			razorpay_order_id,
 			razorpay_payment_id,
@@ -126,7 +121,7 @@ router.post('/api/razorpay/verify-payment', paymentLimiter, optionalSession, val
 		} = req.body
 		const { userId } = resolveIdentity(req, 'body')
 
-		const body = razorpay_order_id + '|' + razorpay_payment_id
+		const body = `${razorpay_order_id}|${razorpay_payment_id}`
 		const expectedSignature = crypto
 			.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
 			.update(body)
@@ -156,10 +151,7 @@ router.post('/api/razorpay/verify-payment', paymentLimiter, optionalSession, val
 		}
 
 		res.json({ success: true, recorded })
-	} catch (err) {
-		console.error('razorpay verify-payment Error:', err)
-		res.status(500).json({ error: 'Failed to verify payment' })
-	}
-})
+	})
+)
 
 export default router
