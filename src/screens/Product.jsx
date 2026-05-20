@@ -1,28 +1,17 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { getProduct } from '../utils/api'
-import { convertPrice } from '../utils/helpers'
 import { useNavigate, useParams } from 'react-router-dom'
-import { addToCart, fetchUserCartItems } from '../redux/favoritesCartSlice'
+import { addToCart } from '../redux/favoritesCartSlice'
 import ProductImages from '../components/ProductImages'
 import ReviewsList from '../components/ReviewsList'
+import PriceDisplay from '../components/PriceDisplay'
 
 function Product() {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { id } = useParams()
-	const {
-		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
-		currentUser,
-		guestUser,
-	} = useSelector((state) => state.localization)
+	const { currentUser, guestUser } = useSelector((state) => state.localization)
 	const [product, setProduct] = useState(null)
 	const ringSizes = ['4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14']
 	const [selectedSize, setSelectedSize] = useState(ringSizes[0])
@@ -31,8 +20,7 @@ function Product() {
 		getProduct(id).then((res) => {
 			setProduct(res.data[0])
 		})
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [id])
 	// const [activeTab, setActiveTab] = useState('earring')
 
 	const handleClick = async () => {
@@ -46,9 +34,6 @@ function Product() {
 				ringSize: selectedSize,
 				quantity: 1,
 			})
-		)
-		await dispatch(
-			fetchUserCartItems({ userId: currentUser, guestId: guestUser })
 		)
 		navigate('/cart')
 	}
@@ -80,17 +65,7 @@ function Product() {
 				<div className="w-full md:w-2/5 p-8 space-y-4 flex flex-col max-h-fit md:sticky top-40 self-start">
 					<h2 className="text-4xl special">{product?.name}</h2>
 					<div className="text-2xl font-light text-green-900">
-						{currency}
-						{convertPrice(
-							Number(product?.total_cost),
-							country,
-							USD_rate,
-							GBP_rate,
-							AUD_rate,
-							OMR_rate,
-							AED_rate,
-							EUR_rate
-						).toFixed(2)}
+						<PriceDisplay value={product?.total_cost} />
 						<p className="text-sm text-gray-500">(Sub Total)</p>
 					</div>
 

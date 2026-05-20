@@ -1,5 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+// Drives the 3-step `/customize` flow (StepOne/Two/Three). Holds the chosen
+// diamond + ring (head/shank style+metal) and the running total cost.
+// `productDetails` is an array with a single entry because the same shape
+// is reused for cart line items, which lets us drop the array straight into
+// the cart payload without an extra mapping step.
 const initialState = {
 	step: 1,
 	showDiamond: false,

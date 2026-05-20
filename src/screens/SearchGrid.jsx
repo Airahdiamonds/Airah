@@ -1,30 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { searchResult } from '../utils/api'
-import { useDispatch, useSelector } from 'react-redux'
-import { convertPrice } from '../utils/helpers'
+import { useDispatch } from 'react-redux'
+import { calculateRingTotal } from '../utils/helpers'
 import {
 	setCustomization,
 	setShowDiamond,
 	setShowRing,
 	setStep,
 } from '../redux/ringCustomizationSlice'
+import PriceDisplay from '../components/PriceDisplay'
 
 const SearchGrid = () => {
 	const [products, setProducts] = useState([])
 	const location = useLocation()
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
-	const {
-		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
-	} = useSelector((state) => state.localization)
 
 	// Fetch search results whenever location.state changes
 	useEffect(() => {
@@ -76,11 +67,7 @@ const SearchGrid = () => {
 					},
 					ring: {
 						product_id: item.ring_style_id,
-						ring_price:
-							Number(item.head_style_price) +
-							Number(item.head_metal_price) +
-							Number(item.shank_style_price) +
-							Number(item.shank_metal_price),
+						ring_price: calculateRingTotal(item),
 						headStyle: item.head_style,
 						headMetal: item.head_metal,
 						shankStyle: item.shank_style,
@@ -123,24 +110,15 @@ const SearchGrid = () => {
 					</h2>
 					<p className="text-gray-600 mb-4">{product.description}</p>
 					<p className="text-xl font-bold text-grey-500">
-						{currency}
-						{convertPrice(
-							product.type === 1
-								? Number(product.price)
-								: product.type === 2
-								? Number(product?.head_style_price) +
-								  Number(product?.head_metal_price) +
-								  Number(product?.shank_style_price) +
-								  Number(product?.shank_metal_price)
-								: Number(product.total_cost),
-							country,
-							USD_rate,
-							GBP_rate,
-							AUD_rate,
-							OMR_rate,
-							AED_rate,
-							EUR_rate
-						).toFixed(2)}
+						<PriceDisplay
+							value={
+								product.type === 1
+									? product.price
+									: product.type === 2
+									? calculateRingTotal(product)
+									: product.total_cost
+							}
+						/>
 					</p>
 					<div className="flex space-x-4 mt-4">
 						<button

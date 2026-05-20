@@ -1,4 +1,4 @@
-import { integer, pgEnum, pgTable, serial, varchar } from 'drizzle-orm/pg-core'
+import { index, integer, pgEnum, pgTable, serial, varchar } from 'drizzle-orm/pg-core'
 import { created_at, updated_at } from '../schemaHelpers.js'
 import { userTable } from './users.js'
 import { relations } from 'drizzle-orm'
@@ -15,19 +15,26 @@ export const status = [
 ]
 export const statusEnum = pgEnum('status', status)
 
-export const ordersTable = pgTable('orders', {
-	order_id: serial('order_id').primaryKey(),
-	user_id: integer('user_id')
-		.references(() => userTable.user_id, {
-			onDelete: 'set null',
-		})
-		.default(null),
-	guest_id: varchar('guest_id', { length: 36 }).default(null),
-	total_amount: integer().notNull(),
-	status: statusEnum().default('pending'),
-	created_at,
-	updated_at,
-})
+export const ordersTable = pgTable(
+	'orders',
+	{
+		order_id: serial('order_id').primaryKey(),
+		user_id: integer('user_id')
+			.references(() => userTable.user_id, {
+				onDelete: 'set null',
+			})
+			.default(null),
+		guest_id: varchar('guest_id', { length: 36 }).default(null),
+		total_amount: integer().notNull(),
+		status: statusEnum().default('pending'),
+		created_at,
+		updated_at,
+	},
+	(t) => [
+		index('orders_user_id_idx').on(t.user_id),
+		index('orders_guest_id_idx').on(t.guest_id),
+	]
+)
 
 export const orderRelations = relations(ordersTable, ({ one, many }) => ({
 	user: one(userTable, {

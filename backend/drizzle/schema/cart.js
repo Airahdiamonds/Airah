@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, varchar } from 'drizzle-orm/pg-core'
+import { index, integer, pgTable, serial, varchar } from 'drizzle-orm/pg-core'
 import { created_at, quantity, updated_at } from '../schemaHelpers.js'
 import { userTable } from './users.js'
 import { productsTable } from './products.js'
@@ -6,34 +6,41 @@ import { relations } from 'drizzle-orm'
 import { diamondsTable } from './diamonds.js'
 import { ringStylesTable } from './ringStyles.js'
 
-export const cartTable = pgTable('cart', {
-	cart_id: serial('cart_id').primaryKey(),
-	user_id: integer('user_id')
-		.references(() => userTable.user_id, {
-			onDelete: 'set null',
-		})
-		.default(null),
-	guest_id: varchar('guest_id', { length: 36 }).default(null),
-	product_id: integer('product_id')
-		.references(() => productsTable.product_id, {
-			onDelete: 'set null',
-		})
-		.default(null),
-	diamond_id: integer('diamond_id')
-		.references(() => diamondsTable.diamond_id, {
-			onDelete: 'set null',
-		})
-		.default(null),
-	ring_style_id: integer('ring_style_id')
-		.references(() => ringStylesTable.ring_style_id, {
-			onDelete: 'set null',
-		})
-		.default(null),
-	ring_size: varchar('ring_size', { length: 4 }).default(null),
-	quantity,
-	created_at,
-	updated_at,
-})
+export const cartTable = pgTable(
+	'cart',
+	{
+		cart_id: serial('cart_id').primaryKey(),
+		user_id: integer('user_id')
+			.references(() => userTable.user_id, {
+				onDelete: 'set null',
+			})
+			.default(null),
+		guest_id: varchar('guest_id', { length: 36 }).default(null),
+		product_id: integer('product_id')
+			.references(() => productsTable.product_id, {
+				onDelete: 'set null',
+			})
+			.default(null),
+		diamond_id: integer('diamond_id')
+			.references(() => diamondsTable.diamond_id, {
+				onDelete: 'set null',
+			})
+			.default(null),
+		ring_style_id: integer('ring_style_id')
+			.references(() => ringStylesTable.ring_style_id, {
+				onDelete: 'set null',
+			})
+			.default(null),
+		ring_size: varchar('ring_size', { length: 4 }).default(null),
+		quantity,
+		created_at,
+		updated_at,
+	},
+	(t) => [
+		index('cart_user_id_idx').on(t.user_id),
+		index('cart_guest_id_idx').on(t.guest_id),
+	]
+)
 
 export const cartRelations = relations(cartTable, ({ one }) => ({
 	user: one(userTable, {

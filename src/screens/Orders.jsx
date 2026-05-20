@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchOrders, cancelOrder } from '../redux/ordersSlice'
-import { convertPrice, formatDate } from '../utils/helpers'
+import { formatDate } from '../utils/helpers'
+import PriceDisplay from '../components/PriceDisplay'
 
 // Order Status Mapping for Tracking
 const statusSteps = {
@@ -16,18 +17,7 @@ export default function OrdersPage() {
 	const dispatch = useDispatch()
 	const { orders, status, error } = useSelector((state) => state.orders)
 	const [filter, setFilter] = useState('All')
-	const {
-		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
-		currentUser,
-		guestUser,
-	} = useSelector((state) => state.localization)
+	const { currentUser, guestUser } = useSelector((state) => state.localization)
 
 	useEffect(() => {
 		dispatch(fetchOrders({ userId: currentUser, guestId: guestUser }))
@@ -88,17 +78,7 @@ export default function OrdersPage() {
 									<OrderStatus status={order.status} />
 								</td>
 								<td className="p-3 font-bold">
-									{currency}
-									{convertPrice(
-										Number(order.total_amount),
-										country,
-										USD_rate,
-										GBP_rate,
-										AUD_rate,
-										OMR_rate,
-										AED_rate,
-										EUR_rate
-									).toFixed(2)}
+									<PriceDisplay value={order.total_amount} />
 								</td>
 								<td className="p-3">
 									{order.status === 'pending' && (

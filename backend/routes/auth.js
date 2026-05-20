@@ -6,6 +6,7 @@ import { clearSessionCookie, createUserSession, getSession } from '../session.js
 import { redisClient } from '../redis.js'
 import { validate } from '../middleware/validate.js'
 import { authLimiter } from '../middleware/rateLimit.js'
+import { asyncHandler } from '../middleware/asyncHandler.js'
 import { signinSchema, signupSchema } from '../schemas.js'
 
 const router = express.Router()
@@ -13,64 +14,75 @@ const COOKIE_SESSION_KEY = 'session-id'
 
 const signupPaths = ['/api/users/signup', '/api/user/signup', '/users/signup', '/user/signup']
 
-router.post(signupPaths, authLimiter, validate(signupSchema), async (req, res) => {
-	const { email, name, password } = req.body
-	const existingUser = await getUser(email)
-	if (existingUser) {
-		return res.status(409).json({ error: 'User already exists' })
-	}
-	const salt = generateSalt()
-	const hashedPassword = await hashPassword(password, salt)
-	try {
+router.post(
+	signupPaths,
+	authLimiter,
+	validate(signupSchema),
+	asyncHandler(async (req, res) => {
+		const { email, name, password } = req.body
+		const existingUser = await getUser(email)
+		if (existingUser) {
+			return res.status(409).json({ error: 'User already exists' })
+		}
+		const salt = generateSalt()
+		const hashedPassword = await hashPassword(password, salt)
 		const user = await insertUser({ email, name, password: hashedPassword, salt })
 		await createUserSession(user, res)
 		res.json(user)
-	} catch (err) {
-		console.error('Signup Error:', err)
-		res.status(500).json({ error: 'Failed to create user' })
-	}
-})
-
-router.post('/api/users/signin', authLimiter, validate(signinSchema), async (req, res) => {
-	const { email, password } = req.body
-	const user = await getUser(email)
-	if (!user) {
-		return res.status(400).json({ error: 'Invalid credentials' })
-	}
-	const isValidPassword = await comparePasswords({
-		password,
-		salt: user.salt,
-		hashedPassword: user.password,
 	})
-	if (!isValidPassword) {
-		return res.status(400).json({ error: 'Invalid credentials' })
-	}
-	await createUserSession(user, res)
-	res.json(user)
-})
+)
 
-router.post('/api/users/signout', async (req, res) => {
-	const sessionId = req.cookies[COOKIE_SESSION_KEY]
-	if (!sessionId) return res.status(401).json({ error: 'Not authenticated' })
+router.post(
+	'/api/users/signin',
+	authLimiter,
+	validate(signinSchema),
+	asyncHandler(async (req, res) => {
+		const { email, password } = req.body
+		const user = await getUser(email)
+		if (!user) {
+			return res.status(400).json({ error: 'Invalid credentials' })
+		}
+		const isValidPassword = await comparePasswords({
+			password,
+			salt: user.salt,
+			hashedPassword: user.password,
+		})
+		if (!isValidPassword) {
+			return res.status(400).json({ error: 'Invalid credentials' })
+		}
+		await createUserSession(user, res)
+		res.json(user)
+	})
+)
 
-	await redisClient.del(`session:${sessionId}`)
-	clearSessionCookie(res)
-	res.json({ message: 'Logged out successfully' })
-})
+router.post(
+	'/api/users/signout',
+	asyncHandler(async (req, res) => {
+		const sessionId = req.cookies[COOKIE_SESSION_KEY]
+		if (!sessionId) return res.status(401).json({ error: 'Not authenticated' })
 
-router.get('/api/me', async (req, res) => {
-	const sessionId = req.cookies[COOKIE_SESSION_KEY]
-	if (!sessionId) return res.json(null)
-
-	const session = await getSession(sessionId)
-	if (!session) {
+		await redisClient.del(`session:${sessionId}`)
 		clearSessionCookie(res)
-		return res.json(null)
-	}
+		res.json({ message: 'Logged out successfully' })
+	})
+)
 
-	const { user_id, role } = session
-	res.json({ user_id, role })
-})
+router.get(
+	'/api/me',
+	asyncHandler(async (req, res) => {
+		const sessionId = req.cookies[COOKIE_SESSION_KEY]
+		if (!sessionId) return res.json(null)
+
+		const session = await getSession(sessionId)
+		if (!session) {
+			clearSessionCookie(res)
+			return res.json(null)
+		}
+
+		const { user_id, role } = session
+		res.json({ user_id, role })
+	})
+)
 
 router.get('/api/auth/google/callback', authLimiter, async (req, res) => {
 	try {

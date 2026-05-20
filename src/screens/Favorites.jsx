@@ -1,12 +1,8 @@
-import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
-	addToFavorites,
-	clearLocalFavorites,
-	fetchUserFavorites,
 	removeFromFavorites,
+	removeFromFavoritesLocal,
 } from '../redux/favoritesCartSlice'
-import { convertPrice } from '../utils/helpers'
 import { useNavigate } from 'react-router-dom'
 import {
 	setCustomization,
@@ -15,62 +11,14 @@ import {
 	setStep,
 } from '../redux/ringCustomizationSlice'
 import { getStyle } from '../utils/api'
+import PriceDisplay from '../components/PriceDisplay'
+import useFavoritesSync from '../hooks/useFavoritesSync'
 
 const Favorites = () => {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { favorites, loading } = useSelector((state) => state.favoritesCart)
-	const {
-		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
-		currentUser,
-	} = useSelector((state) => state.localization)
-
-	const [favoritesSynced, setFavoritesSynced] = useState(false)
-
-	useEffect(() => {
-		const syncFavoritesAndFetch = async () => {
-			if (!currentUser) return
-
-			const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
-
-			// Sync local favorites to the backend
-			if (localFavorites.length > 0) {
-				await Promise.all(
-					localFavorites.map((fav) =>
-						dispatch(
-							addToFavorites({
-								currentUser,
-								product_id: fav.product_id,
-								diamond_id: fav.diamond_id,
-								ring_style_id: fav.ring_style_id,
-							})
-						)
-					)
-				)
-				setTimeout(() => {
-					dispatch(fetchUserFavorites(currentUser))
-				}, 500)
-
-				dispatch(clearLocalFavorites()) // Clear local after syncing
-			}
-
-			// Now fetch the user's favorites
-
-			// Mark as synced so UI can continue
-			setFavoritesSynced(true)
-		}
-
-		if (currentUser) {
-			syncFavoritesAndFetch()
-		}
-	}, [currentUser, dispatch])
+	const { currentUser } = useFavoritesSync()
 
 	const handleRemove = (product_id, diamond_id, ring_style_id, type) => {
 		const idMap = {
@@ -80,9 +28,10 @@ const Favorites = () => {
 		}
 
 		const idObj = idMap[type]
-		if (idObj) {
+		if (idObj && currentUser) {
 			dispatch(removeFromFavorites({ userId: currentUser, ...idObj }))
-			dispatch(fetchUserFavorites(currentUser))
+		} else if (idObj) {
+			dispatch(removeFromFavoritesLocal(idObj))
 		}
 	}
 
@@ -136,29 +85,6 @@ const Favorites = () => {
 		}
 	}
 
-	// if (!isSignedIn) {
-	// 	return (
-	// 		<div className="h-80 flex flex-col items-center justify-center bg-gray-50">
-	// 			<h2 className="text-2xl font-semibold text-gray-700 mb-4">
-	// 				Please log in to view your Favorites
-	// 			</h2>
-	// 			<SignInButton mode="modal">
-	// 				<button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-	// 					Log In
-	// 				</button>
-	// 			</SignInButton>
-	// 		</div>
-	// 	)
-	// }
-
-	if (!favoritesSynced) {
-		return (
-			<div className="h-80 flex flex-col items-center justify-center bg-gray-50">
-				<p className="text-lg text-gray-600">Syncing favorites...</p>
-			</div>
-		)
-	}
-
 	return (
 		<div className="min-h-screen bg-gray-50 p-8">
 			<h1 className="text-3xl font-bold text-gray-800 mb-8">Your Favorites</h1>
@@ -188,19 +114,13 @@ const Favorites = () => {
 							</h2>
 							<p className="text-gray-600 mb-4">{item.description}</p>
 							<p className="text-xl font-bold text-grey-500">
-								{currency}
-								{convertPrice(
-									Number(item.product_price) ||
+								<PriceDisplay
+									value={
+										Number(item.product_price) ||
 										Number(item.diamond_price) ||
-										Number(item.ring_style_price),
-									country,
-									USD_rate,
-									GBP_rate,
-									AUD_rate,
-									OMR_rate,
-									AED_rate,
-									EUR_rate
-								).toFixed(2)}
+										Number(item.ring_style_price)
+									}
+								/>
 							</p>
 							<div className="flex space-x-4 mt-4">
 								<button

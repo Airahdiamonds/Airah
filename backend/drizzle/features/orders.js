@@ -9,6 +9,7 @@ import { diamondsTable } from '../schema/diamonds.js'
 import { ringStylesTable } from '../schema/ringStyles.js'
 import { couponsTable } from '../schema/coupons.js'
 import { addressesTable } from '../schema/addresses.js'
+import { ringStyleTotalPriceSQL } from '../featureHelpers.js'
 
 export async function getOrdersByUser({ userId, guestId }) {
 	if (userId) {
@@ -46,12 +47,7 @@ async function loadCartForCheckout({ userId, guestId }) {
 			quantity: cartTable.quantity,
 			product_price: productsTable.total_cost,
 			diamond_price: diamondsTable.price,
-			ring_style_price: sql`
-				${ringStylesTable.head_style_price} +
-				${ringStylesTable.shank_style_price} +
-				${ringStylesTable.head_metal_price} +
-				${ringStylesTable.shank_metal_price}
-			`.as('ring_style_price'),
+			ring_style_price: ringStyleTotalPriceSQL(ringStylesTable).as('ring_style_price'),
 		})
 		.from(cartTable)
 		.leftJoin(productsTable, eq(cartTable.product_id, productsTable.product_id))

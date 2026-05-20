@@ -2,19 +2,17 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchStyles } from '../../redux/userProductsSlice'
 import AddStyle from './AddStyle'
-import { useUser } from '@clerk/clerk-react'
+import { calculateRingTotal } from '../../utils/helpers'
 
 const StylesList = () => {
 	const dispatch = useDispatch()
 	const { styles } = useSelector((state) => state.userProducts)
 	const [selectedProduct, setSelectedProduct] = useState(null)
 	const [showForm, setShowForm] = useState(false)
-	const { user } = useUser()
-	const dbId = user?.publicMetadata?.dbId
 
 	useEffect(() => {
 		if (styles?.length === 0) {
-			dispatch(fetchStyles(dbId))
+			dispatch(fetchStyles())
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
@@ -43,10 +41,10 @@ const StylesList = () => {
 				</thead>
 				<tbody>
 					{styles?.map((product) => (
-						<tr key={product.product_id} className="border">
+						<tr key={product.ring_style_id} className="border">
 							<td className="border px-4 py-2">{product.name}</td>
 							<td className="border px-4 py-2">{product.category}</td>
-							<td className="border px-4 py-2">{product.total_cost}</td>
+							<td className="border px-4 py-2">{calculateRingTotal(product)}</td>
 							<td className="border px-4 py-2">
 								<button
 									onClick={() => handleEditClick(product)}

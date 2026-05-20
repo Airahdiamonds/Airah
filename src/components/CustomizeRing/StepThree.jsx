@@ -4,14 +4,15 @@ import {
 	updateTotalCost,
 } from '../../redux/ringCustomizationSlice'
 import { useEffect, useState } from 'react'
-import { addToCart, fetchUserCartItems } from '../../redux/favoritesCartSlice'
+import { addToCart } from '../../redux/favoritesCartSlice'
 import { useNavigate } from 'react-router-dom'
+import PriceDisplay from '../PriceDisplay'
 
 const StepThree = () => {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { productDetails } = useSelector((state) => state.ringCustomization)
-	const { currentUser } = useSelector((state) => state.localization)
+	const { currentUser, guestUser } = useSelector((state) => state.localization)
 
 	useEffect(() => {
 		dispatch(
@@ -30,6 +31,7 @@ const StepThree = () => {
 		await dispatch(
 			addToCart({
 				userId: currentUser,
+				guestId: currentUser ? null : guestUser,
 				productId: null,
 				diamondId: productDetails[0].diamond?.product_id,
 				ringStyleId: productDetails[0].ring?.product_id,
@@ -38,7 +40,6 @@ const StepThree = () => {
 			})
 		)
 		await dispatch(resetCustomization())
-		await dispatch(fetchUserCartItems(currentUser))
 		navigate('/cart')
 	}
 
@@ -67,9 +68,12 @@ const StepThree = () => {
 				<p className="text-sm text-gray-500">(Completed)</p>
 				<p className="text-lg">1.16 Total Carat Weight</p>
 				<div className="text-2xl font-light text-green-900">
-					$
-					{productDetails[0].ring?.ring_price +
-						productDetails[0].diamond?.diamond_price}
+					<PriceDisplay
+						value={
+							Number(productDetails[0].ring?.ring_price ?? 0) +
+							Number(productDetails[0].diamond?.diamond_price ?? 0)
+						}
+					/>
 					<p className="text-sm text-gray-500">(Sub Total)</p>
 				</div>
 

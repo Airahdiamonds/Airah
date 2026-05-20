@@ -1,58 +1,28 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setShowRing, updateRingDetails } from '../redux/ringCustomizationSlice'
-import { convertPrice } from '../utils/helpers'
+import { calculateRingTotal } from '../utils/helpers'
 import { fetchStyles } from '../redux/userProductsSlice'
 import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import {
 	addToFavorites,
 	addToFavoritesLocal,
-	clearLocalFavorites,
-	fetchUserFavorites,
 	removeFromFavorites,
 	removeFromFavoritesLocal,
 } from '../redux/favoritesCartSlice'
 import ImageCarousel from './ImageCarousel'
+import PriceDisplay from './PriceDisplay'
+import useFavoritesSync from '../hooks/useFavoritesSync'
 
 function RingGrid() {
 	const dispatch = useDispatch()
 	const { styles } = useSelector((state) => state.userProducts)
 	const { favorites } = useSelector((state) => state.favoritesCart)
-	const {
-		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
-		currentUser,
-	} = useSelector((state) => state.localization)
+	const { currentUser } = useFavoritesSync()
 
 	useEffect(() => {
-		if (!currentUser) {
-			const guestFavorites = JSON.parse(localStorage.getItem('favorites')) || []
-			guestFavorites.forEach((fav) => {
-				dispatch(addToFavoritesLocal(fav))
-			})
-		} else if (currentUser) {
-			const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
-			localFavorites.forEach((fav) => {
-				dispatch(
-					addToFavorites({
-						currentUser,
-						product_id: fav.product_id,
-						diamond_id: fav.diamond_id,
-						ring_style_id: fav.ring_style_id,
-					})
-				)
-			})
-			dispatch(clearLocalFavorites())
-			dispatch(fetchUserFavorites(currentUser))
-		}
-		dispatch(fetchStyles(currentUser))
-	}, [currentUser, dispatch])
+		dispatch(fetchStyles())
+	}, [dispatch])
 
 	const isProductFavorited = (ring_style_id) => {
 		return favorites.some((fav) => fav.ring_style_id === ring_style_id)
@@ -70,13 +40,11 @@ function RingGrid() {
 				dispatch(
 					removeFromFavorites({ userId: currentUser, ring_style_id })
 				).then(() => {
-					dispatch(fetchStyles(currentUser))
-					dispatch(fetchUserFavorites(currentUser))
+					dispatch(fetchStyles())
 				})
 			} else {
 				dispatch(addToFavorites({ currentUser, ring_style_id })).then(() => {
-					dispatch(fetchStyles(currentUser))
-					dispatch(fetchUserFavorites(currentUser))
+					dispatch(fetchStyles())
 				})
 			}
 		} else {
@@ -118,20 +86,7 @@ function RingGrid() {
 										{product.name}
 									</h2>
 									<p className="text-[#be9080] text-lg mb-4 font-light">
-										{currency}
-										{convertPrice(
-											Number(product.head_style_price) +
-												Number(product.head_metal_price) +
-												Number(product.shank_style_price) +
-												Number(product.shank_metal_price),
-											country,
-											USD_rate,
-											GBP_rate,
-											AUD_rate,
-											OMR_rate,
-											AED_rate,
-											EUR_rate
-										).toFixed(2)}
+										<PriceDisplay value={calculateRingTotal(product)} />
 									</p>
 								</div>
 							</button>

@@ -7,22 +7,11 @@ import {
 } from '../redux/ringCustomizationSlice'
 import { useEffect, useState } from 'react'
 import { getDiamond } from '../utils/api'
-import { convertPrice } from '../utils/helpers'
+import PriceDisplay from './PriceDisplay'
 
 function Diamond() {
 	const dispatch = useDispatch()
 	const { productDetails } = useSelector((state) => state.ringCustomization)
-	const {
-		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
-	} = useSelector((state) => state.localization)
-
 	const [product, setProduct] = useState(null)
 	const [activeTab, setActiveTab] = useState('earring')
 
@@ -69,17 +58,7 @@ function Diamond() {
 					<h2 className="text-4xl special">{product?.name}</h2>
 					<p className="text-lg">{product?.size} Total Carat Weight</p>
 					<div className="text-2xl font-light text-green-900">
-						{currency}
-						{convertPrice(
-							Number(product?.price),
-							country,
-							USD_rate,
-							GBP_rate,
-							AUD_rate,
-							OMR_rate,
-							AED_rate,
-							EUR_rate
-						).toFixed(2)}
+						<PriceDisplay value={product?.price} />
 						<p className="text-sm text-gray-500">(Setting Price)</p>
 					</div>
 

@@ -12,55 +12,53 @@ import {
 } from '../drizzle/features/styles.js'
 import { searchProducts } from '../drizzle/features/master.js'
 import { addReview, getProductReviews } from '../drizzle/features/reviews.js'
+import { optionalSession } from '../middleware/auth.js'
+import { validate } from '../middleware/validate.js'
+import { asyncHandler } from '../middleware/asyncHandler.js'
+import { reviewSchema, searchQuerySchema } from '../schemas.js'
 
 const router = express.Router()
 
-router.get('/api/getProduct/:product_id', async (req, res) => {
-	try {
+router.get(
+	'/api/getProduct/:product_id',
+	asyncHandler(async (req, res) => {
 		const data = await getProduct(req.params.product_id)
 		res.json(data)
-	} catch (err) {
-		console.error('getProduct Error:', err)
-		res.status(500).json({ error: 'Failed to get product' })
-	}
-})
+	})
+)
 
-router.get('/api/getDiamond/:product_id', async (req, res) => {
-	try {
+router.get(
+	'/api/getDiamond/:product_id',
+	asyncHandler(async (req, res) => {
 		const data = await getDiamond(req.params.product_id)
 		res.json(data)
-	} catch (err) {
-		console.error('getDiamond Error:', err)
-		res.status(500).json({ error: 'Failed to get diamond' })
-	}
-})
+	})
+)
 
-router.get('/api/getStyle/:product_id', async (req, res) => {
-	try {
+router.get(
+	'/api/getStyle/:product_id',
+	asyncHandler(async (req, res) => {
 		const data = await getStyle(req.params.product_id)
 		res.json(data)
-	} catch (err) {
-		console.error('getStyle Error:', err)
-		res.status(500).json({ error: 'Failed to get style' })
-	}
-})
+	})
+)
 
-router.get('/api/getCustomStyle', async (req, res) => {
-	try {
+router.get(
+	'/api/getCustomStyle',
+	asyncHandler(async (req, res) => {
 		const { head_style, head_metal, shank_style, shank_metal } = req.query
 		const data = await getCustomStyle({ head_style, head_metal, shank_style, shank_metal })
 		res.json(data)
-	} catch (err) {
-		console.error('getCustomStyle Error:', err)
-		res.status(500).json({ error: 'Failed to get style' })
-	}
-})
+	})
+)
 
-router.get('/api/getAllFilteredDiamonds', async (req, res) => {
-	const { clerk_user_id, sizes, clarities, colors, shapes, cuts, minPrice, maxPrice } = req.query
-	try {
+router.get(
+	'/api/getAllFilteredDiamonds',
+	optionalSession,
+	asyncHandler(async (req, res) => {
+		const { sizes, clarities, colors, shapes, cuts, minPrice, maxPrice } = req.query
 		const data = await getFilteredDiamonds({
-			clerk_user_id,
+			userId: req.user?.user_id ?? null,
 			sizes: sizes ? sizes.split(',') : [],
 			clarities: clarities ? clarities.split(',') : [],
 			shapes: shapes ? shapes.split(',') : [],
@@ -70,74 +68,52 @@ router.get('/api/getAllFilteredDiamonds', async (req, res) => {
 			maxPrice: maxPrice ? Number(maxPrice) : undefined,
 		})
 		res.json(data)
-	} catch (err) {
-		res.status(500).json({ error: err.message })
-	}
-})
+	})
+)
 
-router.get('/api/admin/getAllProducts', async (req, res) => {
-	try {
-		let { clerk_user_id, subCategory } = req.query
-		if (!clerk_user_id || clerk_user_id === 'null' || clerk_user_id === 'undefined') {
-			clerk_user_id = null
-		}
-		const data = await getAllProducts(clerk_user_id, subCategory)
+router.get(
+	'/api/admin/getAllProducts',
+	optionalSession,
+	asyncHandler(async (req, res) => {
+		const { subCategory } = req.query
+		const data = await getAllProducts(req.user?.user_id ?? null, subCategory)
 		res.json(data)
-	} catch (err) {
-		console.error('getAllProducts Error:', err)
-		res.status(500).json({ error: 'Failed to get all products' })
-	}
-})
+	})
+)
 
-router.get('/api/admin/getAllDiamonds/:clerk_user_id?', async (req, res) => {
-	try {
-		let { clerk_user_id } = req.params
-		if (!clerk_user_id || clerk_user_id === 'null' || clerk_user_id === 'undefined') {
-			clerk_user_id = null
-		}
-		const data = await getAllDiamonds(clerk_user_id)
+router.get(
+	'/api/admin/getAllDiamonds/:ignoredUserId?',
+	optionalSession,
+	asyncHandler(async (req, res) => {
+		const data = await getAllDiamonds(req.user?.user_id ?? null)
 		res.json(data)
-	} catch (err) {
-		console.error('getAllDiamonds Error:', err)
-		res.status(500).json({ error: 'Failed to get all diamonds' })
-	}
-})
+	})
+)
 
-router.get('/api/admin/getAllStyles/:clerk_user_id?', async (req, res) => {
-	try {
-		let { clerk_user_id } = req.params
-		if (!clerk_user_id || clerk_user_id === 'null' || clerk_user_id === 'undefined') {
-			clerk_user_id = null
-		}
-		const data = await getAllStyles(clerk_user_id)
+router.get(
+	'/api/admin/getAllStyles/:ignoredUserId?',
+	optionalSession,
+	asyncHandler(async (req, res) => {
+		const data = await getAllStyles(req.user?.user_id ?? null)
 		res.json(data)
-	} catch (err) {
-		console.error('getAllStyles Error:', err)
-		res.status(500).json({ error: 'Failed to get all styles' })
-	}
-})
+	})
+)
 
-router.get('/api/search', async (req, res) => {
-	try {
-		const { search } = req.query
-		if (!search) {
-			return res.status(400).json({ error: 'Search query is required' })
-		}
-		const data = await searchProducts(search)
+router.get(
+	'/api/search',
+	validate(searchQuerySchema, 'query'),
+	asyncHandler(async (req, res) => {
+		const data = await searchProducts(req.query.query)
 		res.json(data)
-	} catch (err) {
-		console.error('searchProducts Error:', err)
-		res.status(500).json({ error: 'Failed to get results' })
-	}
-})
+	})
+)
 
-router.get('/api/reviews', async (req, res) => {
-	try {
-		const { product_id, page, limit, sortBy, sortOrder, rating, hasImage, fromDate, toDate } =
-			req.query
-		if (!product_id) {
-			return res.status(400).json({ error: 'product_id is required' })
-		}
+router.get(
+	'/api/reviews',
+	asyncHandler(async (req, res) => {
+		const { product_id, page, limit, sortBy, sortOrder, rating, hasImage, fromDate, toDate } = req.query
+		if (!product_id) return res.status(400).json({ error: 'product_id is required' })
+
 		const data = await getProductReviews({
 			product_id,
 			page,
@@ -150,20 +126,16 @@ router.get('/api/reviews', async (req, res) => {
 			toDate,
 		})
 		res.json(data)
-	} catch (err) {
-		console.error('getProductReviews Error:', err)
-		res.status(500).json({ error: 'Internal Server Error' })
-	}
-})
+	})
+)
 
-router.post('/api/submitReview', async (req, res) => {
-	try {
+router.post(
+	'/api/submitReview',
+	validate(reviewSchema),
+	asyncHandler(async (req, res) => {
 		await addReview(req.body)
 		res.json({ success: true })
-	} catch (err) {
-		console.error('submitReview Error:', err)
-		res.status(500).json({ error: 'Failed to submit review' })
-	}
-})
+	})
+)
 
 export default router

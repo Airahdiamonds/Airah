@@ -22,20 +22,24 @@ const ReviewsList = ({ product_id }) => {
 
 	useEffect(() => {
 		const getReviews = async () => {
-			const data = await fetchReviews({
-				product_id,
-				page,
-				limit,
-				sortBy,
-				sortOrder,
-				rating,
-				hasImage,
-				fromDate: null,
-				toDate: null,
-			})
-			if (data) {
-				setReviews(data.reviews || [])
-				setTotalPages(data.totalPages)
+			try {
+				const data = await fetchReviews({
+					product_id,
+					page,
+					limit,
+					sortBy,
+					sortOrder,
+					rating,
+					hasImage,
+					fromDate: null,
+					toDate: null,
+				})
+				if (data) {
+					setReviews(data.reviews || [])
+					setTotalPages(data.totalPages)
+				}
+			} catch (err) {
+				// Interceptor surfaces the error to the user; leave state empty.
 			}
 		}
 		getReviews()
@@ -52,7 +56,12 @@ const ReviewsList = ({ product_id }) => {
 			image_URL: newImageUrls.filter((url) => url.trim() !== ''),
 		}
 
-		const response = await submitReviews(newReview)
+		let response
+		try {
+			response = await submitReviews(newReview)
+		} catch (err) {
+			return
+		}
 		if (response.success) {
 			setReviews([response.review, ...reviews]) // Add new review to the list
 			setNewRating(5)

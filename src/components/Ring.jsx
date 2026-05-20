@@ -7,24 +7,14 @@ import {
 } from '../redux/ringCustomizationSlice'
 import { useEffect, useState } from 'react'
 import { getCustomStyle } from '../utils/api'
-import { convertPrice, headStyles, metals, shankStyles } from '../utils/helpers'
+import { calculateRingTotal, headStyles, metals, shankStyles } from '../utils/helpers'
 import { useLocation } from 'react-router-dom'
+import PriceDisplay from './PriceDisplay'
 
 function Ring() {
 	const dispatch = useDispatch()
 	const { state } = useLocation()
 	const { productDetails } = useSelector((state) => state.ringCustomization)
-	const {
-		currency,
-		country,
-		USD_rate,
-		GBP_rate,
-		AUD_rate,
-		OMR_rate,
-		AED_rate,
-		EUR_rate,
-	} = useSelector((state) => state.localization)
-
 	const [product, setProduct] = useState(null)
 	const [showFilters, setShowFilters] = useState(false)
 	const [activeTab, setActiveTab] = useState('earring')
@@ -56,11 +46,7 @@ function Ring() {
 	const handleClick = () => {
 		dispatch(
 			updateRingDetails({
-				ring_price:
-					+product.head_style_price +
-					+product.head_metal_price +
-					+product.shank_style_price +
-					+product.shank_metal_price,
+				ring_price: calculateRingTotal(product),
 			})
 		)
 		dispatch(setImageURLs(product?.image_URL))
@@ -97,20 +83,7 @@ function Ring() {
 				<div className="w-full md:w-2/5 border border-[#bf927f] p-8 space-y-4 flex flex-col max-h-fit md:sticky top-40 self-start">
 					<h2 className="text-4xl special">{product?.name}</h2>
 					<div className="text-2xl font-light text-green-900">
-						{currency}
-						{convertPrice(
-							Number(product?.head_style_price) +
-								Number(product?.head_metal_price) +
-								Number(product?.shank_style_price) +
-								Number(product?.shank_metal_price),
-							country,
-							USD_rate,
-							GBP_rate,
-							AUD_rate,
-							OMR_rate,
-							AED_rate,
-							EUR_rate
-						).toFixed(2)}
+						<PriceDisplay value={calculateRingTotal(product)} />
 						<p className="text-sm text-gray-500">(Setting Price)</p>
 					</div>
 
