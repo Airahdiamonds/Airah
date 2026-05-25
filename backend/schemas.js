@@ -46,6 +46,7 @@ export const addToCartSchema = z
 
 export const addToFavoritesSchema = z
 	.object({
+		guestId: guestIdOrNull,
 		productId: idOrNull,
 		diamondId: idOrNull,
 		ringStyleId: idOrNull,
@@ -60,15 +61,7 @@ export const mergeCartSchema = z.object({
 })
 
 export const mergeFavoritesSchema = z.object({
-	items: z
-		.array(
-			z.object({
-				productId: idOrNull,
-				diamondId: idOrNull,
-				ringStyleId: idOrNull,
-			})
-		)
-		.max(200),
+	guestId: z.string().min(1).max(64),
 })
 
 // ── orders / payments ────────────────────────────────────────────────────────

@@ -8,9 +8,25 @@ module.exports = {
   ],
   theme: {
     fontFamily: {
-      sans: ["Poppins", "sans-serif"],
+      sans: ["Inter", "Poppins", "sans-serif"],
+      serif: ['"Playfair Display"', "Georgia", "serif"],
+      display: ['"Playfair Display"', "Georgia", "serif"],
     },
     extend: {
+      colors: {
+        ivory: "#FAFAF9",
+        onyx: "#1C1917",
+        "onyx-soft": "#44403C",
+        "onyx-mute": "#78716C",
+        champagne: "#A16207",
+        "champagne-light": "#CA8A04",
+        "champagne-soft": "#D4A95E",
+        hairline: "#E7E5E4",
+      },
+      letterSpacing: {
+        luxe: "0.18em",
+        wider2: "0.24em",
+      },
       animation: {
         gradient: "gradientBG 5s linear infinite",
       },

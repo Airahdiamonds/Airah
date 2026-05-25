@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ShoppingCart, Heart, Search, Menu, X, ChevronDown } from 'lucide-react'
+import { ShoppingBag, Heart, Search, Menu, X, ChevronDown, User } from 'lucide-react'
 import LOGO from '../assets/logo.webp'
 import { useDispatch, useSelector } from 'react-redux'
 import {
@@ -29,13 +29,9 @@ import { v4 as uuidv4 } from 'uuid'
 
 const userNavLinks = [
 	{ to: '/customize', label: 'Customize' },
-	// { to: '/product', label: 'Products' },
-	// { to: '/Edu', label: 'Education' },
 ]
 
 const userNavLinks2 = [
-	// { to: '/customize', label: 'Customize' },
-	// { to: '/product', label: 'Products' },
 	{ to: '/Edu', label: 'Education' },
 ]
 
@@ -67,19 +63,14 @@ export default function Header() {
 			if (user) {
 				// If a guest_id is still in localStorage when we discover an
 				// authenticated session (e.g. after Google OAuth redirect),
-				// merge the guest cart/favorites before clearing it.
+				// merge the guest cart + favorites before clearing it.
 				const guestId = localStorage.getItem('guest_id')
 				if (guestId) {
-					const localFavorites =
-						JSON.parse(localStorage.getItem('favorites')) || []
 					await Promise.all([
 						mergeCartAPI(guestId).catch(console.error),
-						localFavorites.length > 0
-							? mergeFavoritesAPI(localFavorites).catch(console.error)
-							: Promise.resolve(),
+						mergeFavoritesAPI(guestId).catch(console.error),
 					])
 					localStorage.removeItem('guest_id')
-					localStorage.removeItem('favorites')
 				}
 				dispatch(setUser(user))
 				dispatch(clearGuest())
@@ -107,8 +98,8 @@ export default function Header() {
 
 	// Fetch user data and currency rates on component mount
 	useEffect(() => {
-		if (currentUser) {
-			dispatch(fetchUserFavorites(currentUser))
+		if (currentUser || guestUser) {
+			dispatch(fetchUserFavorites({ userId: currentUser, guestId: guestUser }))
 		}
 		dispatch(fetchUserCartItems({ userId: currentUser, guestId: guestUser }))
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -157,15 +148,11 @@ export default function Header() {
 			// Merge any guest cart/favorites before switching identity
 			const guestId = localStorage.getItem('guest_id')
 			if (guestId) {
-				const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
 				await Promise.all([
 					mergeCartAPI(guestId).catch(console.error),
-					localFavorites.length > 0
-						? mergeFavoritesAPI(localFavorites).catch(console.error)
-						: Promise.resolve(),
+					mergeFavoritesAPI(guestId).catch(console.error),
 				])
 				localStorage.removeItem('guest_id')
-				localStorage.removeItem('favorites')
 			}
 			dispatch(setUser(user))
 			dispatch(clearGuest())
@@ -213,15 +200,11 @@ export default function Header() {
 				// Merge any guest cart/favorites before switching identity
 				const guestId = localStorage.getItem('guest_id')
 				if (guestId) {
-					const localFavorites = JSON.parse(localStorage.getItem('favorites')) || []
 					await Promise.all([
 						mergeCartAPI(guestId).catch(console.error),
-						localFavorites.length > 0
-							? mergeFavoritesAPI(localFavorites).catch(console.error)
-							: Promise.resolve(),
+						mergeFavoritesAPI(guestId).catch(console.error),
 					])
 					localStorage.removeItem('guest_id')
-					localStorage.removeItem('favorites')
 				}
 				dispatch(setUser(user))
 				dispatch(clearGuest())
@@ -241,80 +224,279 @@ export default function Header() {
 		window.location.href = googleAuthUrl
 	}
 
-	// Render navigation links dynamically
+	// Elegant inline nav link with gold underline reveal
 	const renderNavLinks = (links) => {
 		return links.map((link, index) => (
 			<Link
 				key={index}
 				to={link.to}
-				className="relative px-3 py-2 text-gray-700 hover:text-gray-900 font-medium after:absolute after:left-0 after:bottom-0 after:h-[1px] after:bg-black after:w-0 after:transition-all after:duration-300 after:ease-in-out hover:after:w-full"
+				className="group relative px-3 py-1.5 text-xs font-sans font-medium uppercase tracking-[0.11em] text-onyx-soft transition-colors duration-300 hover:text-onyx"
 			>
 				{link.label}
+				<span className="pointer-events-none absolute inset-x-3 -bottom-[1px] h-px origin-center scale-x-0 bg-champagne transition-transform duration-500 ease-out group-hover:scale-x-100" />
 			</Link>
 		))
 	}
 
 	return (
-		<header className="bg-white w-full py-2 px-4 sticky top-0 z-50 border-b shadow-sm">
-			<div className="max-w-7xl mx-auto">
-				<div className="flex items-center justify-between">
-					{/* Logo */}
-					<div className="flex items-center">
-						<Link to="/" className="flex items-center">
-							<img
-								src={LOGO || '/placeholder.svg'}
-								alt="Brand Logo"
-								className="h-16 w-auto"
+		<header className="sticky top-0 z-50 w-full bg-ivory/95 font-sans shadow-[0_10px_40px_-34px_rgba(28,25,23,0.65)]">
+			{/* Tier 1 — utility strip */}
+			<div className="hidden border-b border-onyx/90 bg-onyx text-ivory min-[960px]:block">
+				<div className="mx-auto flex min-h-7 max-w-7xl items-center justify-between gap-5 px-6 py-1 text-[11px] uppercase leading-none tracking-[0.13em]">
+					<p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-ivory/75">
+						Complimentary Shipping Worldwide
+						<span className="text-champagne-soft">·</span>
+						Lifetime Warranty
+						<span className="text-champagne-soft">·</span>
+						Bespoke Consultations
+					</p>
+					<div className="flex shrink-0 items-center gap-5">
+						<div className="relative">
+							<select
+								value={country}
+								onChange={handleCountryChange}
+								className="cursor-pointer appearance-none bg-transparent pr-4 text-[11px] uppercase tracking-[0.13em] text-ivory/85 outline-none transition-colors hover:text-ivory focus-visible:text-ivory"
+								aria-label="Currency"
+							>
+								<option value="INR" className="text-onyx">INR ₹</option>
+								<option value="USD" className="text-onyx">USD $</option>
+								<option value="GBP" className="text-onyx">GBP £</option>
+								<option value="EUR" className="text-onyx">EUR €</option>
+								<option value="AUD" className="text-onyx">AUD $</option>
+								<option value="OMR" className="text-onyx">OMR ﷼</option>
+								<option value="AED" className="text-onyx">AED د.إ</option>
+							</select>
+							<ChevronDown
+								className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-ivory/60"
+								size={10}
 							/>
-						</Link>
+						</div>
+						{currentUser ? (
+							<button
+								onClick={handleLogout}
+								className="text-ivory/70 transition-colors hover:text-champagne-soft"
+							>
+								Sign out
+							</button>
+						) : (
+							<button
+								onClick={() => {
+									setAuthMode('login')
+									setIsModalOpen(true)
+								}}
+								className="text-ivory/70 transition-colors hover:text-champagne-soft"
+							>
+								Sign in
+							</button>
+						)}
+					</div>
+				</div>
+			</div>
+
+			{/* Tier 2 — main bar */}
+			<div className="border-b border-hairline">
+				<div className="relative mx-auto grid h-16 max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-2 px-4 sm:h-[72px] sm:grid-cols-[1fr_auto_1fr] md:gap-4 md:px-6 min-[960px]:h-14">
+					{/* Left cluster: mobile menu + search */}
+					<div className="flex items-center gap-1 md:gap-3">
+						<button
+							onClick={handleMobileMenuToggle}
+							className="-ml-2 inline-flex h-11 w-11 items-center justify-center rounded-full text-onyx transition-colors hover:bg-onyx/5 min-[960px]:hidden"
+							aria-label="Open menu"
+						>
+							<Menu className="h-5 w-5 sm:h-[22px] sm:w-[22px]" />
+						</button>
+						<div className="hidden items-center gap-3 sm:flex">
+							<div className="relative">
+								<Search
+									size={16}
+									className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-onyx-mute"
+								/>
+								<input
+									type="text"
+									placeholder="Search"
+									value={query}
+									onChange={(e) => setQuery(e.target.value)}
+									onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+									className="w-32 border-b border-hairline bg-transparent py-2 pl-7 pr-2 text-[13px] font-sans tracking-[0.08em] text-onyx placeholder:uppercase placeholder:text-onyx-mute/70 outline-none transition-colors focus:border-champagne md:w-44 xl:w-56"
+								/>
+							</div>
+						</div>
 					</div>
 
-					{/* Desktop Navigation */}
-					<nav className="hidden lg:flex items-center justify-center space-x-4">
+					{/* Center: logotype */}
+					<Link
+						to="/"
+						className="group absolute left-1/2 flex -translate-x-1/2 sm:static sm:translate-x-0 sm:justify-self-center"
+						aria-label="Airah Diamonds — home"
+					>
+						<img
+							src={LOGO || '/placeholder.svg'}
+							alt="Airah Diamonds"
+							className="h-10 w-auto transition-opacity duration-300 group-hover:opacity-80 sm:h-12 min-[960px]:h-11"
+						/>
+					</Link>
+
+					{/* Right cluster: account, favorites, cart */}
+					<div className="flex items-center justify-end gap-0 sm:gap-1.5 md:gap-2">
+						{/* Account (signed in only — sign-in lives in utility strip) */}
+						{currentUser !== null ? (
+							<div className="group relative hidden md:block">
+								<button className="flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-onyx-soft transition-colors hover:text-onyx">
+									<img
+										src={currentUser?.avatar || '/default-avatar.png'}
+										alt=""
+										className="h-7 w-7 rounded-full border border-hairline object-cover"
+									/>
+									<span className="max-w-[8rem] truncate">
+										{currentUser?.name || 'Account'}
+									</span>
+								</button>
+								<div className="absolute right-0 top-full z-20 hidden w-56 pt-2 group-hover:block">
+									<div className="overflow-hidden rounded-sm border border-hairline bg-ivory shadow-[0_24px_60px_-20px_rgba(28,25,23,0.25)]">
+										<div className="border-b border-hairline px-5 py-4">
+											<p className="font-serif text-base text-onyx">
+												{currentUser?.name || 'Account'}
+											</p>
+											<p className="mt-0.5 text-xs uppercase tracking-[0.12em] text-onyx-mute">
+												Member
+											</p>
+										</div>
+										<ul className="py-1.5">
+											<li>
+												<button className="w-full px-5 py-3 text-left text-[13px] uppercase tracking-[0.12em] text-onyx-soft transition-colors hover:bg-onyx/[0.04] hover:text-onyx">
+													Profile
+												</button>
+											</li>
+											<li>
+												<button
+													onClick={handleLogout}
+													className="w-full px-5 py-3 text-left text-[13px] uppercase tracking-[0.12em] text-onyx-mute transition-colors hover:bg-onyx/[0.04] hover:text-champagne"
+												>
+													Sign out
+												</button>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						) : (
+							<button
+								onClick={() => {
+									setAuthMode('login')
+									setIsModalOpen(true)
+								}}
+								className="hidden h-11 w-11 items-center justify-center rounded-full text-onyx transition-colors hover:bg-onyx/5 md:inline-flex"
+								aria-label="Sign in"
+							>
+								<User size={18} strokeWidth={1.5} />
+							</button>
+						)}
+
+						<Link
+							to="/favorites"
+							className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-onyx transition-colors hover:bg-onyx/5 sm:h-11 sm:w-11"
+							aria-label={`Favorites${favorites?.length ? `, ${favorites.length} items` : ''}`}
+						>
+							<Heart size={17} strokeWidth={1.5} />
+							{favorites && favorites.length > 0 && (
+								<span className="absolute right-1 top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-champagne px-1 text-[10px] font-medium text-ivory">
+									{favorites.length}
+								</span>
+							)}
+						</Link>
+
+						<Link
+							to="/cart"
+							className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-onyx transition-colors hover:bg-onyx/5 sm:h-11 sm:w-11"
+							aria-label={`Cart${cartItems?.length ? `, ${cartItems.length} items` : ''}`}
+						>
+							<ShoppingBag size={17} strokeWidth={1.5} />
+							{cartItems && cartItems.length > 0 && (
+								<span className="absolute right-1 top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-champagne px-1 text-[10px] font-medium text-ivory">
+									{cartItems.length}
+								</span>
+							)}
+						</Link>
+					</div>
+				</div>
+
+				<div className="border-t border-hairline px-4 py-3 sm:hidden">
+					<div className="relative mx-auto max-w-7xl">
+						<Search
+							size={16}
+							className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-onyx-mute"
+						/>
+						<input
+							type="text"
+							placeholder="Search"
+							value={query}
+							onChange={(e) => setQuery(e.target.value)}
+							onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+							className="w-full border-b border-hairline bg-transparent py-2.5 pl-7 pr-2 text-sm tracking-[0.08em] text-onyx placeholder:uppercase placeholder:text-onyx-mute/70 outline-none transition-colors focus:border-champagne"
+						/>
+					</div>
+				</div>
+
+				{/* Tier 3 — centered nav (desktop) */}
+				<nav className="hidden border-t border-hairline min-[960px]:block">
+					<div className="mx-auto flex max-w-7xl items-center justify-center gap-3 px-5 py-0.5 xl:gap-5 xl:px-6 2xl:gap-8">
 						{renderNavLinks(userNavLinks)}
 						{Array.isArray(menuItems) && menuItems.length > 0
 							? menuItems.map((item, index) => (
 									<div
 										key={index}
-										className="center_2"
+										className="group/menu relative"
 										onMouseEnter={() => setActiveDropdown(index)}
 										onMouseLeave={() => setActiveDropdown(null)}
 									>
-										{/* Menu Item with Underline Animation */}
-										<span className="relative  ">{item.name}</span>
+										<span className="relative inline-flex cursor-default items-center gap-1.5 px-3 py-1.5 text-xs font-medium uppercase tracking-[0.11em] text-onyx-soft transition-colors duration-300 hover:text-onyx">
+											{item.name}
+											<ChevronDown
+												size={10}
+												strokeWidth={1.5}
+												className="transition-transform duration-300 group-hover/menu:rotate-180"
+											/>
+											<span className="pointer-events-none absolute inset-x-3 -bottom-[1px] h-px origin-center scale-x-0 bg-champagne transition-transform duration-500 ease-out group-hover/menu:scale-x-100" />
+										</span>
 
-										{/* Dropdown Menu */}
 										{activeDropdown === index && item.submenu && (
-											<div className="center_3">
-												<div className="center_4">
-													{/* Submenu Items */}
-													{item.submenu.map((category, catIndex) => (
-														<div key={catIndex} className="center_5">
-															<h3 className="text-gray-900 font-semibold mb-2">
-																{category.heading}
-															</h3>
-															<ul className="space-y-1">
-																{category.items.map((subitem, subIndex) => (
-																	<li
-																		key={subIndex}
-																		className="text-gray-700 hover:text-gray-900 cursor-pointer"
-																	>
-																		<Link to={subitem.link}>
-																			{subitem.name}
-																		</Link>
-																	</li>
-																))}
-															</ul>
+											<div className="absolute left-1/2 top-full z-40 w-[min(74rem,calc(100vw-2rem))] -translate-x-1/2 pt-3">
+												<div className="overflow-hidden rounded-sm border border-hairline bg-ivory shadow-[0_30px_80px_-30px_rgba(28,25,23,0.35)]">
+													<div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-x-8 gap-y-8 p-8 2xl:p-10">
+														{item.submenu.map((category, catIndex) => (
+															<div key={catIndex}>
+																<h3 className="mb-4 border-b border-hairline pb-2 font-serif text-[15px] leading-snug text-onyx">
+																	{category.heading}
+																</h3>
+																<ul className="space-y-3">
+																	{category.items.map((subitem, subIndex) => (
+																		<li key={subIndex}>
+																			<Link
+																				to={subitem.link}
+																				className="group/sub relative inline-block text-sm leading-snug text-onyx-soft transition-colors duration-200 hover:text-champagne"
+																			>
+																				{subitem.name}
+																			</Link>
+																		</li>
+																	))}
+																</ul>
+															</div>
+														))}
+														<div className="relative hidden min-h-56 overflow-hidden rounded-sm bg-onyx/[0.03] 2xl:flex">
+															<img
+																src={LOGO}
+																alt=""
+																className="m-auto h-24 w-auto opacity-60"
+															/>
+															<div className="absolute inset-x-0 bottom-0 p-5 text-center">
+																<p className="font-serif text-[15px] italic text-onyx">
+																	Bespoke creations
+																</p>
+																<p className="mt-1 text-xs uppercase tracking-[0.12em] text-onyx-mute">
+																	Crafted to your story
+																</p>
+															</div>
 														</div>
-													))}
-
-													{/* Image */}
-													<div className="hidden md:flex justify-center items-center">
-														<img
-															src={LOGO}
-															alt="Category Preview"
-															className="w-full h-36 rounded-lg"
-														/>
 													</div>
 												</div>
 											</div>
@@ -323,472 +505,333 @@ export default function Header() {
 							  ))
 							: null}
 						{renderNavLinks(userNavLinks2)}
-					</nav>
+					</div>
+				</nav>
+			</div>
 
-					{/* Right Controls */}
-					<div className="flex items-center space-x-2 md:space-x-4">
-						{/* Search Bar - Desktop */}
-						<div className="hidden md:flex items-center relative">
-							<input
-								type="text"
-								placeholder="Search"
-								value={query}
-								onChange={(e) => setQuery(e.target.value)}
-								className="w-32 lg:w-48 h-9 rounded-full pr-8 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 px-4 text-sm"
-								onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-							/>
+			{/* Auth modal */}
+			{isModalOpen && (
+				<div className="fixed inset-0 z-[60] flex items-center justify-center bg-onyx/60 backdrop-blur-sm">
+					<div
+						className="absolute inset-0"
+						onClick={() => setIsModalOpen(false)}
+						aria-hidden="true"
+					/>
+					<div className="relative w-full max-w-md overflow-hidden border border-hairline bg-ivory p-10 shadow-[0_40px_100px_-30px_rgba(28,25,23,0.5)]">
+						<button
+							onClick={() => setIsModalOpen(false)}
+							className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full text-onyx-mute transition-colors hover:bg-onyx/5 hover:text-onyx"
+							aria-label="Close"
+						>
+							<X size={16} />
+						</button>
+
+						<p className="text-center text-xs uppercase tracking-[0.16em] text-champagne sm:text-[13px]">
+							Airah Diamonds
+						</p>
+						<h2 className="mt-3 text-center font-serif text-3xl font-normal text-onyx">
+							{authMode === 'login' ? 'Welcome back' : 'Create your account'}
+						</h2>
+						<div className="mx-auto mt-4 h-px w-10 bg-champagne" />
+
+						<div className="mt-6 flex justify-center gap-6 text-xs uppercase tracking-[0.12em] sm:text-[13px]">
 							<button
-								onClick={handleSearch}
-								className="absolute right-2 text-gray-500 hover:text-gray-700 p-1"
+								type="button"
+								onClick={() => setAuthMode('login')}
+								className={`relative pb-2 transition-colors ${
+									authMode === 'login' ? 'text-onyx' : 'text-onyx-mute hover:text-onyx'
+								}`}
 							>
-								<Search size={18} />
+								Sign in
+								{authMode === 'login' && (
+									<span className="absolute inset-x-0 -bottom-px h-px bg-champagne" />
+								)}
+							</button>
+							<button
+								type="button"
+								onClick={() => setAuthMode('signup')}
+								className={`relative pb-2 transition-colors ${
+									authMode === 'signup' ? 'text-onyx' : 'text-onyx-mute hover:text-onyx'
+								}`}
+							>
+								Register
+								{authMode === 'signup' && (
+									<span className="absolute inset-x-0 -bottom-px h-px bg-champagne" />
+								)}
 							</button>
 						</div>
 
-						{/* User Authentication */}
-						<div className="relative font-sans">
-							{currentUser !== null ? (
-								<div className="flex items-center gap-3">
-									<img
-										src={currentUser?.avatar || '/default-avatar.png'}
-										alt="User Avatar"
-										className="w-10 h-10 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700 transition-transform duration-300 hover:scale-105"
-									/>
-									<div className="relative group">
-										<button className="text-base font-semibold text-gray-900 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
-											{currentUser?.name || 'Account'}
-										</button>
-										<div className="absolute right-0 z-20 hidden group-hover:block w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-											<ul className="py-2">
-												<li>
-													<button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors duration-200">
-														Profile
-													</button>
-												</li>
-												<li>
-													<button
-														onClick={handleLogout}
-														className="w-full text-left px-4 py-2 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors duration-200"
-													>
-														Log Out
-													</button>
-												</li>
-											</ul>
-										</div>
-									</div>
-								</div>
-							) : (
-								<>
-									<button
-										onClick={() => setIsModalOpen(true)}
-										className="inline-flex items-center justify-center rounded-full text-sm font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 h-10 px-6 py-2 shadow-md transition-all duration-300 transform hover:scale-105"
-									>
-										Account
-									</button>
+						{authMode === 'login' ? (
+							<form onSubmit={handleLogin} className="mt-8 space-y-5">
+								<LuxInput
+									type="email"
+									name="email"
+									label="Email"
+									value={formData.email}
+									onChange={handleInputChange}
+									required
+								/>
+								<LuxInput
+									type="password"
+									name="password"
+									label="Password"
+									value={formData.password}
+									onChange={handleInputChange}
+									required
+								/>
+								<LuxSubmit>Sign in</LuxSubmit>
+							</form>
+						) : (
+							<form onSubmit={handleSignUp} className="mt-8 space-y-5">
+								<LuxInput
+									type="text"
+									name="name"
+									label="Full name"
+									value={formData.name}
+									onChange={handleInputChange}
+									required
+								/>
+								<LuxInput
+									type="email"
+									name="email"
+									label="Email"
+									value={formData.email}
+									onChange={handleInputChange}
+									required
+								/>
+								<LuxInput
+									type="password"
+									name="password"
+									label="Password"
+									value={formData.password}
+									onChange={handleInputChange}
+									required
+								/>
+								<LuxInput
+									type="password"
+									name="confirmPassword"
+									label="Confirm password"
+									value={formData.confirmPassword}
+									onChange={handleInputChange}
+									required
+								/>
+								<LuxSubmit>Create account</LuxSubmit>
+							</form>
+						)}
 
-									{isModalOpen && (
-										<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-500">
-											<div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-2xl w-full max-w-md transform scale-95 animate-in">
-												<h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">
-													{authMode === 'login'
-														? 'Welcome Back'
-														: 'Create Account'}
-												</h2>
-
-												<div className="flex justify-center mb-6">
-													<div className="inline-flex bg-gray-100 dark:bg-gray-800 rounded-full p-1">
-														<label className="relative cursor-pointer">
-															<input
-																type="radio"
-																name="authMode"
-																value="login"
-																checked={authMode === 'login'}
-																onChange={() => setAuthMode('login')}
-																className="sr-only"
-															/>
-															<span
-																className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-																	authMode === 'login'
-																		? 'bg-blue-600 text-white shadow-md'
-																		: 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-																}`}
-															>
-																Login
-															</span>
-														</label>
-														<label className="relative cursor-pointer">
-															<input
-																type="radio"
-																name="authMode"
-																value="signup"
-																checked={authMode === 'signup'}
-																onChange={() => setAuthMode('signup')}
-																className="sr-only"
-															/>
-															<span
-																className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-																	authMode === 'signup'
-																		? 'bg-blue-600 text-white shadow-md'
-																		: 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-																}`}
-															>
-																Sign Up
-															</span>
-														</label>
-													</div>
-												</div>
-
-												{authMode === 'login' ? (
-													<form onSubmit={handleLogin} className="space-y-5">
-														<div>
-															<input
-																type="email"
-																name="email"
-																placeholder="Email"
-																value={formData.email}
-																onChange={handleInputChange}
-																required
-																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-															/>
-														</div>
-														<div>
-															<input
-																type="password"
-																name="password"
-																placeholder="Password"
-																value={formData.password}
-																onChange={handleInputChange}
-																required
-																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-															/>
-														</div>
-														<button
-															type="submit"
-															className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-md transition-all duration-300 transform hover:scale-105"
-														>
-															Log In
-														</button>
-													</form>
-												) : (
-													<form onSubmit={handleSignUp} className="space-y-5">
-														<div>
-															<input
-																type="text"
-																name="name"
-																placeholder="Full Name"
-																value={formData.name}
-																onChange={handleInputChange}
-																required
-																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-															/>
-														</div>
-														<div>
-															<input
-																type="email"
-																name="email"
-																placeholder="Email"
-																value={formData.email}
-																onChange={handleInputChange}
-																required
-																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-															/>
-														</div>
-														<div>
-															<input
-																type="password"
-																name="password"
-																placeholder="Password"
-																value={formData.password}
-																onChange={handleInputChange}
-																required
-																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-															/>
-														</div>
-														<div>
-															<input
-																type="password"
-																name="confirmPassword"
-																placeholder="Confirm Password"
-																value={formData.confirmPassword}
-																onChange={handleInputChange}
-																required
-																className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-															/>
-														</div>
-														<button
-															type="submit"
-															className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 shadow-md transition-all duration-300 transform hover:scale-105"
-														>
-															Sign Up
-														</button>
-													</form>
-												)}
-												<div className="mt-6 space-y-2">
-													<p className="text-center text-sm text-gray-500 dark:text-gray-400">
-														or continue with
-													</p>
-													<div className="flex justify-center">
-														<button
-															onClick={handleGoogleAuth}
-															className="w-full flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
-														>
-															<FaGoogle />
-															<span>
-																{authMode === 'login'
-																	? 'Sign in with Google'
-																	: 'Sign up with Google'}
-															</span>
-														</button>
-													</div>
-												</div>
-
-												<button
-													onClick={() => setIsModalOpen(false)}
-													className="mt-6 w-full text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
-												>
-													Cancel
-												</button>
-											</div>
-										</div>
-									)}
-								</>
-							)}
+						<div className="my-6 flex items-center gap-4">
+							<span className="h-px flex-1 bg-hairline" />
+							<span className="text-xs uppercase tracking-[0.12em] text-onyx-mute">
+								or continue with
+							</span>
+							<span className="h-px flex-1 bg-hairline" />
 						</div>
 
-						{/* Favorites */}
-						<Link
-							to="/favorites"
-							className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
-						>
-							<Heart size={20} className="text-gray-700" />
-							{favorites && favorites.length > 0 && (
-								<span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-									{favorites.length}
-								</span>
-							)}
-						</Link>
-
-						{/* Cart */}
-						<Link
-							to="/cart"
-							className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
-						>
-							<ShoppingCart size={20} className="text-gray-700" />
-							{cartItems && cartItems.length > 0 && (
-								<span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-									{cartItems.length}
-								</span>
-							)}
-						</Link>
-
-						{/* Country Selector */}
-						<select
-							value={country}
-							onChange={handleCountryChange}
-							className="hidden sm:block py-1 px-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-						>
-							<option value="INR">INR</option>
-							<option value="USD">USD</option>
-							<option value="GBP">GBP</option>
-							<option value="EUR">EUR</option>
-							<option value="AUD">AUD</option>
-							<option value="OMR">OMR</option>
-							<option value="AED">AED</option>
-						</select>
-
-						{/* Mobile Menu Trigger */}
 						<button
-							onClick={handleMobileMenuToggle}
-							className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
-							aria-label="Toggle menu"
+							onClick={handleGoogleAuth}
+							className="flex w-full items-center justify-center gap-3 border border-onyx/15 px-4 py-3.5 text-xs uppercase tracking-[0.12em] text-onyx transition-colors hover:border-onyx hover:bg-onyx hover:text-ivory sm:text-[13px]"
 						>
-							<Menu className="h-5 w-5 text-gray-700" />
+							<FaGoogle />
+							<span>Google</span>
 						</button>
 					</div>
 				</div>
-			</div>
+			)}
 
-			{/* Mobile Sidebar */}
+			{/* Mobile drawer */}
 			{mobileMenuOpen && (
-				<div className="fixed inset-0 z-50 lg:hidden">
-					{/* Backdrop */}
+				<div className="fixed inset-0 z-[55] min-[960px]:hidden">
 					<div
-						className="fixed inset-0 bg-black/25 transition-opacity"
+						className="fixed inset-0 bg-onyx/40 backdrop-blur-sm transition-opacity"
 						onClick={handleMobileMenuToggle}
+						aria-hidden="true"
 					/>
+					<div className="fixed inset-y-0 left-0 flex w-[92%] max-w-[430px] flex-col bg-ivory shadow-2xl">
+						<div className="flex items-center justify-between border-b border-hairline px-6 py-5">
+							<Link to="/" onClick={handleMobileMenuToggle} aria-label="Airah Diamonds — home">
+								<img src={LOGO || '/placeholder.svg'} alt="Airah Diamonds" className="h-10 w-auto" />
+							</Link>
+							<button
+								onClick={handleMobileMenuToggle}
+								className="inline-flex h-10 w-10 items-center justify-center rounded-full text-onyx-soft transition-colors hover:bg-onyx/5 hover:text-onyx"
+								aria-label="Close menu"
+							>
+								<X size={18} />
+							</button>
+						</div>
 
-					{/* Sidebar */}
-					<div className="fixed inset-y-0 left-0 w-[280px] sm:w-[350px] bg-white shadow-lg overflow-y-auto transform transition-transform duration-200">
-						<div className="h-full flex flex-col">
-							{/* Header */}
-							<div className="border-b p-4 flex items-center justify-between">
-								<Link to="/" className="flex items-center">
-									<img
-										src={LOGO || '/placeholder.svg'}
-										alt="Brand Logo"
-										className="h-10 w-auto"
-									/>
-								</Link>
-								<button
-									onClick={handleMobileMenuToggle}
-									className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-									aria-label="Close menu"
-								>
-									<X className="h-5 w-5 text-gray-700" />
-								</button>
+						<div className="border-b border-hairline px-6 py-5">
+							<div className="relative">
+								<Search
+									size={16}
+									className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-onyx-mute"
+								/>
+								<input
+									type="text"
+									placeholder="Search"
+									value={query}
+									onChange={(e) => setQuery(e.target.value)}
+									onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+									className="w-full border-b border-hairline bg-transparent py-2.5 pl-7 text-sm tracking-[0.08em] text-onyx placeholder:uppercase placeholder:text-onyx-mute/70 outline-none focus:border-champagne"
+								/>
 							</div>
+						</div>
 
-							{/* Search */}
-							<div className="p-4 border-b">
-								<div className="relative">
-									<input
-										type="text"
-										placeholder="Search"
-										value={query}
-										onChange={(e) => setQuery(e.target.value)}
-										className="w-full pr-8 py-2 px-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-										onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-									/>
-									<button
-										onClick={handleSearch}
-										className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+						<nav className="flex-1 overflow-y-auto px-4 py-4">
+							<div className="flex flex-col">
+								{userNavLinks.map((link, index) => (
+									<Link
+										key={index}
+										to={link.to}
+										onClick={handleMobileMenuToggle}
+										className="flex items-center justify-between px-3 py-4 text-sm uppercase tracking-[0.11em] text-onyx transition-colors hover:bg-onyx/[0.04]"
 									>
-										<Search size={18} />
-									</button>
-								</div>
-							</div>
+										{link.label}
+									</Link>
+								))}
 
-							{/* User Authentication - Mobile */}
-							<div className="p-4 border-b">
-								<div className="flex items-center space-x-3">
-									<div className="rounded-full bg-gray-200 p-2"></div>
-									<span className="text-sm font-medium">My Account</span>
-								</div>
-							</div>
+								{Array.isArray(menuItems) && menuItems.length > 0
+									? menuItems.map((item, index) => (
+											<div key={index} className="border-t border-hairline first:border-t-0">
+												<button
+													onClick={() =>
+														setActiveDropdown(index === activeDropdown ? null : index)
+													}
+													className="flex w-full items-center justify-between px-3 py-4 text-sm uppercase tracking-[0.11em] text-onyx transition-colors hover:bg-onyx/[0.04]"
+												>
+													<span>{item.name}</span>
+													<ChevronDown
+														className={`h-3.5 w-3.5 text-onyx-mute transition-transform duration-300 ${
+															activeDropdown === index ? 'rotate-180' : ''
+														}`}
+													/>
+												</button>
 
-							{/* Navigation Links */}
-							<div className="flex-1 overflow-auto py-2">
-								<nav className="flex flex-col space-y-1 px-2">
-									{userNavLinks.map((link, index) => (
-										<Link
-											key={index}
-											to={link.to}
-											className="flex items-center w-full py-2 px-3 rounded-md hover:bg-gray-100 text-gray-700 hover:text-gray-900 transition-colors"
-										>
-											{link.label}
-										</Link>
-									))}
-
-									{Array.isArray(menuItems) && menuItems.length > 0
-										? menuItems.map((item, index) => (
-												<div key={index} className="w-full">
-													<button
-														onClick={() =>
-															setActiveDropdown(
-																index === activeDropdown ? null : index
-															)
-														}
-														className="flex items-center justify-between w-full py-2 px-3 rounded-md hover:bg-gray-100 text-gray-700 hover:text-gray-900 transition-colors"
-													>
-														<span>{item.name}</span>
-														<ChevronDown
-															className={`h-4 w-4 transition-transform duration-200 ${
-																activeDropdown === index ? 'rotate-180' : ''
-															}`}
-														/>
-													</button>
-
-													{activeDropdown === index && (
-														<div className="w-full py-2">
-															<div className="flex flex-col md:flex-row">
-																<div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-																	{item.submenu.map((category, catIndex) => (
-																		<div key={catIndex} className="py-1">
-																			<h3 className="font-medium text-sm text-gray-900 px-3 py-1">
-																				{category.heading}
-																			</h3>
-																			<ul className="grid grid-cols-1 gap-1 mt-1">
-																				{category.items.map(
-																					(subitem, subIndex) => (
-																						<li key={subIndex}>
-																							<Link
-																								to={subitem.link || '#'}
-																								className="block py-1 px-3 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-																							>
-																								{subitem.name || subitem}
-																							</Link>
-																						</li>
-																					)
-																				)}
-																			</ul>
-																		</div>
-																	))}
+												{activeDropdown === index && (
+													<div className="bg-onyx/[0.02] px-3 pb-5 pt-3">
+														<div className="space-y-4">
+															{item.submenu.map((category, catIndex) => (
+																<div key={catIndex}>
+																	<h3 className="px-2 pb-2 font-serif text-base leading-snug text-onyx">
+																		{category.heading}
+																	</h3>
+																	<ul>
+																		{category.items.map((subitem, subIndex) => (
+																			<li key={subIndex}>
+																				<Link
+																					to={subitem.link || '#'}
+																					onClick={handleMobileMenuToggle}
+																					className="block px-2 py-2 text-sm leading-snug text-onyx-soft transition-colors hover:text-champagne"
+																				>
+																					{subitem.name || subitem}
+																				</Link>
+																			</li>
+																		))}
+																	</ul>
 																</div>
-																<div className="px-3 py-2 sm:w-1/3">
-																	<img
-																		src={LOGO || '/placeholder.svg'}
-																		alt="Category Preview"
-																		className="w-full h-auto rounded-lg object-contain"
-																	/>
-																</div>
-															</div>
+															))}
 														</div>
-													)}
-												</div>
-										  ))
-										: null}
+													</div>
+												)}
+											</div>
+									  ))
+									: null}
 
-									{userNavLinks2.map((link, index) => (
-										<Link
-											key={index}
-											to={link.to}
-											className="flex items-center w-full py-2 px-3 rounded-md hover:bg-gray-100 text-gray-700 hover:text-gray-900 transition-colors"
-										>
-											{link.label}
-										</Link>
-									))}
-								</nav>
-							</div>
-
-							{/* Footer */}
-							<div className="border-t p-4">
-								<div className="flex items-center justify-between">
-									<div className="flex space-x-4">
-										<Link
-											to="/favorites"
-											className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900"
-										>
-											<Heart size={16} />
-											<span>Favorites</span>
-										</Link>
-										<Link
-											to="/cart"
-											className="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900"
-										>
-											<ShoppingCart size={16} />
-											<span>Cart</span>
-										</Link>
-									</div>
-
-									<select
-										value={country}
-										onChange={handleCountryChange}
-										className="py-1 px-2 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+								{userNavLinks2.map((link, index) => (
+									<Link
+										key={index}
+										to={link.to}
+										onClick={handleMobileMenuToggle}
+										className="flex items-center justify-between border-t border-hairline px-3 py-4 text-sm uppercase tracking-[0.11em] text-onyx transition-colors hover:bg-onyx/[0.04]"
 									>
-										<option value="INR">INR</option>
-										<option value="USD">USD</option>
-										<option value="GBP">GBP</option>
-										<option value="EUR">EUR</option>
-										<option value="AUD">AUD</option>
-										<option value="OMR">OMR</option>
-										<option value="AED">AED</option>
-									</select>
-								</div>
+										{link.label}
+									</Link>
+								))}
 							</div>
+						</nav>
+
+						<div className="border-t border-hairline px-6 py-5">
+							<div className="flex items-center justify-between">
+								<div className="flex gap-5 text-xs uppercase tracking-[0.12em] text-onyx-soft">
+									<Link
+										to="/favorites"
+										onClick={handleMobileMenuToggle}
+										className="inline-flex items-center gap-2 hover:text-champagne"
+									>
+										<Heart size={14} strokeWidth={1.5} />
+										<span>{favorites?.length || 0}</span>
+									</Link>
+									<Link
+										to="/cart"
+										onClick={handleMobileMenuToggle}
+										className="inline-flex items-center gap-2 hover:text-champagne"
+									>
+										<ShoppingBag size={14} strokeWidth={1.5} />
+										<span>{cartItems?.length || 0}</span>
+									</Link>
+								</div>
+
+								<select
+									value={country}
+									onChange={handleCountryChange}
+									className="appearance-none border-b border-hairline bg-transparent py-1.5 pl-1 pr-6 text-xs uppercase tracking-[0.12em] text-onyx outline-none"
+									aria-label="Currency"
+								>
+									<option value="INR">INR</option>
+									<option value="USD">USD</option>
+									<option value="GBP">GBP</option>
+									<option value="EUR">EUR</option>
+									<option value="AUD">AUD</option>
+									<option value="OMR">OMR</option>
+									<option value="AED">AED</option>
+								</select>
+							</div>
+
+							{!currentUser && (
+								<button
+									onClick={() => {
+										handleMobileMenuToggle()
+										setAuthMode('login')
+										setIsModalOpen(true)
+									}}
+									className="mt-5 w-full border border-onyx bg-onyx py-3.5 text-xs uppercase tracking-[0.12em] text-ivory transition-colors hover:bg-transparent hover:text-onyx"
+								>
+									Sign in
+								</button>
+							)}
 						</div>
 					</div>
 				</div>
 			)}
 		</header>
+	)
+}
+
+function LuxInput({ label, name, type, value, onChange, required }) {
+	return (
+		<label className="block">
+			<span className="block text-xs uppercase tracking-[0.12em] text-onyx-mute">
+				{label}
+			</span>
+			<input
+				type={type}
+				name={name}
+				value={value}
+				onChange={onChange}
+				required={required}
+				className="mt-1.5 w-full border-b border-hairline bg-transparent py-2 text-[14px] text-onyx outline-none transition-colors focus:border-champagne"
+			/>
+		</label>
+	)
+}
+
+function LuxSubmit({ children }) {
+	return (
+		<button
+			type="submit"
+			className="mt-2 w-full border border-onyx bg-onyx py-3.5 text-xs uppercase tracking-[0.12em] text-ivory transition-colors duration-300 hover:bg-transparent hover:text-onyx sm:text-[13px]"
+		>
+			{children}
+		</button>
 	)
 }

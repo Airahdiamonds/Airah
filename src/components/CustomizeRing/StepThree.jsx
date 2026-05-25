@@ -3,29 +3,36 @@ import {
 	resetCustomization,
 	updateTotalCost,
 } from '../../redux/ringCustomizationSlice'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { addToCart } from '../../redux/favoritesCartSlice'
 import { useNavigate } from 'react-router-dom'
+import { ShieldCheck, Truck } from 'lucide-react'
 import PriceDisplay from '../PriceDisplay'
+
+const ringSizes = ['4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14']
 
 const StepThree = () => {
 	const dispatch = useDispatch()
 	const navigate = useNavigate()
 	const { productDetails } = useSelector((state) => state.ringCustomization)
 	const { currentUser, guestUser } = useSelector((state) => state.localization)
+	const [selectedSize, setSelectedSize] = useState(ringSizes[0])
+	const product = productDetails[0]
+	const diamondPrice = Number(product.diamond?.diamond_price ?? 0)
+	const ringPrice = Number(product.ring?.ring_price ?? 0)
+	const computedTotal = diamondPrice + ringPrice
+	const reviewImages = useMemo(
+		() => (Array.isArray(product.image_URL) ? product.image_URL.flat().filter(Boolean) : []),
+		[product.image_URL]
+	)
 
 	useEffect(() => {
 		dispatch(
 			updateTotalCost({
-				total_cost:
-					+productDetails[0].ring?.ring_price +
-					+productDetails[0].diamond?.diamond_price,
+				total_cost: computedTotal,
 			})
 		)
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
-	const ringSizes = ['4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14']
-	const [selectedSize, setSelectedSize] = useState(ringSizes[0])
+	}, [computedTotal, dispatch])
 
 	const handleClick = async () => {
 		await dispatch(
@@ -33,8 +40,8 @@ const StepThree = () => {
 				userId: currentUser,
 				guestId: currentUser ? null : guestUser,
 				productId: null,
-				diamondId: productDetails[0].diamond?.product_id,
-				ringStyleId: productDetails[0].ring?.product_id,
+				diamondId: product.diamond?.product_id,
+				ringStyleId: product.ring?.product_id,
 				ringSize: selectedSize,
 				quantity: 1,
 			})
@@ -43,128 +50,98 @@ const StepThree = () => {
 		navigate('/cart')
 	}
 
+	const canAddToCart = product.diamond?.product_id && product.ring?.product_id
+
 	return (
-		<div className="flex flex-col md:flex-row items-start gap-8">
-			{/* Left Side - Image Grid */}
-			<div className="w-full md:w-3/5 grid grid-cols-2 gap-4">
-				{productDetails[0].image_URL[0].map((image) => (
-					<img
-						src={image}
-						alt="Ring 1"
-						className="w-full h-auto rounded-lg shadow-md"
-					/>
-				))}
-				{productDetails[0].image_URL[1].map((image) => (
-					<img
-						src={image}
-						alt="Ring 1"
-						className="w-full h-auto rounded-lg shadow-md"
-					/>
+		<div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(380px,0.6fr)]">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				{reviewImages.map((image, imageIndex) => (
+						<div
+							key={`${image}-${imageIndex}`}
+							className="aspect-square overflow-hidden rounded-[6px] border border-[#e4ded7] bg-white"
+						>
+							<img
+								src={image}
+								alt="Completed ring"
+								className="h-full w-full object-cover"
+							/>
+						</div>
 				))}
 			</div>
-			{/* Right Side - Content */}
-			<div className="w-full md:w-2/5 border border-[#bf927f] p-8 space-y-4 flex flex-col max-h-fit md:sticky top-40 self-start">
-				<h2 className="text-4xl special">Engagement ring</h2>
-				<p className="text-sm text-gray-500">(Completed)</p>
-				<p className="text-lg">1.16 Total Carat Weight</p>
-				<div className="text-2xl font-light text-green-900">
-					<PriceDisplay
-						value={
-							Number(productDetails[0].ring?.ring_price ?? 0) +
-							Number(productDetails[0].diamond?.diamond_price ?? 0)
-						}
-					/>
-					<p className="text-sm text-gray-500">(Sub Total)</p>
-				</div>
 
-				<div className="pt-4 space-y-2">
-					<div className="bg-gray-100 p-4">
-						<div className="text-base text-gray-700">
-							Flexible Payment Options:
-						</div>
-						<div className="text-base text-gray-700">
-							3 Interest-Free Payments of $600
-						</div>
-						<div className="text-sm text-blue-500 cursor-pointer">
-							Learn More
-						</div>
+			<aside className="self-start rounded-[6px] border border-[#e4ded7] bg-white p-6 shadow-[0_24px_55px_rgba(33,25,22,0.08)] lg:sticky lg:top-32">
+				<p className="text-[11px] uppercase tracking-[0.24em] text-[#9a8779]">
+					Final Review
+				</p>
+				<h2 className="mt-3 text-3xl font-light leading-tight tracking-wide text-[#211916]">
+					Engagement ring
+				</h2>
+
+				<div className="mt-6 space-y-3 border-y border-[#eee7df] py-5">
+					<div className="flex justify-between text-sm">
+						<span className="text-[#8a7b72]">Diamond</span>
+						<span className="text-[#211916]"><PriceDisplay value={diamondPrice} /></span>
 					</div>
-
-					<div className="bg-gray-100 p-4">
-						<div className="text-base text-gray-700">Ring Size:</div>
-						<div className="flex flex-wrap gap-2">
-							{ringSizes.map((size, index) => (
-								<button
-									key={index}
-									onClick={() => setSelectedSize(size)}
-									className={`px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md ${
-										selectedSize === size ? 'bg-gray-300' : ''
-									}`}
-								>
-									{size}
-								</button>
-							))}
-						</div>
+					<div className="flex justify-between text-sm">
+						<span className="text-[#8a7b72]">Setting</span>
+						<span className="text-[#211916]"><PriceDisplay value={ringPrice} /></span>
 					</div>
-
-					<div>
-						<button
-							onClick={handleClick}
-							className="px-6 py-2 text-lg w-full h-16 bg-[#c9a992] text-white rounded-sm shadow-md hover:bg-[#bf927f] active:bg-[#a8826c]"
-						>
-							Add To Cart
-						</button>
+					<div className="flex justify-between pt-3 text-lg font-light text-[#211916]">
+						<span>Total</span>
+						<PriceDisplay value={computedTotal} />
 					</div>
 				</div>
 
-				<div className="text-sm text-gray-600">
-					<p>
-						<strong>Ships by:</strong> Friday, February 28
+				<div className="mt-5 rounded-[4px] bg-[#f8f7f4] p-4">
+					<p className="text-[11px] uppercase tracking-[0.18em] text-[#9a8779]">
+						Ring size
+					</p>
+					<div className="mt-3 grid grid-cols-6 gap-2 sm:grid-cols-7">
+						{ringSizes.map((size) => (
+							<button
+								type="button"
+								key={size}
+								onClick={() => setSelectedSize(size)}
+								className={`h-10 rounded-[4px] border text-sm transition ${
+									selectedSize === size
+										? 'border-[#211916] bg-[#211916] text-white'
+										: 'border-[#e4ded7] bg-white text-[#6f625b] hover:border-[#bda28f] hover:text-[#211916]'
+								}`}
+							>
+								{size}
+							</button>
+						))}
+					</div>
+				</div>
+
+				<div className="mt-5 rounded-[4px] border border-[#e4ded7] p-4 text-sm text-[#5f5550]">
+					<p className="text-[#211916]">Flexible payment options</p>
+					<p className="mt-1">
+						3 interest-free payments of{' '}
+						<PriceDisplay value={computedTotal / 3} />
 					</p>
 				</div>
 
-				<div className="text-sm text-gray-900 space-y-2">
-					<div className="flex items-center space-x-2">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="20"
-							height="20"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						>
-							<path d="M12 2l7 4v6c0 5-4 9-7 10-3-1-7-5-7-10V6l7-4z" />
-							<path d="M9 12l2 2 4-4" />
-						</svg>
-						<span>Risk-Free Retail</span>
-					</div>
+				<button
+					type="button"
+					onClick={handleClick}
+					disabled={!canAddToCart}
+					className="mt-5 h-14 w-full rounded-[4px] bg-[#211916] px-6 text-sm uppercase tracking-[0.18em] text-white transition hover:bg-[#3a2d27] disabled:cursor-not-allowed disabled:bg-[#d4ccc4]"
+				>
+					Add to cart
+				</button>
 
-					<div className="flex items-center space-x-2">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="30"
-							height="20"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-						>
-							<path d="M3 16v-8h13v8" />
-							<path d="M16 16h2.5l3.5-3.5v-4.5h-6" />
-							<circle cx="6.5" cy="16.5" r="2.5" />
-							<circle cx="16.5" cy="16.5" r="2.5" />
-						</svg>
-						<span className="underline">
-							Free Overnight Shipping, Hassle-Free Returns
-						</span>
+				<div className="mt-5 space-y-3 border-t border-[#eee7df] pt-5 text-sm text-[#5f5550]">
+					<div className="flex items-center gap-3">
+						<ShieldCheck size={18} className="text-[#9a8779]" />
+						<span>Lifetime warranty</span>
+					</div>
+					<div className="flex items-center gap-3">
+						<Truck size={18} className="text-[#9a8779]" />
+						<span>Complimentary insured shipping</span>
 					</div>
 				</div>
-			</div>
+			</aside>
 		</div>
 	)
 }

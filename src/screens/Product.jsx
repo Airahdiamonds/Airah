@@ -2,10 +2,68 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
 import { getProduct } from '../utils/api'
 import { useNavigate, useParams } from 'react-router-dom'
+import {
+	ChevronLeft,
+	Gem,
+	Ruler,
+	ShieldCheck,
+	ShoppingBag,
+	Truck,
+} from 'lucide-react'
 import { addToCart } from '../redux/favoritesCartSlice'
 import ProductImages from '../components/ProductImages'
 import ReviewsList from '../components/ReviewsList'
 import PriceDisplay from '../components/PriceDisplay'
+
+const RING_SIZES = ['4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14']
+
+const SPEC_FIELDS = [
+	['Gold', 'gold_quantity', 'gold_price', 'gold_total'],
+	['Round', 'round_quantity', 'round_price', 'round_total'],
+	['Oval', 'oval_quantity', 'oval_price', 'oval_total'],
+	['Marquise', 'marquise_quantity', 'marquise_price', 'marquise_total'],
+	['Emerald', 'emerald_quantity', 'emerald_price', 'emerald_total'],
+	['Princess', 'princess_quantity', 'princess_price', 'princess_total'],
+	['Pear', 'pear_quantity', 'pear_price', 'pear_total'],
+	['Heart', 'heart_quantity', 'heart_price', 'heart_total'],
+	['Other Diamond', 'other_diamond_quantity', 'other_diamond_price', 'other_diamond_total'],
+	['Gemstone', 'gemstone_quantity', 'gemstone_price', 'gemstone_total'],
+]
+
+const PRODUCT_INFO_FIELDS = [
+	['SKU', 'SKU'],
+	['Category', 'category'],
+	['Sub Category', 'subCategory'],
+	['Segment', 'segment'],
+	['Stock', 'stock_qty'],
+]
+
+const COST_FIELDS = [
+	['Misc Cost', 'misc_cost'],
+	['Labour Cost', 'labour_cost'],
+	['Other Cost', 'other_cost'],
+	['Total Cost', 'total_cost'],
+]
+
+const hasDisplayValue = (value) => {
+	if (Array.isArray(value)) return value.length > 0
+	return value !== undefined && value !== null && value !== ''
+}
+
+const formatNumber = (value) => {
+	if (!hasDisplayValue(value)) return '0'
+	const number = Number(value)
+	if (Number.isNaN(number)) return value
+	return number.toLocaleString(undefined, {
+		maximumFractionDigits: 2,
+	})
+}
+
+const formatTextValue = (value) => {
+	if (!hasDisplayValue(value)) return 'Not specified'
+	if (Array.isArray(value)) return value.join(', ')
+	return value
+}
 
 function Product() {
 	const dispatch = useDispatch()
@@ -13,15 +71,13 @@ function Product() {
 	const { id } = useParams()
 	const { currentUser, guestUser } = useSelector((state) => state.localization)
 	const [product, setProduct] = useState(null)
-	const ringSizes = ['4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14']
-	const [selectedSize, setSelectedSize] = useState(ringSizes[0])
+	const [selectedSize, setSelectedSize] = useState(RING_SIZES[0])
 
 	useEffect(() => {
 		getProduct(id).then((res) => {
 			setProduct(res.data[0])
 		})
 	}, [id])
-	// const [activeTab, setActiveTab] = useState('earring')
 
 	const handleClick = async () => {
 		await dispatch(
@@ -38,186 +94,292 @@ function Product() {
 		navigate('/cart')
 	}
 
+	const productInfo = PRODUCT_INFO_FIELDS.map(([label, key]) => [
+		label,
+		product?.[key],
+	]).filter(([, value]) => hasDisplayValue(value))
+	const collectionLabel = product?.subCategory
+		? decodeURIComponent(product.subCategory).replace(/-/g, ' ')
+		: 'Fine jewellery'
+	const productTags = Array.isArray(product?.tags) ? product.tags : []
+
+	const handleBack = () => {
+		if (product?.subCategory) {
+			navigate(`/product/${product.subCategory}`)
+			return
+		}
+
+		navigate(-1)
+	}
+
 	return (
-		<>
-			<button
-				className="justify-start w-full flex ms-20"
-				onClick={() => navigate(`/product/${product?.subCategory}`)}
-			>
-				{'< '}
-				Go back to Products
-			</button>
+		<div className="min-h-screen bg-[#f8f6f3] text-[#211916]">
+			<div className="mx-auto w-full max-w-[1440px] px-5 pb-20 pt-8 md:px-8 lg:px-10">
+				<button
+					type="button"
+					onClick={handleBack}
+					className="mb-8 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[#8a7b72] transition-colors hover:text-[#211916]"
+				>
+					<ChevronLeft size={14} strokeWidth={1.5} />
+					Back to Products
+				</button>
 
-			<div className="flex flex-col md:flex-row items-center gap-8">
-				{/* Left Side - Image Grid */}
-				{/* <div className="w-full md:w-3/5 grid grid-cols-2 gap-4"> */}
-				{/* {product?.image_URL.map((image) => (
-						<img
-							src={image}
-							alt="Ring 1"
-							className="w-full h-auto rounded-lg shadow-md"
-						/>
-					))} */}
-				<ProductImages product={product} />
-				{/* </div> */}
+				<div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.08fr)_minmax(380px,0.92fr)] lg:gap-12 xl:gap-16">
+					<ProductImages product={product} />
 
-				{/* Right Side - Content */}
-				<div className="w-full md:w-2/5 p-8 space-y-4 flex flex-col max-h-fit md:sticky top-40 self-start">
-					<h2 className="text-4xl special">{product?.name}</h2>
-					<div className="text-2xl font-light text-green-900">
-						<PriceDisplay value={product?.total_cost} />
-						<p className="text-sm text-gray-500">(Sub Total)</p>
-					</div>
-
-					<div className="pt-4 space-y-2">
-						<div className="bg-gray-100 p-4">
-							<div className="text-base text-gray-700">
-								Flexible Payment Options:
+					<div className="w-full self-start lg:sticky lg:top-32">
+						<div className="border border-[#e7ded6] bg-[#fbfaf8]/90 px-5 py-6 shadow-[0_18px_55px_rgba(43,33,29,0.06)] backdrop-blur md:px-7">
+							<div className="mb-6 flex items-center justify-between gap-4 border-b border-[#e7ded6] pb-4">
+								<p className="text-[10px] uppercase tracking-[0.28em] text-[#9a8779]">
+									{collectionLabel}
+								</p>
+								{product?.SKU && (
+									<p className="text-[10px] uppercase tracking-[0.2em] text-[#8a7b72]">
+										{product.SKU}
+									</p>
+								)}
 							</div>
-							<div className="text-base text-gray-700">
-								3 Interest-Free Payments of $600
+
+							<div className="space-y-4">
+								<h1 className="text-4xl font-light leading-[1.04] tracking-normal text-[#211916] md:text-[44px] xl:text-[52px]">
+									{product?.name}
+								</h1>
+								<p className="max-w-md text-sm leading-7 text-[#6f625b]">
+									A refined diamond piece selected for quiet brilliance, balanced
+									proportion, and everyday permanence.
+								</p>
+								<div className="flex items-end justify-between gap-5 pt-1">
+									<div className="text-3xl font-light text-[#211916] md:text-4xl">
+										<PriceDisplay value={product?.total_cost} />
+									</div>
+									<p className="hidden text-right text-[10px] uppercase leading-5 tracking-[0.2em] text-[#9a8779] sm:block">
+										Includes insured delivery
+									</p>
+								</div>
 							</div>
-							<div className="text-sm text-blue-500 cursor-pointer">
-								Learn More
+
+							<div className="my-6 grid grid-cols-2 gap-3 border-y border-[#e7ded6] py-4 text-[11px] uppercase tracking-[0.18em] text-[#7e7068]">
+								<div className="flex items-center gap-2">
+									<Gem className="h-4 w-4 text-[#a16207]" strokeWidth={1.4} />
+									Certified diamonds
+								</div>
+								<div className="flex items-center gap-2">
+									<ShieldCheck className="h-4 w-4 text-[#a16207]" strokeWidth={1.4} />
+									Lifetime care
+								</div>
 							</div>
-						</div>
 
-						<div className="bg-gray-100 p-4">
-							<div className="text-base text-gray-700">Ring Size:</div>
-							<div className="flex flex-wrap gap-2">
-								{ringSizes.map((size, index) => (
-									<button
-										key={index}
-										onClick={() => setSelectedSize(size)}
-										className={`px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md ${
-											selectedSize === size ? 'bg-gray-300' : ''
-										}`}
-									>
-										{size}
-									</button>
-								))}
+							<div className="space-y-4">
+								<div className="flex items-center justify-between">
+									<div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-[#8a7b72]">
+										<Ruler className="h-4 w-4" strokeWidth={1.4} />
+										Ring size
+									</div>
+									<span className="text-sm text-[#211916]">{selectedSize}</span>
+								</div>
+								<div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+									{RING_SIZES.map((size) => {
+										const isActive = selectedSize === size
+										return (
+											<button
+												key={size}
+												type="button"
+												onClick={() => setSelectedSize(size)}
+												className={`h-11 border text-sm transition duration-200 ${
+													isActive
+														? 'border-[#211916] bg-[#211916] text-[#fbfaf8] shadow-[0_12px_25px_rgba(43,33,29,0.14)]'
+														: 'border-[#d9cfc6] bg-white/60 text-[#4a403a] hover:border-[#211916] hover:bg-white'
+												}`}
+											>
+												{size}
+											</button>
+										)
+									})}
+								</div>
 							</div>
-						</div>
 
-						<div>
-							<button
-								onClick={handleClick}
-								className="px-6 py-2 text-lg w-full h-16 bg-[#c9a992] text-white rounded-sm shadow-md hover:bg-[#bf927f] active:bg-[#a8826c]"
-							>
-								Add To Cart
-							</button>
-						</div>
-					</div>
+							<div className="mt-6 space-y-3">
+								<button
+									type="button"
+									onClick={handleClick}
+									disabled={!product}
+									className="flex h-14 w-full items-center justify-center gap-3 bg-[#211916] text-[11px] uppercase tracking-[0.26em] text-[#fbfaf8] transition duration-200 hover:bg-[#3b302b] disabled:cursor-not-allowed disabled:opacity-40"
+								>
+									<ShoppingBag className="h-4 w-4" strokeWidth={1.5} />
+									Add to Cart
+								</button>
+								<p className="text-center text-xs leading-6 text-[#7e7068]">
+									Complimentary insured shipping and signature delivery.
+								</p>
+							</div>
 
-					<div className="text-sm text-gray-600">
-						<p>
-							<strong>Ships by:</strong> Friday, February 28
-						</p>
-					</div>
-
-					<div className="text-sm text-gray-900 space-y-2">
-						<div className="flex items-center space-x-2">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								width="20"
-								height="20"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							>
-								<path d="M12 2l7 4v6c0 5-4 9-7 10-3-1-7-5-7-10V6l7-4z" />
-								<path d="M9 12l2 2 4-4" />
-							</svg>
-							<span>Risk-Free Retail</span>
-						</div>
-
-						<div className="flex items-center space-x-2">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								width="30"
-								height="20"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							>
-								<path d="M3 16v-8h13v8" />
-								<path d="M16 16h2.5l3.5-3.5v-4.5h-6" />
-								<circle cx="6.5" cy="16.5" r="2.5" />
-								<circle cx="16.5" cy="16.5" r="2.5" />
-							</svg>
-							<span className="underline">
-								Free Overnight Shipping, Hassle-Free Returns
-							</span>
+							<dl className="mt-6 grid grid-cols-1 gap-4 border-t border-[#e7ded6] pt-5 text-sm sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+								<div className="flex items-start gap-3 text-[#6f625b]">
+									<ShieldCheck
+										size={18}
+										strokeWidth={1.25}
+										className="mt-0.5 shrink-0 text-[#a16207]"
+									/>
+									<div>
+										<dt className="text-[#211916]">Risk-free purchase</dt>
+										<dd className="mt-0.5 text-xs leading-5 text-[#8a7b72]">
+											30-day returns, lifetime warranty
+										</dd>
+									</div>
+								</div>
+								<div className="flex items-start gap-3 text-[#6f625b]">
+									<Truck
+										size={18}
+										strokeWidth={1.25}
+										className="mt-0.5 shrink-0 text-[#a16207]"
+									/>
+									<div>
+										<dt className="text-[#211916]">Complimentary shipping</dt>
+										<dd className="mt-0.5 text-xs leading-5 text-[#8a7b72]">
+											Dispatched after final quality inspection
+										</dd>
+									</div>
+								</div>
+							</dl>
 						</div>
 					</div>
 				</div>
-			</div>
 
-			{/* Product Description Section */}
-			<div className="mt-8 p-6 bg-white shadow-lg rounded-2xl">
-				<h3 className="text-2xl font-semibold mb-4 text-gray-900">
-					Product Description
-				</h3>
-				<div className="">
-					<p className="text-gray-700 font-medium">SKU: {product?.SKU}</p>
-					<p className="text-gray-600 mt-2">{product?.description}</p>
-					<div className="bg-yellow-100 p-3 rounded-lg my-4 border-l-4 border-yellow-500 w-1/2">
-						<p className="text-yellow-800 font-medium">
-							<strong>DISCLAIMER:</strong> Earring backings are provided as
-							shown and cannot be altered.
-						</p>
-					</div>
-					<div className="mt-4">
-						<table className="w-1/2 border-collapse text-left">
-							<tbody>
-								{[
-									['Gold Quantity', product?.gold_quantity],
-									['Round Quantity', product?.round_quantity],
-									['Oval Quantity', product?.oval_quantity],
-									['Marquise Quantity', product?.marquise_quantity],
-									['Emerald Quantity', product?.emerald_quantity],
-									['Princess Quantity', product?.princess_quantity],
-									['Pear Quantity', product?.pear_quantity],
-									['Heart Quantity', product?.heart_quantity],
-									['Other Diamond Quantity', product?.other_diamond_quantity],
-									['Gemstone Quantity', product?.gemstone_quantity],
-								]
-									.reduce((rows, item, index, array) => {
-										if (index % 2 === 0) {
-											rows.push([item, array[index + 1] || ['-', '-']])
-										}
-										return rows
-									}, [])
-									.map(([left, right], index) => (
-										<tr
-											key={index}
-											className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}
-										>
-											<td className="py-2 px-4 font-semibold text-gray-700">
-												{left[0]}
-											</td>
-											<td className="py-2 px-4 text-gray-700">{left[1]}g</td>
-											<td className="py-2 px-4 font-semibold text-gray-700">
-												{right[0]}
-											</td>
-											<td className="py-2 px-4 text-gray-700">{right[1]}g</td>
-										</tr>
-									))}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
+				<section className="mt-16 border-t border-[#e7ded6] pt-12 md:mt-20 md:pt-14">
+					<div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16">
+						<div className="lg:col-span-4">
+							<p className="mb-3 text-[11px] uppercase tracking-[0.28em] text-[#9a8779]">
+								The Detail
+							</p>
+							<h2 className="max-w-sm text-3xl font-light leading-tight text-[#211916] md:text-4xl">
+								Full specifications, without the clutter.
+							</h2>
+						</div>
+						<div className="lg:col-span-8">
+							<div className="space-y-10">
+								<div>
+									{product?.description && (
+										<p className="text-[15px] leading-8 text-[#5f534d] md:text-base">
+											{product.description}
+										</p>
+									)}
+									<p className="mt-6 border-l border-[#cdb9aa] pl-5 text-sm leading-7 text-[#7e7068]">
+										Each piece is individually inspected before dispatch and arrives in
+										Airah signature packaging.
+									</p>
+								</div>
 
-			{/* Reviews List */}
-			{product?.product_id && <ReviewsList product_id={product?.product_id} />}
-		</>
+								<div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+									<SpecPanel title="Product Information">
+										<dl className="divide-y divide-[#e7ded6]">
+											{productInfo.map(([label, value]) => (
+												<SpecItem key={label} label={label} value={formatTextValue(value)} />
+											))}
+											{productTags.length > 0 && (
+												<div className="grid grid-cols-[120px_1fr] gap-4 py-3">
+													<dt className="text-[10px] uppercase tracking-[0.2em] text-[#8a7b72]">
+														Tags
+													</dt>
+													<dd className="flex flex-wrap gap-2 text-sm text-[#211916]">
+														{productTags.map((tag) => (
+															<span
+																key={tag}
+																className="border border-[#e7ded6] bg-white/70 px-2.5 py-1 text-[11px] uppercase tracking-[0.14em] text-[#6f625b]"
+															>
+																{tag}
+															</span>
+														))}
+													</dd>
+												</div>
+											)}
+										</dl>
+									</SpecPanel>
+
+									<SpecPanel title="Cost Breakdown">
+										<dl className="divide-y divide-[#e7ded6]">
+											{COST_FIELDS.map(([label, key]) => (
+												<div
+													key={key}
+													className="grid grid-cols-[120px_1fr] gap-4 py-3"
+												>
+													<dt className="text-[10px] uppercase tracking-[0.2em] text-[#8a7b72]">
+														{label}
+													</dt>
+													<dd className="text-sm tabular-nums text-[#211916]">
+														<PriceDisplay value={product?.[key]} />
+													</dd>
+												</div>
+											))}
+										</dl>
+									</SpecPanel>
+								</div>
+
+								<SpecPanel title="Material And Stone Details">
+									<div className="overflow-x-auto">
+										<table className="w-full min-w-[640px] border-collapse text-left">
+											<thead>
+												<tr className="border-b border-[#d9cfc6] text-[10px] uppercase tracking-[0.2em] text-[#8a7b72]">
+													<th className="py-3 pr-4 font-normal">Material</th>
+													<th className="px-4 py-3 font-normal">Quantity</th>
+													<th className="px-4 py-3 font-normal">Rate</th>
+													<th className="py-3 pl-4 text-right font-normal">Total</th>
+												</tr>
+											</thead>
+											<tbody className="divide-y divide-[#e7ded6]">
+												{SPEC_FIELDS.map(([label, quantityKey, priceKey, totalKey]) => (
+													<tr key={label} className="text-sm text-[#211916]">
+														<th className="py-3 pr-4 font-normal text-[#5f534d]">
+															{label}
+														</th>
+														<td className="px-4 py-3 tabular-nums text-[#211916]">
+															{formatNumber(product?.[quantityKey])}
+														</td>
+														<td className="px-4 py-3 tabular-nums text-[#211916]">
+															<PriceDisplay value={product?.[priceKey]} />
+														</td>
+														<td className="py-3 pl-4 text-right tabular-nums text-[#211916]">
+															<PriceDisplay value={product?.[totalKey]} />
+														</td>
+													</tr>
+												))}
+											</tbody>
+										</table>
+									</div>
+								</SpecPanel>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				{product?.product_id && (
+					<div className="mt-20 border-t border-[#e7ded6] pt-10 md:mt-24 md:pt-12">
+						<ReviewsList product_id={product?.product_id} />
+					</div>
+				)}
+			</div>
+		</div>
+	)
+}
+
+function SpecPanel({ title, children }) {
+	return (
+		<section className="border border-[#e7ded6] bg-[#fbfaf8]/70 p-4 md:p-5">
+			<h3 className="border-b border-[#e7ded6] pb-3 text-[11px] uppercase tracking-[0.24em] text-[#9a8779]">
+				{title}
+			</h3>
+			<div className="pt-1">{children}</div>
+		</section>
+	)
+}
+
+function SpecItem({ label, value }) {
+	return (
+		<div className="grid grid-cols-[120px_1fr] gap-4 py-3">
+			<dt className="text-[10px] uppercase tracking-[0.2em] text-[#8a7b72]">
+				{label}
+			</dt>
+			<dd className="text-sm text-[#211916]">{value}</dd>
+		</div>
 	)
 }
 

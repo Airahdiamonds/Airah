@@ -26,6 +26,7 @@ export async function getAllProducts(userId, subCategory) {
 			name: productsTable.name,
 			category: productsTable.category,
 			total_cost: productsTable.total_cost,
+			stock_qty: productsTable.stock_qty,
 			average_rating: avg(reviewsTable.rating).as('average_rating'),
 			review_count: count(reviewsTable.review_id).as('review_count'),
 			image_URL: productsTable.image_URL,

@@ -1,4 +1,4 @@
-import { index, integer, pgTable, serial } from 'drizzle-orm/pg-core'
+import { index, integer, pgTable, serial, varchar } from 'drizzle-orm/pg-core'
 import { created_at, updated_at } from '../schemaHelpers.js'
 import { userTable } from './users.js'
 import { productsTable } from './products.js'
@@ -12,9 +12,10 @@ export const favoritesTable = pgTable(
 		favorite_id: serial('favorite_id').primaryKey(),
 		user_id: integer('user_id')
 			.references(() => userTable.user_id, {
-				onDelete: 'cascade',
+				onDelete: 'set null',
 			})
-			.notNull(),
+			.default(null),
+		guest_id: varchar('guest_id', { length: 36 }).default(null),
 		product_id: integer('product_id')
 			.references(() => productsTable.product_id, {
 				onDelete: 'set null',
@@ -33,7 +34,10 @@ export const favoritesTable = pgTable(
 		created_at,
 		updated_at,
 	},
-	(t) => [index('favorites_user_id_idx').on(t.user_id)]
+	(t) => [
+		index('favorites_user_id_idx').on(t.user_id),
+		index('favorites_guest_id_idx').on(t.guest_id),
+	]
 )
 
 export const favoritesRelations = relations(favoritesTable, ({ one }) => ({
