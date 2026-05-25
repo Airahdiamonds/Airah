@@ -9,15 +9,17 @@ import {
 	validateCouponAPI,
 } from '../utils/api'
 
-// Owns favorites + cart state for both authenticated users (hydrated from
-// the backend) and guests (kept in localStorage and merged on login via
-// `useFavoritesSync`).
+// Owns favorites + cart state for both authenticated users and guests.
+// Both are server-backed via `user_id` (logged-in) or `guest_id` (guest);
+// the server is the source of truth and thunks re-fetch the canonical
+// list after every mutation so the slice always has the joined product /
+// diamond / ring rows (names, prices, images) the UI renders.
 
 export const fetchUserFavorites = createAsyncThunk(
 	'favoritesCart/fetchFavorites',
-	async (userId, { rejectWithValue }) => {
+	async ({ userId, guestId }, { rejectWithValue }) => {
 		try {
-			return await fetchFavorites(userId)
+			return await fetchFavorites({ userId, guestId })
 		} catch (error) {
 			return rejectWithValue(error.message)
 		}
@@ -38,15 +40,18 @@ export const fetchUserCartItems = createAsyncThunk(
 export const addToFavorites = createAsyncThunk(
 	'favoritesCart/addToFavorites',
 	async (
-		{ product_id, diamond_id, ring_style_id },
+		{ userId, guestId, product_id, diamond_id, ring_style_id },
 		{ rejectWithValue }
 	) => {
 		try {
-			return await addToFavoritesAPI({
+			await addToFavoritesAPI({
+				guestId: userId ? null : guestId,
 				productId: product_id ?? null,
 				diamondId: diamond_id ?? null,
 				ringStyleId: ring_style_id ?? null,
 			})
+			// Re-fetch the authoritative list so the slice has joined rows.
+			return await fetchFavorites({ userId, guestId })
 		} catch (error) {
 			return rejectWithValue(error.message)
 		}
@@ -56,16 +61,17 @@ export const addToFavorites = createAsyncThunk(
 export const removeFromFavorites = createAsyncThunk(
 	'favoritesCart/removeFromFavorites',
 	async (
-		{ product_id, diamond_id, ring_style_id },
+		{ userId, guestId, product_id, diamond_id, ring_style_id },
 		{ rejectWithValue }
 	) => {
 		try {
 			await removeFromFavoritesAPI({
+				guestId: userId ? null : guestId,
 				productId: product_id ?? null,
 				diamondId: diamond_id ?? null,
 				ringStyleId: ring_style_id ?? null,
 			})
-			return { product_id, diamond_id, ring_style_id }
+			return await fetchFavorites({ userId, guestId })
 		} catch (error) {
 			return rejectWithValue(error.message)
 		}
@@ -124,7 +130,7 @@ export const validateCoupon = createAsyncThunk(
 const favoritesCartSlice = createSlice({
 	name: 'favoritesCart',
 	initialState: {
-		favorites: JSON.parse(localStorage.getItem('favorites')) || [],
+		favorites: [],
 		cartItems: [],
 		coupon: null,
 		discount: 0,
@@ -143,53 +149,8 @@ const favoritesCartSlice = createSlice({
 		clearCart: (state) => {
 			state.cartItems = []
 		},
-		addToFavoritesLocal: (state, action) => {
-			// Add to local Redux state
-			let exists
-			if (action.payload.product_id) {
-				exists = state.favorites.some(
-					(item) => item.product_id === action.payload.product_id
-				)
-			} else if (action.payload.diamond_id) {
-				exists = state.favorites.some(
-					(item) => item.diamond_id === action.payload.diamond_id
-				)
-			} else {
-				exists = state.favorites.some(
-					(item) => item.ring_style_id === action.payload.ring_style_id
-				)
-			}
-
-			if (!exists) {
-				state.favorites.push(action.payload)
-			}
-
-			// Update localStorage
-			localStorage.setItem('favorites', JSON.stringify(state.favorites))
-		},
-		removeFromFavoritesLocal: (state, action) => {
-			// Remove from local Redux state
-			if (action.payload.product_id) {
-				state.favorites = state.favorites.filter(
-					(item) => item.product_id !== action.payload.product_id
-				)
-			} else if (action.payload.diamond_id) {
-				state.favorites = state.favorites.filter(
-					(item) => item.diamond_id !== action.payload.diamond_id
-				)
-			} else {
-				state.favorites = state.favorites.filter(
-					(item) => item.ring_style_id !== action.payload.ring_style_id
-				)
-			}
-
-			// Update localStorage
-			localStorage.setItem('favorites', JSON.stringify(state.favorites))
-		},
-		clearLocalFavorites: (state) => {
-			// Clear local favorites when user logs in
+		clearFavorites: (state) => {
 			state.favorites = []
-			localStorage.removeItem('favorites')
 		},
 	},
 	extraReducers: (builder) => {
@@ -220,62 +181,16 @@ const favoritesCartSlice = createSlice({
 				state.error = action.payload
 			})
 
-			// Add to Favorites
-			.addCase(addToFavorites.pending, (state, action) => {
-				// Optimistic insert — the API only returns { success: true },
-				// so push a lightweight marker right away. fetchUserFavorites
-				// will hydrate the full row later.
-				const { product_id, diamond_id, ring_style_id } = action.meta.arg || {}
-				const exists = state.favorites.some(
-					(f) =>
-						(product_id != null && f.product_id === product_id) ||
-						(diamond_id != null && f.diamond_id === diamond_id) ||
-						(ring_style_id != null && f.ring_style_id === ring_style_id)
-				)
-				if (!exists) {
-					state.favorites.push({
-						product_id: product_id ?? null,
-						diamond_id: diamond_id ?? null,
-						ring_style_id: ring_style_id ?? null,
-					})
+			// Add / Remove Favorites — thunks return the canonical favorites list
+			.addCase(addToFavorites.fulfilled, (state, action) => {
+				if (Array.isArray(action.payload)) {
+					state.favorites = action.payload
 				}
 			})
-			.addCase(addToFavorites.rejected, (state, action) => {
-				// Roll back optimistic insert
-				const { product_id, diamond_id, ring_style_id } = action.meta.arg || {}
-				state.favorites = state.favorites.filter(
-					(f) =>
-						!(
-							(product_id != null && f.product_id === product_id) ||
-							(diamond_id != null && f.diamond_id === diamond_id) ||
-							(ring_style_id != null && f.ring_style_id === ring_style_id)
-						)
-				)
-			})
-
-			// Remove from Favorites
-			.addCase(removeFromFavorites.pending, (state, action) => {
-				// Optimistic remove — match by whichever id was supplied.
-				const { product_id, diamond_id, ring_style_id } = action.meta.arg || {}
-				state.favorites = state.favorites.filter(
-					(f) =>
-						!(
-							(product_id != null && f.product_id === product_id) ||
-							(diamond_id != null && f.diamond_id === diamond_id) ||
-							(ring_style_id != null && f.ring_style_id === ring_style_id)
-						)
-				)
-			})
 			.addCase(removeFromFavorites.fulfilled, (state, action) => {
-				const { product_id, diamond_id, ring_style_id } = action.payload || {}
-				state.favorites = state.favorites.filter(
-					(f) =>
-						!(
-							(product_id != null && f.product_id === product_id) ||
-							(diamond_id != null && f.diamond_id === diamond_id) ||
-							(ring_style_id != null && f.ring_style_id === ring_style_id)
-						)
-				)
+				if (Array.isArray(action.payload)) {
+					state.favorites = action.payload
+				}
 			})
 
 			// Add to Cart — thunk returns the canonical cart list from the server
@@ -306,9 +221,7 @@ const favoritesCartSlice = createSlice({
 export const {
 	setAppliedCoupon,
 	clearCoupon,
-	addToFavoritesLocal,
-	removeFromFavoritesLocal,
-	clearLocalFavorites,
 	clearCart,
+	clearFavorites,
 } = favoritesCartSlice.actions
 export default favoritesCartSlice.reducer

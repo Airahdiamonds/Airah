@@ -6,6 +6,7 @@ import {
 	setImageURLs,
 } from '../redux/ringCustomizationSlice'
 import { useEffect, useState } from 'react'
+import { ChevronLeft, Settings2, ShieldCheck, Truck } from 'lucide-react'
 import { getCustomStyle } from '../utils/api'
 import { calculateRingTotal, headStyles, metals, shankStyles } from '../utils/helpers'
 import { useLocation } from 'react-router-dom'
@@ -17,7 +18,8 @@ function Ring() {
 	const { productDetails } = useSelector((state) => state.ringCustomization)
 	const [product, setProduct] = useState(null)
 	const [showFilters, setShowFilters] = useState(false)
-	const [activeTab, setActiveTab] = useState('earring')
+	const [activeTab, setActiveTab] = useState('setting')
+	const selectedRing = productDetails[0].ring
 
 	useEffect(() => {
 		if (state) {
@@ -30,10 +32,10 @@ function Ring() {
 		if (state === null) {
 			if (productDetails.length > 0 && productDetails[0].ring) {
 				getCustomStyle({
-					head_style: productDetails[0].ring.headStyle,
-					head_metal: productDetails[0].ring.headMetal,
-					shank_style: productDetails[0].ring.shankStyle,
-					shank_metal: productDetails[0].ring.shankMetal,
+					head_style: selectedRing.headStyle,
+					head_metal: selectedRing.headMetal,
+					shank_style: selectedRing.shankStyle,
+					shank_metal: selectedRing.shankMetal,
 				}).then((res) => {
 					setProduct(res[0])
 				})
@@ -57,366 +59,226 @@ function Ring() {
 		}
 	}
 
+	const optionGroups = [
+		{
+			title: 'Head style',
+			value: selectedRing.headStyle,
+			items: headStyles,
+			onSelect: (styleName) => dispatch(updateRingDetails({ headStyle: styleName })),
+		},
+		{
+			title: 'Head metal',
+			value: selectedRing.headMetal,
+			items: metals,
+			onSelect: (metalName) => dispatch(updateRingDetails({ headMetal: metalName })),
+		},
+		{
+			title: 'Shank style',
+			value: selectedRing.shankStyle,
+			items: shankStyles,
+			onSelect: (styleName) => dispatch(updateRingDetails({ shankStyle: styleName })),
+		},
+		{
+			title: 'Shank metal',
+			value: selectedRing.shankMetal,
+			items: metals,
+			onSelect: (metalName) => dispatch(updateRingDetails({ shankMetal: metalName })),
+		},
+	]
+
+	const detailRows = [
+		['Head', product?.head_style ?? selectedRing.headStyle],
+		['Head metal', product?.head_metal ?? selectedRing.headMetal],
+		['Shank', product?.shank_style ?? selectedRing.shankStyle],
+		['Shank metal', product?.shank_metal ?? selectedRing.shankMetal],
+		['SKU', product?.SKU],
+	]
+
 	return (
-		<>
+		<div className="space-y-8">
 			<button
-				className="justify-start w-full flex ms-20"
+				type="button"
+				className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-[#8a7b72] transition hover:text-[#211916]"
 				onClick={() => dispatch(setShowRing(false))}
 			>
-				{'< '}
-				Go back to rings
+				<ChevronLeft size={16} />
+				Back to settings
 			</button>
 
-			<div className="flex flex-col md:flex-row items-start gap-8">
-				{/* Left Side - Image Grid */}
-				<div className="w-full md:w-3/5 grid grid-cols-2 gap-4">
-					{product?.image_URL.map((image) => (
-						<img
-							src={image}
-							alt="Ring 1"
-							className="w-full h-auto rounded-lg shadow-md"
-						/>
+			<div className="grid gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(380px,0.55fr)]">
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+					{product?.image_URL?.map((image, index) => (
+						<div
+							key={`${image}-${index}`}
+							className="aspect-square overflow-hidden rounded-[6px] border border-[#e4ded7] bg-white"
+						>
+							<img
+								src={image}
+								alt={product?.name ?? 'Ring setting'}
+								className="h-full w-full object-cover"
+							/>
+						</div>
 					))}
 				</div>
 
-				{/* Right Side - Content */}
-				<div className="w-full md:w-2/5 border border-[#bf927f] p-8 space-y-4 flex flex-col max-h-fit md:sticky top-40 self-start">
-					<h2 className="text-4xl special">{product?.name}</h2>
-					<div className="text-2xl font-light text-green-900">
-						<PriceDisplay value={calculateRingTotal(product)} />
-						<p className="text-sm text-gray-500">(Setting Price)</p>
+				<aside className="self-start rounded-[6px] border border-[#e4ded7] bg-white p-6 shadow-[0_24px_55px_rgba(33,25,22,0.08)] lg:sticky lg:top-32">
+					<p className="text-[11px] uppercase tracking-[0.24em] text-[#9a8779]">
+						Selected Setting
+					</p>
+					<h2 className="mt-3 text-3xl font-light leading-tight tracking-wide text-[#211916]">
+						{product?.name}
+					</h2>
+
+					<div className="mt-6 border-y border-[#eee7df] py-5">
+						<p className="text-[11px] uppercase tracking-[0.18em] text-[#9a8779]">
+							Setting price
+						</p>
+						<div className="mt-2 text-2xl font-light text-[#211916]">
+							<PriceDisplay value={calculateRingTotal(product)} />
+						</div>
 					</div>
 
-					<div className=" pt-4 space-y-2">
-						<div className="bg-gray-100 p-4">
-							<div className="text-base text-gray-700">
-								Flexible Payment Options:
-							</div>
-							<div className="text-base text-gray-700">
-								3 Interest-Free Payments of $600
-							</div>
-							<div className="text-sm text-blue-500 cursor-pointer">
-								Learn More
-							</div>
-						</div>
-
-						<div>
-							{showFilters && (
-								<div className="flex flex-col gap-8 mb-2">
-									{/* Head */}
-									<div className="flex flex-col">
-										<div className="text-left text-gray-700 font-bold mb-2 text-lg">
-											Head
-										</div>
-										<p className="text-xs text-gray-500 mb-2">
-											Pick a head style for your setting.
-										</p>
-										<div className="flex flex-wrap gap-2">
-											{headStyles.map((style, index) => (
-												<button
-													key={index}
-													onClick={() =>
-														dispatch(
-															updateRingDetails({
-																headStyle: headStyles[index].name,
-															})
-														)
-													}
-													className={`w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 
-														${product.head_style === style.name ? 'bg-blue-300 text-white' : 'bg-gray-100'}
-														hover:bg-gray-300 hover:scale-105`}
-												>
-													<img
-														src={style.image}
-														alt="Head Option"
-														className="w-10 h-10"
-													/>
-													<span className="text-sm text-gray-700 mt-1 text-center">
-														{style.name}
-													</span>
-												</button>
-											))}
-										</div>
-									</div>
-
-									{/* Metal */}
-									<div className="flex flex-col">
-										<div className="text-left text-gray-700 font-bold mb-2 text-lg">
-											Metal
-										</div>
-										<p className="text-xs text-gray-500 mb-2">
-											Choose your preferred metal type.
-										</p>
-										<div className="flex flex-wrap gap-2">
-											{metals.map((style, index) => (
-												<button
-													key={index}
-													onClick={() =>
-														dispatch(
-															updateRingDetails({
-																headMetal: metals[index].name,
-															})
-														)
-													}
-													className={`w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 
-														${product.head_metal === style.name ? 'bg-blue-300 text-white' : 'bg-gray-100'}
-														hover:bg-gray-300 hover:scale-105`}
-												>
-													<img
-														src={style.image}
-														alt="Metal Option"
-														className="w-9 h-9"
-													/>
-													<span className="text-sm text-gray-700 mt-1 text-center">
-														{style.name}
-													</span>
-												</button>
-											))}
-										</div>
-									</div>
-
-									{/* Shank */}
-									<div className="flex flex-col">
-										<div className="text-left text-gray-700 font-bold mb-2 text-lg">
-											Shank
-										</div>
-										<p className="text-xs text-gray-500 mb-2">
-											Select the style of your shank.
-										</p>
-										<div className="flex flex-wrap gap-2">
-											{shankStyles.map((style, index) => (
-												<button
-													key={index}
-													onClick={() =>
-														dispatch(
-															updateRingDetails({
-																shankStyle: shankStyles[index].name,
-															})
-														)
-													}
-													className={`w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 
-														${product.shank_style === style.name ? 'bg-blue-300 text-white' : 'bg-gray-100'}
-														hover:bg-gray-300 hover:scale-105`}
-												>
-													<img
-														src={style.image}
-														alt="Shank Option"
-														className="w-10 h-10"
-													/>
-													<span className="text-sm text-gray-700 mt-1 text-center">
-														{style.name}
-													</span>
-												</button>
-											))}
-										</div>
-									</div>
-
-									{/* Metal */}
-									<div className="flex flex-col">
-										<div className="text-left text-gray-700 font-bold mb-2 text-lg">
-											Metal
-										</div>
-										<p className="text-xs text-gray-500 mb-2">
-											Choose your preferred metal type.
-										</p>
-										<div className="flex flex-wrap gap-2">
-											{metals.map((style, index) => (
-												<button
-													key={index}
-													onClick={() =>
-														dispatch(
-															updateRingDetails({
-																shankMetal: metals[index].name,
-															})
-														)
-													}
-													className={`w-28 h-24 flex flex-col items-center justify-center transition-all duration-200 
-														${product.shank_metal === style.name ? 'bg-blue-300 text-white' : 'bg-gray-100'}
-														hover:bg-gray-300 hover:scale-105`}
-												>
-													<img
-														src={style.image}
-														alt="Metal Option"
-														className="w-9 h-9"
-													/>
-													<span className="text-sm text-gray-700 mt-1 text-center">
-														{style.name}
-													</span>
-												</button>
-											))}
-										</div>
-									</div>
+					<div className="mt-5 grid gap-2 text-sm">
+						{detailRows
+							.filter(([, value]) => value)
+							.map(([label, value]) => (
+								<div key={label} className="flex justify-between border-b border-[#eee7df] py-3">
+									<span className="text-[#8a7b72]">{label}</span>
+									<span className="text-right text-[#211916]">{value}</span>
 								</div>
-							)}
+							))}
+					</div>
 
-							{!showFilters && (
-								<button
-									onClick={() => setShowFilters(true)}
-									className="px-6 py-2 text-lg w-full h-16 bg-white text-[#c9a992] border border-[#c9a992] rounded-none shadow-md transition duration-1000 ease-in-out hover:bg-[#c9a992] hover:text-white hover:border-white active:bg-[#a8826c]"
-								>
-									Customize This Style
-								</button>
-							)}
-						</div>
+					{!showFilters && (
 						<button
-							onClick={handleClick}
-							className="px-6 py-2 text-lg w-full h-16 bg-[#c9a992] text-white rounded-sm shadow-md hover:bg-[#bf927f] active:bg-[#a8826c]"
+							type="button"
+							onClick={() => setShowFilters(true)}
+							className="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[4px] border border-[#211916] bg-white px-5 text-xs uppercase tracking-[0.18em] text-[#211916] transition hover:bg-[#211916] hover:text-white"
 						>
-							Select This Style
+							<Settings2 size={15} />
+							Customize style
 						</button>
-					</div>
+					)}
 
-					<div className="text-sm text-gray-600">
-						<p>
-							<strong>Ships by:</strong> Friday, February 28
-						</p>
-					</div>
+					<button
+						type="button"
+						onClick={handleClick}
+						className="mt-3 h-14 w-full rounded-[4px] bg-[#211916] px-6 text-sm uppercase tracking-[0.18em] text-white transition hover:bg-[#3a2d27]"
+					>
+						Select this setting
+					</button>
 
-					<div className="text-sm text-gray-900 space-y-2">
-						<div className="flex items-center space-x-2">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								width="20"
-								height="20"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							>
-								<path d="M12 2l7 4v6c0 5-4 9-7 10-3-1-7-5-7-10V6l7-4z" />
-								<path d="M9 12l2 2 4-4" />
-							</svg>
-							<span>Risk-Free Retail</span>
+					<div className="mt-5 space-y-3 border-t border-[#eee7df] pt-5 text-sm text-[#5f5550]">
+						<div className="flex items-center gap-3">
+							<ShieldCheck size={18} className="text-[#9a8779]" />
+							<span>Risk-free retail inspection</span>
 						</div>
-
-						<div className="flex items-center space-x-2">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								width="30"
-								height="20"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							>
-								<path d="M3 16v-8h13v8" />
-								<path d="M16 16h2.5l3.5-3.5v-4.5h-6" />
-								<circle cx="6.5" cy="16.5" r="2.5" />
-								<circle cx="16.5" cy="16.5" r="2.5" />
-							</svg>
-							<span className="underline">
-								Free Overnight Shipping, Hassle-Free Returns
-							</span>
+						<div className="flex items-center gap-3">
+							<Truck size={18} className="text-[#9a8779]" />
+							<span>Complimentary insured shipping</span>
 						</div>
 					</div>
-				</div>
+				</aside>
 			</div>
 
-			{/* Product Description Section */}
-			<div className="mt-8 p-6 bg-white shadow-lg rounded-2xl">
-				<h3 className="text-2xl font-semibold mb-4 text-gray-900">
-					Product Description
-				</h3>
-				<div className="">
-					<p className="text-gray-700 font-medium">SKU: {product?.SKU}</p>
-					<p className="text-gray-600 mt-2">{product?.description}</p>
-					<div className="bg-yellow-100 p-3 rounded-lg my-4 border-l-4 border-yellow-500">
-						<p className="text-yellow-800 font-medium">
-							<strong>DISCLAIMER:</strong> Earring backings are provided as
-							shown and cannot be altered.
-						</p>
-					</div>
-
-					{/* Tabs Navigation */}
-					<div className="flex justify-start border-b pb-2 relative">
+			{showFilters && (
+				<section className="rounded-[6px] border border-[#e4ded7] bg-white p-6">
+					<div className="mb-5 flex flex-col justify-between gap-3 border-b border-[#eee7df] pb-4 sm:flex-row sm:items-end">
+						<div>
+							<p className="text-[11px] uppercase tracking-[0.24em] text-[#9a8779]">
+								Customize
+							</p>
+							<h3 className="text-2xl font-light tracking-wide text-[#211916]">
+								Refine this setting
+							</h3>
+						</div>
 						<button
-							className={`px-6 py-2 text-gray-600 font-semibold transition-all duration-300 rounded-t-lg ${
-								activeTab === 'earring'
-									? 'text-gray-900 border-b-4 border-gray-900'
-									: 'hover:text-gray-900 hover:border-b-4 hover:border-gray-300'
-							}`}
-							onClick={() => setActiveTab('earring')}
+							type="button"
+							onClick={() => setShowFilters(false)}
+							className="text-xs uppercase tracking-[0.18em] text-[#8a7b72] transition hover:text-[#211916]"
 						>
-							Earring Information
+							Done
 						</button>
+					</div>
 
+					<div className="grid gap-6 lg:grid-cols-2">
+						{optionGroups.map((group) => (
+							<div key={group.title}>
+								<h4 className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#211916]">
+									{group.title}
+								</h4>
+								<div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+									{group.items.map((item) => {
+										const selected = group.value === item.name
+
+										return (
+											<button
+												type="button"
+												key={item.name}
+												onClick={() => group.onSelect(item.name)}
+												className={`min-h-24 rounded-[4px] border px-3 py-3 text-center text-xs uppercase tracking-[0.12em] transition ${
+													selected
+														? 'border-[#211916] bg-[#211916] text-white'
+														: 'border-[#e4ded7] bg-[#f8f7f4] text-[#6f625b] hover:border-[#bda28f] hover:text-[#211916]'
+												}`}
+											>
+												<img
+													src={item.image}
+													alt=""
+													className="mx-auto mb-2 h-10 w-10 object-contain opacity-80"
+												/>
+												{item.name}
+											</button>
+										)
+									})}
+								</div>
+							</div>
+						))}
+					</div>
+				</section>
+			)}
+
+			<section className="rounded-[6px] border border-[#e4ded7] bg-white p-6">
+				<div className="flex flex-wrap gap-2 border-b border-[#eee7df] pb-4">
+					{[
+						['setting', 'Setting details'],
+						['notes', 'Description'],
+					].map(([tab, label]) => (
 						<button
-							className={`px-6 py-2 text-gray-600 font-semibold transition-all duration-300 rounded-t-lg ${
-								activeTab === 'setting'
-									? 'text-gray-900 border-b-4 border-gray-900'
-									: 'hover:text-gray-900 hover:border-b-4 hover:border-gray-300'
+							type="button"
+							key={tab}
+							onClick={() => setActiveTab(tab)}
+							className={`rounded-[4px] px-4 py-2 text-xs uppercase tracking-[0.16em] transition ${
+								activeTab === tab
+									? 'bg-[#211916] text-white'
+									: 'bg-[#f8f7f4] text-[#6f625b] hover:text-[#211916]'
 							}`}
-							onClick={() => setActiveTab('setting')}
 						>
-							Setting Information
+							{label}
 						</button>
-
-						{/* Decorative Highlight Bar */}
-					</div>
-
-					{/* Tab Content */}
-					<div className="mt-4">
-						{activeTab === 'earring' && (
-							<table className="w-full border-collapse text-left">
-								<tbody>
-									{[
-										['Metal', '14K White Gold'],
-										['Backing', 'Push Back'],
-										['Rhodium Finish', 'Yes'],
-										['Diamond Shape', 'Round'],
-										['Quantity', '2'],
-										['Average Total Carat', '0.25'],
-										['Average Color', 'H-I'],
-										['Average Clarity', 'SI1-SI2'],
-										['Setting Type', 'Prong'],
-									].map(([label, value], index) => (
-										<tr
-											key={label}
-											className={`${
-												index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
-											}`}
-										>
-											<td className="py-2 px-4 font-semibold text-gray-700">
-												{label}
-											</td>
-											<td className="py-2 px-4 text-gray-700">{value}</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						)}
-
-						{activeTab === 'setting' && (
-							<table className="w-full border-collapse text-left">
-								<tbody>
-									{[
-										['Metal', '14K White Gold'],
-										['Width', '2.00mm'],
-										['Rhodium Finish', 'Yes'],
-									].map(([label, value], index) => (
-										<tr
-											key={label}
-											className={`${
-												index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
-											}`}
-										>
-											<td className="py-2 px-4 font-semibold text-gray-700">
-												{label}
-											</td>
-											<td className="py-2 px-4 text-gray-700">{value}</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						)}
-					</div>
+					))}
 				</div>
-			</div>
-		</>
+
+				{activeTab === 'setting' && (
+					<div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+						{detailRows
+							.filter(([, value]) => value)
+							.map(([label, value]) => (
+								<div key={label} className="flex justify-between border-b border-[#eee7df] py-3 text-sm">
+									<span className="text-[#8a7b72]">{label}</span>
+									<span className="text-right text-[#211916]">{value}</span>
+								</div>
+							))}
+					</div>
+				)}
+
+				{activeTab === 'notes' && (
+					<p className="mt-5 max-w-3xl text-sm leading-7 text-[#5f5550]">
+						{product?.description}
+					</p>
+				)}
+			</section>
+		</div>
 	)
 }
 

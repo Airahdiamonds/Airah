@@ -1,43 +1,12 @@
-import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import {
-	addToFavorites,
-	addToFavoritesLocal,
-	clearLocalFavorites,
-	fetchUserFavorites,
-} from '../redux/favoritesCartSlice'
+import { useSelector } from 'react-redux'
 
-const readLocalFavorites = () => JSON.parse(localStorage.getItem('favorites')) || []
-
+// Convenience hook for grids/screens that need the current identity
+// (user or guest) when dispatching favorites thunks. Favorites are
+// server-backed for both — there's no longer a local-only fallback
+// to merge here. Bootstrap of the favorites list happens in Header.
 export const useFavoritesSync = () => {
-	const dispatch = useDispatch()
-	const { currentUser } = useSelector((state) => state.localization)
-
-	useEffect(() => {
-		const localFavorites = readLocalFavorites()
-
-		if (!currentUser) {
-			localFavorites.forEach((favorite) => {
-				dispatch(addToFavoritesLocal(favorite))
-			})
-			return
-		}
-
-		localFavorites.forEach((favorite) => {
-			dispatch(
-				addToFavorites({
-					currentUser,
-					product_id: favorite.product_id,
-					diamond_id: favorite.diamond_id,
-					ring_style_id: favorite.ring_style_id,
-				})
-			)
-		})
-		dispatch(clearLocalFavorites())
-		dispatch(fetchUserFavorites(currentUser))
-	}, [currentUser, dispatch])
-
-	return { currentUser }
+	const { currentUser, guestUser } = useSelector((state) => state.localization)
+	return { currentUser, guestUser }
 }
 
 export default useFavoritesSync

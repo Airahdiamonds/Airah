@@ -27,23 +27,26 @@ const router = express.Router()
 // ── Favorites ─────────────────────────────────────────────────────────────────
 
 router.get(
-	'/api/users/getFavorites/:user_id',
-	requireSession,
+	'/api/users/getFavorites',
+	optionalSession,
 	asyncHandler(async (req, res) => {
-		// Always use the authenticated session's user_id, not the URL param
-		const data = await getUserFavorites({ user_id: req.user.user_id })
+		const { userId, guestId } = resolveIdentity(req, 'query')
+		if (!userId && !guestId) return res.json([])
+		const data = await getUserFavorites({ user_id: userId, guest_id: guestId })
 		res.json(data)
 	})
 )
 
 router.post(
 	'/api/users/addToFavorites',
-	requireSession,
+	optionalSession,
 	validate(addToFavoritesSchema),
 	asyncHandler(async (req, res) => {
+		const { userId, guestId } = resolveIdentity(req, 'body')
 		const { productId, diamondId, ringStyleId } = req.body
 		await addToFavorites({
-			user_id: req.user.user_id,
+			user_id: userId,
+			guest_id: guestId,
 			product_id: productId,
 			diamond_id: diamondId,
 			ring_style_id: ringStyleId,
@@ -54,11 +57,13 @@ router.post(
 
 router.delete(
 	'/api/users/deleteFavorites',
-	requireSession,
+	optionalSession,
 	asyncHandler(async (req, res) => {
+		const { userId, guestId } = resolveIdentity(req, 'body')
 		const { productId, diamondId, ringStyleId } = req.body
 		await removeFromFavorites({
-			user_id: req.user.user_id,
+			user_id: userId,
+			guest_id: guestId,
 			product_id: productId,
 			diamond_id: diamondId,
 			ring_style_id: ringStyleId,
@@ -67,20 +72,16 @@ router.delete(
 	})
 )
 
-// Merges guest favorites (sent as an array from the client) into the user's favorites on login
+// Merges guest favorites into the user's favorites on login.
+// Mirrors mergeCart: client sends just the guestId; server reads the rows.
 router.post(
 	'/api/users/mergeFavorites',
 	requireSession,
 	validate(mergeFavoritesSchema),
 	asyncHandler(async (req, res) => {
-		const { items } = req.body
-		if (!Array.isArray(items) || items.length === 0) return res.json({ success: true })
-		const mapped = items.map((it) => ({
-			product_id: it.productId,
-			diamond_id: it.diamondId,
-			ring_style_id: it.ringStyleId,
-		}))
-		await mergeGuestFavorites({ items: mapped, user_id: req.user.user_id })
+		const { guestId } = req.body
+		if (!guestId) return res.json({ success: true })
+		await mergeGuestFavorites({ guest_id: guestId, user_id: req.user.user_id })
 		res.json({ success: true })
 	})
 )

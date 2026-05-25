@@ -23,9 +23,16 @@ export default function AddressForm({ value, onChange }) {
 	}
 
 	return (
-		<div className="space-y-2">
-			<p className="text-lg font-semibold text-gray-900">Shipping Address</p>
-			<div className="grid grid-cols-2 gap-2">
+		<div className="space-y-4">
+			<div>
+				<p className="text-[11px] uppercase tracking-[0.22em] text-[#9a8779]">
+					Shipping Address
+				</p>
+				<p className="mt-1 text-sm leading-6 text-[#7e7068]">
+					Used for insured delivery and order updates.
+				</p>
+			</div>
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				{FIELDS.map((f) => (
 					<input
 						key={f.key}
@@ -33,7 +40,7 @@ export default function AddressForm({ value, onChange }) {
 						placeholder={f.label}
 						value={local[f.key] || ''}
 						onChange={(e) => update(f.key, e.target.value)}
-						className="border border-gray-300 rounded px-2 py-1 text-sm w-full"
+						className="h-11 w-full border border-[#d9cfc6] bg-white/70 px-3 text-sm text-[#211916] outline-none transition placeholder:text-[#a18f83] focus:border-[#211916]"
 						required={f.required}
 					/>
 				))}

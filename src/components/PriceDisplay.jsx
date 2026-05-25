@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 import { convertPrice } from '../utils/helpers'
 
-const PriceDisplay = ({ value, className = '' }) => {
+const PriceDisplay = ({ value, className = '', fractionDigits = 2 }) => {
 	const {
 		currency,
 		country,
@@ -24,7 +24,12 @@ const PriceDisplay = ({ value, className = '' }) => {
 		EUR_rate
 	)
 
-	return <span className={className}>{currency}{converted.toFixed(2)}</span>
+	const formattedPrice = converted.toLocaleString(undefined, {
+		minimumFractionDigits: fractionDigits,
+		maximumFractionDigits: fractionDigits,
+	})
+
+	return <span className={className}>{currency}{formattedPrice}</span>
 }
 
 export default PriceDisplay

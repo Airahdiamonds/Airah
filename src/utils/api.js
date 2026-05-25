@@ -41,8 +41,10 @@ api.interceptors.response.use(
 	}
 )
 
-export const fetchFavorites = async (userId) => {
-	const response = await api.get(`/users/getFavorites/${userId}`)
+export const fetchFavorites = async ({ userId, guestId }) => {
+	const response = await api.get('/users/getFavorites', {
+		params: { userId, guestId },
+	})
 	return response.data
 }
 
@@ -54,11 +56,13 @@ export const fetchCartItems = async ({ userId, guestId }) => {
 }
 
 export const addToFavoritesAPI = async ({
+	guestId,
 	productId,
 	diamondId,
 	ringStyleId,
 }) => {
 	const response = await api.post('/users/addToFavorites', {
+		guestId,
 		productId,
 		diamondId,
 		ringStyleId,
@@ -67,12 +71,14 @@ export const addToFavoritesAPI = async ({
 }
 
 export const removeFromFavoritesAPI = async ({
+	guestId,
 	productId,
 	diamondId,
 	ringStyleId,
 }) => {
 	await api.delete('/users/deleteFavorites', {
 		data: {
+			guestId,
 			productId,
 			diamondId,
 			ringStyleId,
@@ -80,14 +86,8 @@ export const removeFromFavoritesAPI = async ({
 	})
 }
 
-export const mergeFavoritesAPI = async (items) => {
-	// Server expects camelCase keys on each item.
-	const payload = items.map((it) => ({
-		productId: it.product_id ?? it.productId ?? null,
-		diamondId: it.diamond_id ?? it.diamondId ?? null,
-		ringStyleId: it.ring_style_id ?? it.ringStyleId ?? null,
-	}))
-	await api.post('/users/mergeFavorites', { items: payload })
+export const mergeFavoritesAPI = async (guestId) => {
+	await api.post('/users/mergeFavorites', { guestId })
 }
 
 export const addToCartAPI = async ({

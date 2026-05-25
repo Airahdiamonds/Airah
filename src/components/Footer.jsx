@@ -1,269 +1,208 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import {
-  ChevronLeft,
-  ChevronRight,
-  Instagram,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Mail,
-  Phone,
-  MapPin,
-  CreditCard,
-  ShieldCheck,
-} from "lucide-react"
+import { Instagram, Facebook, Twitter, Linkedin, Mail, Phone, MapPin } from 'lucide-react'
 
 const Footer = () => {
-  const [currentSlide, setCurrentSlide] = useState(0)
+	const year = new Date().getFullYear()
 
-  // Diamond showcase images from Unsplash
-  const diamondImages = [
-    "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1470&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=1587&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?q=80&w=1587&auto=format&fit=crop",
-  ]
+	return (
+		<footer className="bg-onyx font-sans text-ivory">
+			{/* Editorial lede */}
+			<section className="border-b border-ivory/10">
+				<div className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-20 lg:py-24">
+					<p className="text-xs uppercase tracking-[0.16em] text-champagne-soft sm:text-[13px]">
+						Maison Airah
+					</p>
+					<h2 className="mt-5 font-serif text-[2rem] font-normal leading-tight text-ivory sm:text-4xl lg:text-5xl">
+						A pursuit of brilliance,
+						<br className="hidden md:block" />
+						<em className="font-medium text-champagne-soft">crafted to be inherited.</em>
+					</h2>
+					<div className="mx-auto mt-6 h-px w-12 bg-champagne" />
+					<p className="mx-auto mt-6 max-w-2xl text-[15px] leading-7 text-ivory/72 sm:text-base">
+						Since 1990, each Airah diamond has been hand-selected for its rare quality and
+						set by master artisans into pieces designed to outlive trends, occasions, and
+						generations.
+					</p>
+					<a
+						href="/customize"
+						className="mt-9 inline-block border border-ivory/30 px-8 py-3.5 text-xs uppercase tracking-[0.14em] text-ivory transition-colors duration-300 hover:border-champagne hover:bg-champagne hover:text-onyx sm:px-10 sm:text-[13px]"
+					>
+						Begin a Bespoke Piece
+					</a>
+				</div>
+			</section>
 
-  // Auto-rotate carousel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev === diamondImages.length - 1 ? 0 : prev + 1))
-    }, 3000)
-    return () => clearInterval(interval)
-  }, [diamondImages.length])
+			{/* Newsletter */}
+			<section className="border-b border-ivory/10">
+				<div className="mx-auto grid max-w-6xl gap-8 px-6 py-12 sm:py-14 lg:grid-cols-[1.05fr_1fr] lg:items-end">
+					<div>
+						<p className="text-xs uppercase tracking-[0.16em] text-champagne-soft sm:text-[13px]">
+							Private Correspondence
+						</p>
+						<h3 className="mt-3 max-w-2xl font-serif text-2xl leading-snug text-ivory sm:text-3xl">
+							Receive invitations to private viewings &amp; new arrivals.
+						</h3>
+					</div>
+					<form
+						onSubmit={(e) => e.preventDefault()}
+						className="flex w-full flex-col gap-4 sm:flex-row sm:items-end"
+					>
+						<label className="block flex-1">
+							<span className="block text-xs uppercase tracking-[0.14em] text-ivory/60">
+								Email address
+							</span>
+							<input
+								type="email"
+								placeholder="you@example.com"
+								required
+								className="mt-2 w-full border-b border-ivory/25 bg-transparent py-3 text-[15px] text-ivory placeholder:text-ivory/35 outline-none transition-colors focus:border-champagne"
+							/>
+						</label>
+						<button
+							type="submit"
+							className="border border-champagne bg-champagne px-7 py-3.5 text-xs uppercase tracking-[0.14em] text-onyx transition-colors duration-300 hover:bg-transparent hover:text-champagne sm:text-[13px]"
+						>
+							Subscribe
+						</button>
+					</form>
+				</div>
+			</section>
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev === diamondImages.length - 1 ? 0 : prev + 1))
-  }
+			{/* Columns */}
+			<section>
+				<div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 sm:grid-cols-2 sm:gap-12 lg:py-16 xl:grid-cols-[1.15fr_0.85fr_0.9fr_1.1fr]">
+					<div>
+						<h4 className="font-serif text-2xl text-ivory">Airah Diamonds</h4>
+						<p className="mt-4 max-w-sm text-[15px] leading-7 text-ivory/68">
+							Fine diamond jewellery, crafted with intention and intended to be worn for
+							lifetimes. Independent since 1990.
+						</p>
+						<div className="mt-7 flex items-center gap-2">
+							<SocialLink href="#" label="Instagram" Icon={Instagram} />
+							<SocialLink href="#" label="Facebook" Icon={Facebook} />
+							<SocialLink href="#" label="Twitter" Icon={Twitter} />
+							<SocialLink href="#" label="LinkedIn" Icon={Linkedin} />
+						</div>
+					</div>
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? diamondImages.length - 1 : prev - 1))
-  }
+					<FooterColumn
+						heading="The Collection"
+						links={[
+							{ label: 'Engagement Rings', href: '/product/Stackable%20Rings' },
+							{ label: 'Eternity Bands', href: '/product/Eternity%20Rings' },
+							{ label: 'Bespoke Designs', href: '/customize' },
+							{ label: 'Loose Diamonds', href: '/customize' },
+							{ label: 'Diamond Education', href: '/Edu' },
+						]}
+					/>
 
-  return (
-    <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-      {/* Top section with carousel */}
-      <div className="max-w-7xl mx-auto px-4 pt-12 pb-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center mb-12">
-          <div>
-            <h2 className="text-3xl font-serif font-light mb-6">
-              Discover Our <span className="font-bold italic">Exquisite</span> Collection
-            </h2>
-            <p className="text-gray-300 mb-6">
-              Each diamond in our collection is carefully selected for its exceptional quality, brilliance, and beauty.
-              Our expert craftsmen transform these precious gems into stunning pieces of jewelry that will be treasured
-              for generations.
-            </p>
-            <button className="bg-transparent hover:bg-white hover:text-gray-900 text-white font-semibold py-2 px-6 border border-white hover:border-transparent transition duration-300 ease-in-out">
-              Explore Collection
-            </button>
-          </div>
+					<FooterColumn
+						heading="Client Services"
+						links={[
+							{ label: 'Order Tracking', href: '#' },
+							{ label: 'Shipping & Delivery', href: '#' },
+							{ label: 'Returns & Exchanges', href: '#' },
+							{ label: 'Ring Sizing Guide', href: '#' },
+							{ label: 'Care & Service', href: '#' },
+						]}
+					/>
 
-          {/* Diamond Carousel */}
-          <div className="relative overflow-hidden rounded-lg h-80 shadow-2xl">
-            {diamondImages.map((img, index) => (
-              <div
-                key={index}
-                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                  index === currentSlide ? "opacity-100" : "opacity-0"
-                }`}
-              >
-                <img
-                  src={img || "/placeholder.svg"}
-                  alt={`Diamond showcase ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
+					<div>
+						<h4 className="text-xs uppercase tracking-[0.16em] text-champagne-soft sm:text-[13px]">
+							Visit the Atelier
+						</h4>
+						<ul className="mt-5 space-y-4 text-[15px] text-ivory/72">
+							<li className="flex items-start gap-3">
+								<MapPin size={17} strokeWidth={1.5} className="mt-0.5 flex-shrink-0 text-champagne-soft" />
+								<span className="leading-7">
+									456 Diamond Way
+									<br />
+									New York, NY 10019
+								</span>
+							</li>
+							<li className="flex items-center gap-3">
+								<Phone size={17} strokeWidth={1.5} className="flex-shrink-0 text-champagne-soft" />
+								<a
+									href="tel:+12125556789"
+									className="transition-colors hover:text-champagne-soft"
+								>
+									+1 (212) 555 6789
+								</a>
+							</li>
+							<li className="flex items-center gap-3">
+								<Mail size={17} strokeWidth={1.5} className="flex-shrink-0 text-champagne-soft" />
+								<a
+									href="mailto:info@airahdiamonds.com"
+									className="transition-colors hover:text-champagne-soft"
+								>
+									info@airahdiamonds.com
+								</a>
+							</li>
+						</ul>
+						<div className="mt-7">
+							<p className="text-xs uppercase tracking-[0.14em] text-ivory/50">By Appointment</p>
+							<p className="mt-2 text-[15px] leading-7 text-ivory/72">
+								Mon — Fri · 10am – 7pm
+								<br />
+								Saturday · 10am – 5pm
+							</p>
+						</div>
+					</div>
+				</div>
+			</section>
 
-            {/* Carousel Controls */}
-            <button
-              onClick={prevSlide}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              onClick={nextSlide}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
-            >
-              <ChevronRight size={20} />
-            </button>
+			{/* Legal */}
+			<div className="border-t border-ivory/10">
+				<div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-6 text-center text-xs uppercase tracking-[0.12em] text-ivory/50 sm:text-[13px] md:flex-row md:text-left">
+					<p>© {year} Airah Diamonds · All rights reserved</p>
+					<div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+						<a href="#" className="transition-colors hover:text-champagne-soft">
+							Privacy
+						</a>
+						<a href="#" className="transition-colors hover:text-champagne-soft">
+							Terms
+						</a>
+						<a href="#" className="transition-colors hover:text-champagne-soft">
+							Shipping
+						</a>
+					</div>
+				</div>
+			</div>
+		</footer>
+	)
+}
 
-            {/* Carousel Indicators */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-              {diamondImages.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-2 h-2 rounded-full ${index === currentSlide ? "bg-white" : "bg-white/50"}`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
+function FooterColumn({ heading, links }) {
+	return (
+		<div>
+			<h4 className="text-xs uppercase tracking-[0.16em] text-champagne-soft sm:text-[13px]">
+				{heading}
+			</h4>
+			<ul className="mt-5 space-y-3.5">
+				{links.map((link) => (
+					<li key={link.label}>
+						<a
+							href={link.href}
+							className="text-[15px] leading-6 text-ivory/72 transition-colors duration-200 hover:text-champagne-soft"
+						>
+							{link.label}
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
+	)
+}
 
-        <hr className="border-gray-700 mb-12" />
-
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* About Section */}
-          <div>
-            <div className="flex items-center mb-6">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
-                <span className="text-gray-900 font-serif text-xl font-bold">A</span>
-              </div>
-              <h3 className="text-xl font-serif">Airah Diamonds</h3>
-            </div>
-            <p className="text-gray-300 text-sm mb-6">
-              Since 1990, Airah Diamonds has been crafting the finest diamond jewelry, combining traditional
-              craftsmanship with contemporary design to create timeless pieces.
-            </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Instagram size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Facebook size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Twitter size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Linkedin size={20} />
-              </a>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-6 font-serif">Quick Links</h3>
-            <ul className="space-y-3">
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center">
-                  <span className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-2"></span>
-                  Our Collections
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center">
-                  <span className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-2"></span>
-                  Diamond Education
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center">
-                  <span className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-2"></span>
-                  Custom Designs
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center">
-                  <span className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-2"></span>
-                  Sustainability
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center">
-                  <span className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-2"></span>
-                  Our Story
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center">
-                  <span className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-2"></span>
-                  Blog & News
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact Information */}
-          <div>
-            <h3 className="text-lg font-semibold mb-6 font-serif">Contact Us</h3>
-            <ul className="space-y-4">
-              <li className="flex items-start">
-                <MapPin size={18} className="text-gray-400 mr-3 mt-1 flex-shrink-0" />
-                <span className="text-gray-300">456 Diamond Way, New York, NY 10019, United States</span>
-              </li>
-              <li className="flex items-center">
-                <Phone size={18} className="text-gray-400 mr-3 flex-shrink-0" />
-                <a href="tel:+12125556789" className="text-gray-300 hover:text-white transition-colors">
-                  +1 (212) 555-6789
-                </a>
-              </li>
-              <li className="flex items-center">
-                <Mail size={18} className="text-gray-400 mr-3 flex-shrink-0" />
-                <a href="mailto:info@airahdiamonds.com" className="text-gray-300 hover:text-white transition-colors">
-                  info@airahdiamonds.com
-                </a>
-              </li>
-            </ul>
-            <div className="mt-6">
-              <h4 className="text-sm font-semibold mb-3">Opening Hours</h4>
-              <p className="text-gray-300 text-sm">
-                Monday - Friday: 10:00 AM - 7:00 PM
-                <br />
-                Saturday: 10:00 AM - 5:00 PM
-                <br />
-                Sunday: Closed
-              </p>
-            </div>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h3 className="text-lg font-semibold mb-6 font-serif">Stay Updated</h3>
-            <p className="text-gray-300 text-sm mb-4">
-              Subscribe to our newsletter for exclusive offers, new collections, and diamond insights.
-            </p>
-            <form className="mb-6">
-              <div className="flex flex-col space-y-3">
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-md focus:outline-none focus:ring-1 focus:ring-white text-sm"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="bg-white text-gray-900 hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Subscribe
-                </button>
-              </div>
-            </form>
-            <div>
-              <h4 className="text-sm font-semibold mb-3">Secure Payments</h4>
-              <div className="flex space-x-3">
-                <CreditCard size={24} className="text-gray-400" />
-                <ShieldCheck size={24} className="text-gray-400" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Bar */}
-      <div className="bg-black py-4">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-          <p>© {new Date().getFullYear()} Airah Diamonds. All rights reserved.</p>
-          <div className="flex space-x-6 mt-3 md:mt-0">
-            <a href="" className="hover:text-white transition-colors">
-              Privacy Policy
-            </a>
-            <a href="" className="hover:text-white transition-colors">
-              Terms of Service
-            </a>
-            <a href="" className="hover:text-white transition-colors">
-              Shipping & Returns
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  )
+function SocialLink({ href, label, Icon }) {
+	return (
+		<a
+			href={href}
+			aria-label={label}
+			className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ivory/20 text-ivory/65 transition-all duration-300 hover:border-champagne hover:text-champagne"
+		>
+			<Icon size={17} strokeWidth={1.5} />
+		</a>
+	)
 }
 
 export default Footer
