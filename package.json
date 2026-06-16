@@ -30,7 +30,9 @@
     "preview": "vite preview",
     "dev": "concurrently \"npm run start:dev\" \"npm run server\" \"npm run db\"",
     "server": "cd backend && npm run start:dev",
-    "db": "cd backend && npm run db:studio:dev"
+    "db": "cd backend && npm run db:studio:dev",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
   },
   "browserslist": {
     "production": [
@@ -44,15 +46,18 @@
       "last 1 safari version"
     ]
   },
-	"devDependencies": {
-		"@vitejs/plugin-react": "^6.0.1",
-		"autoprefixer": "^10.4.20",
-		"concurrently": "^9.2.1",
-		"cross-env": "^7.0.3",
-		"postcss": "^8.4.47",
-		"tailwindcss": "^3.4.14",
-		"vite": "^8.0.12"
-	},
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/ui": "^4.1.9",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
+    "happy-dom": "^20.10.4",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "vite": "^8.0.12",
+    "vitest": "^4.1.9"
+  },
   "overrides": {
     "@esbuild-kit/core-utils": {
       "esbuild": "^0.25.12"
