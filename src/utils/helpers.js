@@ -17,8 +17,6 @@ import headFallingEdgeHalo from '../assets/head/h14.png'
 import whiteGoldSVG from '../assets/metal/14K_White_Gold.svg'
 import yellowGoldSVG from '../assets/metal/14K_Yellow_Gold.svg'
 import roseGoldSVG from '../assets/metal/14K_Rose_Gold.svg'
-import platinumSVG from '../assets/metal/Platinum.svg'
-
 // Import images for shankStyles
 import shankSolitaire from '../assets/shank/s01_C.png'
 import shankFrenchPave from '../assets/shank/s02_C.png'
@@ -172,7 +170,6 @@ export const metals = [
 	{ name: '14K White Gold', image: whiteGoldSVG },
 	{ name: '14K Yellow Gold', image: yellowGoldSVG },
 	{ name: '14K Rose Gold', image: roseGoldSVG },
-	{ name: 'Platinum', image: platinumSVG },
 ]
 
 export const shankStyles = [
@@ -272,7 +269,6 @@ export const menuItems = [
 					{ name: 'Rose Gold', link: '/product/Stackable%20Rings' },
 					{ name: 'White Gold', link: '/product/Stackable%20Rings' },
 					{ name: 'Yellow Gold', link: '/product/Stackable%20Rings' },
-					{ name: 'Platinum', link: '/product/Stackable%20Rings' },
 				],
 			},
 		],

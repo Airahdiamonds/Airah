@@ -10,7 +10,7 @@
         "start:prod": "cross-env NODE_ENV=production node server.js",
         "dev": "concurrently \"npm start:dev\" \"npm run db:studio\"",
         "seedWindows": "node ./drizzle/seed.js",
-        "seed": "node /drizzle/seed.js",
+        "seed": "node drizzle/seed.js",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
         "db:studio": "drizzle-kit studio",

@@ -134,7 +134,6 @@ const AddStyle = ({ initialData = null, onSuccess }) => {
 						<option value="18K White Gold">18K White Gold</option>
 						<option value="18K Yellow Gold">18K Yellow Gold</option>
 						<option value="18K Rose Gold">18K Rose Gold</option>
-						<option value="Platinum">Platinum</option>
 					</select>
 				</div>
 				<div>
@@ -193,7 +192,6 @@ const AddStyle = ({ initialData = null, onSuccess }) => {
 						<option value="18K White Gold">18K White Gold</option>
 						<option value="18K Yellow Gold">18K Yellow Gold</option>
 						<option value="18K Rose Gold">18K Rose Gold</option>
-						<option value="Platinum">Platinum</option>
 					</select>
 				</div>
 				<div>
