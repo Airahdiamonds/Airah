@@ -36,7 +36,6 @@ export const metal = [
 	'18K White Gold',
 	'18K Yellow Gold',
 	'18K Rose Gold',
-	'Platinum',
 ]
 export const metalEnum = pgEnum('metal', metal)
 export const shankStyle = [

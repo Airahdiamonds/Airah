@@ -57,8 +57,8 @@ function Home() {
 			description:
 				'Timeless wedding bands designed for a lifetime of love. Handcrafted with premium metals, these bands offer comfort, durability, and a symbol of everlasting commitment.',
 			features:
-				'Classic and modern designs available in gold, platinum, and titanium.',
-			material: 'Material: 14K Gold, Platinum, Titanium',
+				'Classic and modern designs available in gold and titanium.',
+			material: 'Material: 14K Gold, Titanium',
 		},
 		{
 			image: ring3,
@@ -75,16 +75,6 @@ function Home() {
 				'Classic gold rings that blend tradition with modern elegance. Designed to suit every style, these rings are available in a variety of finishes and gold tones.',
 			features: 'Available in yellow, white, and rose gold variations.',
 			material: 'Material: 22K Pure Gold with a refined finish',
-		},
-		{
-			image: ring5,
-			title: 'Platinum Rings',
-			description:
-				'Premium platinum rings crafted for a luxurious touch. Durable, elegant, and timeless, these rings offer unmatched brilliance and sophistication, perfect for any occasion.',
-			features:
-				'Scratch-resistant, hypoallergenic, and designed for long-lasting shine.',
-			material:
-				'Material: 950 Platinum with a high-polish finish for an exquisite look.',
 		},
 	]
 

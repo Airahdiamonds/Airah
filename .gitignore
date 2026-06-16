@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 /backend/node_modules
+/backend/drizzle/migrations
 /backend/.env
 /backend/uploads
 
