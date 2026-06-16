@@ -1,4 +1,4 @@
-import { defineConfig, transformWithEsbuild } from 'vite'
+import { defineConfig, transformWithOxc } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
@@ -24,7 +24,7 @@ export default defineConfig({
       name: 'treat-js-files-as-jsx',
       async transform(code, id) {
         if (!id.match(/src\/.*\.js$/)) return null
-        return transformWithEsbuild(code, id, { loader: 'jsx' })
+        return transformWithOxc(code, id, { loader: 'jsx' })
       },
     },
     {
