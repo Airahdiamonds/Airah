@@ -27,6 +27,17 @@ export default defineConfig({
         return transformWithEsbuild(code, id, { loader: 'jsx' })
       },
     },
+    {
+      // In tests, static image/SVG imports return the filename string instead
+      // of trying to resolve a URL (there's no browser in the test environment).
+      name: 'mock-static-assets-in-tests',
+      transform(_code, id) {
+        if (process.env.VITEST && /\.(png|jpe?g|gif|svg|webp)$/.test(id)) {
+          const filename = id.split('/').pop()
+          return `export default '${filename}'`
+        }
+      },
+    },
     react(),
   ],
   server: {
@@ -34,5 +45,11 @@ export default defineConfig({
   },
   build: {
     outDir: 'build',
+  },
+  test: {
+    environment: 'happy-dom',
+    globals: true,
+    setupFiles: ['./src/setupTests.js'],
+    include: ['src/**/*.{test,spec}.{js,jsx}'],
   },
 })
