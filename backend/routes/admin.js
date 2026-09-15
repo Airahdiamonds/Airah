@@ -47,7 +47,7 @@ const __dirname = dirname(__filename)
 
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads/')),
-	filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
+	filename: (req, file, cb) => cb(null, Date.now() + '-' + path.basename(file.originalname)),
 })
 
 const upload = multer({
