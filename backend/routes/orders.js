@@ -4,8 +4,10 @@ import Razorpay from 'razorpay'
 import {
 	cancelOrder,
 	createOrderFromCart,
+	getOrderById,
 	getOrdersByUser,
 	recordPaymentIfNew,
+	setRazorpayOrderId,
 } from '../drizzle/features/orders.js'
 import { validateCoupon, incrementCouponUsage } from '../drizzle/features/master.js'
 import { optionalSession } from '../middleware/auth.js'
@@ -14,6 +16,7 @@ import { paymentLimiter, writeLimiter } from '../middleware/rateLimit.js'
 import { asyncHandler } from '../middleware/asyncHandler.js'
 import { resolveIdentity } from '../utils/identity.js'
 import {
+	cancelOrderSchema,
 	couponSchema,
 	createOrderSchema,
 	verifyPaymentSchema,
@@ -61,9 +64,14 @@ router.post(
 router.post(
 	'/api/cancelOrder',
 	optionalSession,
+	validate(cancelOrderSchema),
 	asyncHandler(async (req, res) => {
+		const { userId, guestId } = resolveIdentity(req, 'body')
+		if (!userId && !guestId) return res.status(401).json({ error: 'Not authenticated' })
+
 		const { orderId } = req.body
-		await cancelOrder(orderId)
+		const found = await cancelOrder({ orderId, userId, guestId })
+		if (!found) return res.status(404).json({ error: 'Order not found' })
 		res.json({ success: true })
 	})
 )
@@ -102,6 +110,8 @@ router.post(
 			receipt: `receipt_order_${order.order_id}`,
 		})
 
+		await setRazorpayOrderId(order.order_id, razorpayOrder.id)
+
 		res.json({ razorpayOrder, dbOrderId: order.order_id, totalPrice: total })
 	})
 )
@@ -131,9 +141,22 @@ router.post(
 			return res.status(400).json({ success: false, error: 'Invalid signature' })
 		}
 
+		// Verify that the payment belongs to the expected DB order before marking it paid.
+		const order = await getOrderById(dbOrderId)
+		if (!order) {
+			return res.status(404).json({ success: false, error: 'Order not found' })
+		}
+		if (order.razorpay_order_id !== razorpay_order_id) {
+			return res.status(400).json({ success: false, error: 'Payment does not match order' })
+		}
+
 		// Fetch the verified amount from Razorpay rather than trusting the client.
 		const rzpPayment = await razorpay.payments.fetch(razorpay_payment_id)
 		const amount = Math.round((rzpPayment?.amount ?? 0) / 100)
+
+		if (amount !== order.total_amount) {
+			return res.status(400).json({ success: false, error: 'Payment amount mismatch' })
+		}
 
 		const recorded = await recordPaymentIfNew({
 			orderId: dbOrderId,

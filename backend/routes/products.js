@@ -12,8 +12,9 @@ import {
 } from '../drizzle/features/styles.js'
 import { searchProducts } from '../drizzle/features/master.js'
 import { addReview, getProductReviews } from '../drizzle/features/reviews.js'
-import { optionalSession } from '../middleware/auth.js'
+import { optionalSession, requireSession } from '../middleware/auth.js'
 import { validate } from '../middleware/validate.js'
+import { writeLimiter } from '../middleware/rateLimit.js'
 import { asyncHandler } from '../middleware/asyncHandler.js'
 import { reviewSchema, searchQuerySchema } from '../schemas.js'
 
@@ -131,9 +132,11 @@ router.get(
 
 router.post(
 	'/api/submitReview',
+	requireSession,
+	writeLimiter,
 	validate(reviewSchema),
 	asyncHandler(async (req, res) => {
-		await addReview(req.body)
+		await addReview({ ...req.body, user_id: req.user.user_id })
 		res.json({ success: true })
 	})
 )

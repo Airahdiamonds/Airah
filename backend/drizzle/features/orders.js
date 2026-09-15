@@ -199,11 +199,35 @@ async function decrementStock(tx, item) {
 	}
 }
 
-export async function cancelOrder(orderId) {
-	await db
+export async function cancelOrder({ orderId, userId, guestId }) {
+	const conditions = [eq(ordersTable.order_id, orderId)]
+	if (userId) {
+		conditions.push(eq(ordersTable.user_id, userId))
+	} else if (guestId) {
+		conditions.push(eq(ordersTable.guest_id, guestId))
+	}
+	const updated = await db
 		.update(ordersTable)
 		.set({ status: 'cancelled' })
+		.where(and(...conditions))
+		.returning({ order_id: ordersTable.order_id })
+	return updated.length > 0
+}
+
+export async function getOrderById(orderId) {
+	const [order] = await db
+		.select()
+		.from(ordersTable)
 		.where(eq(ordersTable.order_id, orderId))
+		.limit(1)
+	return order ?? null
+}
+
+export async function setRazorpayOrderId(dbOrderId, razorpayOrderId) {
+	await db
+		.update(ordersTable)
+		.set({ razorpay_order_id: razorpayOrderId })
+		.where(eq(ordersTable.order_id, dbOrderId))
 }
 
 export async function updateStatus(orderId, status) {

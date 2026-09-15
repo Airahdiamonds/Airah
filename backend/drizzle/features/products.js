@@ -32,7 +32,7 @@ export async function getAllProducts(userId, subCategory) {
 			image_URL: productsTable.image_URL,
 		})
 		.from(productsTable)
-		.where(eq(productsTable.subCategory, subCategory))
+		.where(subCategory ? eq(productsTable.subCategory, subCategory) : undefined)
 		.leftJoin(reviewsTable, eq(productsTable.product_id, reviewsTable.product_id))
 		.groupBy(productsTable.product_id)
 

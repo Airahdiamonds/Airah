@@ -93,6 +93,11 @@ export const verifyPaymentSchema = z.object({
 	couponCode: z.string().trim().min(1).max(64).optional().nullable(),
 })
 
+export const cancelOrderSchema = z.object({
+	orderId: z.coerce.number().int().positive(),
+	guestId: guestIdOrNull,
+})
+
 export const couponSchema = z.object({
 	couponCode: z.string().trim().min(1).max(64),
 })

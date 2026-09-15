@@ -25,6 +25,7 @@ export const ordersTable = pgTable(
 			})
 			.default(null),
 		guest_id: varchar('guest_id', { length: 36 }).default(null),
+		razorpay_order_id: varchar('razorpay_order_id', { length: 120 }).default(null),
 		total_amount: integer().notNull(),
 		status: statusEnum().default('pending'),
 		created_at,
